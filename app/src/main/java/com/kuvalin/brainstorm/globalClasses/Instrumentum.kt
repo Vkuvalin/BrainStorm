@@ -4,11 +4,16 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -42,7 +47,6 @@ fun AssetImage(fileName: String, modifier: Modifier = Modifier) {
         modifier = modifier
     )
 }
-
 //endregion
 //region GetAssetBitMap
 @Composable
@@ -52,7 +56,6 @@ fun GetAssetBitmap(fileName: String): ImageBitmap {
     val assetManager: AssetManager = context.assets
     val inputStream = assetManager.open(
         findAssetFiles(context, fileName)[0]
-
     )
 
     return BitmapFactory.decodeStream(inputStream).asImageBitmap()
@@ -94,7 +97,27 @@ fun findAssetFiles(context: Context, fileName: String): List<String> {
 }
 //endregion
 
+//region Расширение Modifier для создания кликабельного элемента без волнового эффекта
+fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+    clickable(indication = null,
+        interactionSource = remember { MutableInteractionSource() }) {
+        onClick()
+    }
+}
+//endregion
+
+//region Убивает сраную пульсацию (НО, БЛЯТЬ, ТОЛЬКО НА ЭМУЛЯТОРЕ - ПРОВЕРЬ НА ДРУГИХ ТЕЛЕФОНАХ)
+object NoRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor() = Color.Unspecified
+
+    @Composable
+    override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f,0.0f,0.0f,0.0f)
+}
+//endregion
+
 // ######################################################
+
 
 
 
@@ -154,6 +177,17 @@ object NoRippleTheme : RippleTheme {
 //        }
 //    })
 //private val shopList = sortedSetOf<ShopItem>({ p0, p1 -> p0.id.compareTo(p1.id) })
+
+
+5. Удобная штучка
+    .then(
+        if (selected)
+            Modifier
+                .border(0.dp, Color.Transparent, shape = CircleShape)
+                .border(3.dp, Color.Red, shape = RectangleShape)
+        else
+            Modifier
+    )
 
 */
 
@@ -291,3 +325,6 @@ typealias ClickHandler = (Button, ClickEvent) -> Unit
 fun(s: String): Int { return s.toIntOrNull() ?: 0 }
 
 */
+
+
+

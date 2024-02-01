@@ -20,6 +20,11 @@ class NavigationState(
         }
     }
 
+    // Функция перехода в меню с главного экрана (точки)
+    fun navigateToMenu() {
+        navHostController.navigate(Screen.Menu.route)
+    }
+
 }
 
 @Composable

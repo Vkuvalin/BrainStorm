@@ -10,6 +10,8 @@ import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 fun AppNavGraph (
     navHostController: NavHostController,
     mainMenuScreenContent: @Composable () -> Unit,
+    menuScreenContent: @Composable () -> Unit,
+
     friendsScreenContent: @Composable () -> Unit,
     achievementsScreenContent: @Composable () -> Unit,
     statisticScreenContent: @Composable () -> Unit,
@@ -19,9 +21,10 @@ fun AppNavGraph (
         navController = navHostController,
         startDestination = Screen.Home.route
     ){
-        composable(Screen.Home.route) {
-            mainMenuScreenContent()
-        }
+        menuScreenNavGraph(
+            mainMenuScreenContent = mainMenuScreenContent,
+            menuScreenContent = menuScreenContent
+        )
         composable(Screen.Friends.route) {
             friendsScreenContent()
         }

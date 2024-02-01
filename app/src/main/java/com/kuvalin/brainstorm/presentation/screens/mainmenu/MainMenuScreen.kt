@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -44,18 +43,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.findAssetFiles
+import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 
 
 @Composable
@@ -213,30 +209,32 @@ fun MainMenuScreen(
 
             DrawingChart()
 
-            //region Кнопка
-            Button(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(25))
-                    .background(color = Color(0xFF00BAB9))
-                    .border(width = 1.dp, color = Color.White, shape = RoundedCornerShape(25)),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0F)
-                ),
-                onClick = { /*TODO*/ }
-            ) {
-                Text(
-                    text = "Challenge",
-                    fontSize = 25.sp,
-                    modifier = Modifier
-                        .padding(
-                            horizontal = 15.dp,
-                            vertical = 10.dp
-                        )
-                )
-            }
-            //endregion
-        }
+            //region Кнопка Challenge
+                            Button(
+                                onClick = {},
+                                modifier = Modifier
+                                    .noRippleClickable {  }
+                                    .clip(RoundedCornerShape(25))
+                                    .background(color = Color(0xFF00BAB9))
+                                    .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(25)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0F)
+                                )
+                            ) {
+                                Text(
+                                    text = "Challenge",
+                                    fontSize = 25.sp,
+                                    modifier = Modifier
+                                        .padding(
+                                            horizontal = 15.dp,
+                                            vertical = 10.dp
+                                        )
+                                )
+                            }
+                            //endregion
 
+
+        }
 
     }
 }
