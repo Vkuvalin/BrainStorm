@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.screens.menu
+package com.kuvalin.brainstorm.presentation.screens.mainmenu.menu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -171,6 +171,7 @@ private fun MenuText(
                 color = if (clickButtonState) Color(0xFFE6E6E6) else backgroundColor,
                 shape = RoundedCornerShape(14)
             )
+            .noRippleClickable { onPressButton() }
     ){
         Text(
             text = text,
@@ -179,7 +180,6 @@ private fun MenuText(
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .noRippleClickable { onPressButton() }
                 .padding(vertical = 10.dp)
         )
     }
@@ -195,7 +195,7 @@ fun AnnouncementContent(
 ){
 
     Dialog(
-        onDismissRequest = { /*TODO*/ },
+        onDismissRequest = { onClickDismiss() },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -244,7 +244,7 @@ fun SettingsContent(
     var vibrationState by remember { mutableStateOf(false) }
 
     Dialog(
-        onDismissRequest = { /*TODO*/ },
+        onDismissRequest = { onClickDismiss() },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

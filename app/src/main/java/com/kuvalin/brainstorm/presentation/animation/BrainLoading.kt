@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation
+package com.kuvalin.brainstorm.presentation.animation
 
 import android.graphics.Paint
 import androidx.compose.animation.core.RepeatMode
@@ -12,22 +12,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -37,17 +30,9 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun BrainLoading() {
-
-    var isBrainAnimationEnd by remember { mutableStateOf(true) }
-    var loadingHasStarted by remember { mutableStateOf(true) }
-    val scope = CoroutineScope(Dispatchers.Default)
 
     //region Brain animation
     //region RedPart
@@ -64,7 +49,7 @@ fun BrainLoading() {
         initialValue = 0f,
         targetValue = 0.3f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 200, delayMillis = 800),
+            animation = tween(durationMillis = 120, delayMillis = 480),
             repeatMode = RepeatMode.Reverse
         ), label = ""
     )
@@ -83,7 +68,7 @@ fun BrainLoading() {
         initialValue = 0f,
         targetValue = 0.3f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 250, delayMillis = 750),
+            animation = tween(durationMillis = 150, delayMillis = 450),
             repeatMode = RepeatMode.Reverse
         ), label = ""
     )
@@ -102,7 +87,7 @@ fun BrainLoading() {
         initialValue = 0f,
         targetValue = 0.2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 250, delayMillis = 750),
+            animation = tween(durationMillis = 150, delayMillis = 450),
             repeatMode = RepeatMode.Reverse
         ), label = ""
     )
@@ -121,7 +106,7 @@ fun BrainLoading() {
         initialValue = 0f,
         targetValue = 0.3f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 300, delayMillis = 700),
+            animation = tween(durationMillis = 180, delayMillis = 420),
             repeatMode = RepeatMode.Reverse
         ), label = ""
     )
@@ -140,7 +125,7 @@ fun BrainLoading() {
         initialValue = 0f,
         targetValue = 0.3f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 350, delayMillis = 650),
+            animation = tween(durationMillis = 210, delayMillis = 390),
             repeatMode = RepeatMode.Reverse
         ), label = ""
     )
@@ -159,7 +144,7 @@ fun BrainLoading() {
         initialValue = 0f,
         targetValue = 0.3f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 400, delayMillis = 600),
+            animation = tween(durationMillis = 240, delayMillis = 360),
             repeatMode = RepeatMode.Reverse
         ), label = ""
     )
@@ -206,25 +191,10 @@ fun BrainLoading() {
     ){
         Column(
             modifier = Modifier
-
-//            .fillMaxSize()
                 .size(150.dp)
                 .clip(RoundedCornerShape(10))
-                .background(color = Color(0xE6000000))
-                .border(width = 1.dp,color = Color(0xE6000000), shape = RoundedCornerShape(10))
-                .clickable(
-                    enabled = isBrainAnimationEnd,
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) {
-                    if (isBrainAnimationEnd) {
-                        scope.launch {
-                            isBrainAnimationEnd = !isBrainAnimationEnd // Для блокировки кнопки
-                            delay(500)
-                            loadingHasStarted = true
-                        }
-                    }
-                },
+                .background(color = Color(0xCC000000))
+                .border(width = 1.dp,color = Color(0xE6000000), shape = RoundedCornerShape(10)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -233,17 +203,17 @@ fun BrainLoading() {
             ) {
                 val correctionInCalculationsBrain = 7
 
-                YellowPart(sizeAnimationYellowPart, correctionInCalculationsBrain, infiniteSizeAnimationYellowPart)
-                RedPart(sizeAnimationRedPart, correctionInCalculationsBrain, infiniteSizeAnimationRedPart)
-                WhitePart(sizeAnimationWhitePart, correctionInCalculationsBrain, infiniteSizeAnimationWhitePart)
-                BeigePart(sizeAnimationBeigePart, correctionInCalculationsBrain, infiniteSizeAnimationBeigePart)
-                BluePart(sizeAnimationBluePart, correctionInCalculationsBrain, infiniteSizeAnimationBluePart)
-                OrangePart(sizeAnimationOrangePart, correctionInCalculationsBrain, infiniteSizeAnimationOrangePart)
+                YellowPartSmall(sizeAnimationYellowPart, correctionInCalculationsBrain, infiniteSizeAnimationYellowPart)
+                RedPartSmall(sizeAnimationRedPart, correctionInCalculationsBrain, infiniteSizeAnimationRedPart)
+                WhitePartSmall(sizeAnimationWhitePart, correctionInCalculationsBrain, infiniteSizeAnimationWhitePart)
+                BeigePartSmall(sizeAnimationBeigePart, correctionInCalculationsBrain, infiniteSizeAnimationBeigePart)
+                BluePartSmall(sizeAnimationBluePart, correctionInCalculationsBrain, infiniteSizeAnimationBluePart)
+                OrangePartSmall(sizeAnimationOrangePart, correctionInCalculationsBrain, infiniteSizeAnimationOrangePart)
 
-                Loading()
-                Dot1(infiniteAlphaAnimationDot1.toInt())
-                Dot2(infiniteAlphaAnimationDot2.toInt())
-                Dot3(infiniteAlphaAnimationDot3.toInt())
+                LoadingSmall()
+                Dot1Small(infiniteAlphaAnimationDot1.toInt())
+                Dot2Small(infiniteAlphaAnimationDot2.toInt())
+                Dot3Small(infiniteAlphaAnimationDot3.toInt())
             }
         }
     }
@@ -256,7 +226,7 @@ fun BrainLoading() {
 
 //region Loading()
 @Composable
-fun Loading() {
+fun LoadingSmall() {
 
     Canvas(
         modifier = Modifier
@@ -282,7 +252,7 @@ fun Loading() {
 }
 
 @Composable
-fun Dot1(alphaAnimation: Int) {
+fun Dot1Small(alphaAnimation: Int) {
 
     Canvas(
         modifier = Modifier
@@ -309,7 +279,7 @@ fun Dot1(alphaAnimation: Int) {
 }
 
 @Composable
-fun Dot2(alphaAnimation: Int) {
+fun Dot2Small(alphaAnimation: Int) {
 
     Canvas(
         modifier = Modifier
@@ -336,7 +306,7 @@ fun Dot2(alphaAnimation: Int) {
 }
 
 @Composable
-fun Dot3(alphaAnimation: Int) {
+fun Dot3Small(alphaAnimation: Int) {
 
     Canvas(
         modifier = Modifier
@@ -366,7 +336,7 @@ fun Dot3(alphaAnimation: Int) {
 // --------------------- BRAIN
 //region YellowPart
 @Composable
-fun YellowPart(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
+fun YellowPartSmall(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
     Canvas(
         modifier = Modifier
     ) {
@@ -398,7 +368,7 @@ fun YellowPart(animationScale: Float, correctionInCalculations: Int, animationSc
 //endregion
 //region RedPart
 @Composable
-fun RedPart(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
+fun RedPartSmall(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
     Canvas(
         modifier = Modifier
     ) {
@@ -431,7 +401,7 @@ fun RedPart(animationScale: Float, correctionInCalculations: Int, animationScale
 //endregion
 //region BeigePart
 @Composable
-fun BeigePart(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
+fun BeigePartSmall(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
     Canvas(
         modifier = Modifier
     ) {
@@ -460,7 +430,7 @@ fun BeigePart(animationScale: Float, correctionInCalculations: Int, animationSca
 //endregion
 //region BluePart
 @Composable
-fun BluePart(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
+fun BluePartSmall(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
     Canvas(
         modifier = Modifier
     ) {
@@ -492,7 +462,7 @@ fun BluePart(animationScale: Float, correctionInCalculations: Int, animationScal
 //endregion
 //region OrangePart
 @Composable
-fun OrangePart(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
+fun OrangePartSmall(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
     Canvas(
         modifier = Modifier
     ) {
@@ -520,7 +490,7 @@ fun OrangePart(animationScale: Float, correctionInCalculations: Int, animationSc
 //endregion
 //region WhitePart
 @Composable
-fun WhitePart(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
+fun WhitePartSmall(animationScale: Float, correctionInCalculations: Int, animationScale2: Float) {
     Canvas(
         modifier = Modifier
     ) {

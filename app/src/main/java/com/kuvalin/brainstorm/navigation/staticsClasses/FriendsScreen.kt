@@ -11,6 +11,6 @@ sealed class FriendsScreen(
 
         const val ROUTE_LIST_FRIENDS = "list_friends"
         const val ROUTE_MESSAGES = "messages"
-        const val ROUTE_REQUESTS = "home"
+        const val ROUTE_REQUESTS = "requests"
     }
 }

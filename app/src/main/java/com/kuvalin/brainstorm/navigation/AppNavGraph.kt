@@ -11,10 +11,12 @@ fun AppNavGraph (
     navHostController: NavHostController,
     mainMenuScreenContent: @Composable () -> Unit,
     menuScreenContent: @Composable () -> Unit,
+    profileScreenContent: @Composable () -> Unit,
 
     friendsScreenContent: @Composable () -> Unit,
     achievementsScreenContent: @Composable () -> Unit,
     statisticScreenContent: @Composable () -> Unit,
+
     gamesScreenContent: @Composable () -> Unit
 ) {
     NavHost(
@@ -23,7 +25,8 @@ fun AppNavGraph (
     ){
         menuScreenNavGraph(
             mainMenuScreenContent = mainMenuScreenContent,
-            menuScreenContent = menuScreenContent
+            menuScreenContent = menuScreenContent,
+            profileScreenContent = profileScreenContent
         )
         composable(Screen.Friends.route) {
             friendsScreenContent()

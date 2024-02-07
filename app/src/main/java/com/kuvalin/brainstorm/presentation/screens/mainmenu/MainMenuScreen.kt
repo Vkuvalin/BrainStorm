@@ -18,15 +18,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,16 +49,21 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
+import kotlin.random.Random
 
 
 @Composable
 fun MainMenuScreen(
+    navigationState: NavigationState,
     paddingValues: PaddingValues
 ) {
 
@@ -84,17 +92,37 @@ fun MainMenuScreen(
         ) {
 
             // Аватарка
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .background(color = Color.White)
-                    .border(width = 2.dp, color = Color.White, shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-//                Image(painter = painterResource(R.drawable.user), contentDescription = null)
-                AssetImage(fileName = "av_user.png")
+            Box(modifier = Modifier.noRippleClickable { navigationState.navigateToProfile() }){
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(color = Color.White)
+                        .border(width = 2.dp, color = Color.White, shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AssetImage(fileName = "av_user.png")
+                }
+                //region Pencil
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(RoundedCornerShape(10))
+                        .border(width = 0.5.dp, color = Color.LightGray, shape = RoundedCornerShape(10))
+                        .background(color = Color.White)
+                        .align(alignment = Alignment.BottomEnd)
+                    ,
+                    contentAlignment = Alignment.Center
+                ){
+                    AssetImage(
+                        fileName = "ic_avatar_pencil.png",
+                        modifier = Modifier
+                            .size(15.dp)
+                    )
+                }
+                //endregion
             }
+
 
             Spacer(
                 modifier = Modifier
@@ -181,57 +209,10 @@ fun MainMenuScreen(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            
 
-            //region Карточки статистики
-            Row(
-                modifier = Modifier
-                    .width(screenWidth)
-                    .offset(x = (35 / 2).dp),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                StatisticsCard(
-                    pathImage = "av_papa.png",
-                    cardName = "Grade",
-                    text = "Turtle"
-                )
-
-                StatisticsCard(
-                    pathImage = "av_user.png",
-                    cardName = "Rank",
-                    text = "924",
-                    text2 = "League Save" // League Up | League Drop
-                )
-
-            }
-            //endregion
-
+            StatisticsCards(screenWidth)
             DrawingChart()
-
-            //region Кнопка Challenge
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .noRippleClickable {  }
-                                    .clip(RoundedCornerShape(25))
-                                    .background(color = Color(0xFF00BAB9))
-                                    .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(25)),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0F)
-                                )
-                            ) {
-                                Text(
-                                    text = "Challenge",
-                                    fontSize = 25.sp,
-                                    modifier = Modifier
-                                        .padding(
-                                            horizontal = 15.dp,
-                                            vertical = 10.dp
-                                        )
-                                )
-                            }
-                            //endregion
+            ButtonChallenge()
 
 
         }
@@ -240,16 +221,73 @@ fun MainMenuScreen(
 }
 
 
+// Я зафаршмачил эту часть. Переделывать лень.
+//region StatisticsCards
+@Composable
+fun StatisticsCards(screenWidth: Dp) {
+    Row(
+        modifier = Modifier
+            .width(screenWidth)
+            .offset(x = (35 / 2).dp)
+        ,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        StatisticsCard(
+            type = "Grade",
+            cardName = "Grade",
+            text = "Turtle"
+        )
+
+        StatisticsCard(
+            type = "League",
+            cardName = "Rank",
+            text = "924",
+            text2 = "League Save" // League Up | League Drop
+        )
+
+    }
+}
+//endregion
 //region Карточка статистики
 @Composable
-private fun StatisticsCard(
-    pathImage: String,
+fun StatisticsCard(
+    type: String,
     cardName: String,
     text: String,
     text2: String = ""
 ) {
 
     val configuration = LocalConfiguration.current
+
+    val leagueList = mutableListOf(
+        mutableListOf("S", Color(0xFFE85B9D), false),
+        mutableListOf("A", Color(0xFFF28B01), true),
+        mutableListOf("B", Color(0xFFF3CB00), false),
+        mutableListOf("C", Color(0xFFBECF0D), false)
+    )
+
+    val gradeList = mutableListOf(
+        mutableListOf("level_1_mouse.png", false),
+        mutableListOf("level_2_snake.png", false),
+        mutableListOf("level_3_beaver.png", false),
+        mutableListOf("level_4_pig.png", false),
+        mutableListOf("level_5_cow.png", false),
+        mutableListOf("level_6_cat.png", false),
+        mutableListOf("level_7_fox.png", false),
+        mutableListOf("level_8_dog.png", false),
+        mutableListOf("level_9_giraffe.png", false),
+        mutableListOf("level_10_hippo.png", false),
+        mutableListOf("level_11_elephant.png", false),
+        mutableListOf("level_12_bear.png", true),
+        mutableListOf("level_13_eagle.png", false),
+        mutableListOf("level_14_lion.png", false)
+    )
+
+    var onClickGrade by remember { mutableStateOf(false) }
+    if (onClickGrade){
+        GradeDialog() { onClickGrade = false }
+    }
 
     Row(
         modifier = Modifier.width(configuration.screenWidthDp.dp / 2),
@@ -261,10 +299,49 @@ private fun StatisticsCard(
                 .clip(CircleShape)
                 .zIndex(2f)
                 .background(color = Color.White)
-                .border(width = 1.dp, color = Color.White, shape = CircleShape),
+                .border(width = 1.dp, color = Color.White, shape = CircleShape)
+                .noRippleClickable {
+                   if (type == "Grade"){
+                       onClickGrade = true
+                   }
+                },
             contentAlignment = Alignment.Center
         ) {
-            AssetImage(fileName = pathImage)
+            if (type == "Grade"){
+                gradeList.forEach {
+                    if (it[1] == true){
+                        AssetImage(fileName = it[0] as String, modifier = Modifier.padding(5.dp))
+                    }
+                }
+            }else{
+                leagueList.forEach {
+                    if (it[2] == true){
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(CircleShape)
+                                .background(color = it[1] as Color)
+                                .border(
+                                    width = 4.dp,
+                                    color = Color.White,
+                                    shape = CircleShape
+                                )
+                        ){
+                            Text(
+                                text = it[0] as String,
+                                fontSize = 24.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.W400,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                            )
+                        }
+                    }
+                }
+
+            }
         }
 
         Column(
@@ -303,7 +380,9 @@ private fun StatisticsCard(
                             fontWeight = FontWeight.W400,
                             letterSpacing= 0.1.sp,
                             textAlign = TextAlign.Start,
-                            modifier = Modifier.padding(start = (40).dp).offset(y = (-2).dp)
+                            modifier = Modifier
+                                .padding(start = (40).dp)
+                                .offset(y = (-2).dp)
                         )
                     } else {
                         LinearProgressIndicator(
@@ -355,13 +434,22 @@ fun DrawingChart() {
         Chin(modifier)
 
         Graph(
-            speed = (851 * 0.9).toInt(),
-            judgement = (803 * 0.9).toInt(),
-            calculation = (701 * 0.9).toInt(),
-            accuracy = (951 * 0.9).toInt(),
-            observation = (845 * 0.9).toInt(),
-            memory = (998 * 0.9).toInt()
+            speed = (Random.nextInt(100, 1000) * 0.9).toInt(),
+            judgement = (Random.nextInt(100, 1000) * 0.9).toInt(),
+            calculation = (Random.nextInt(100, 1000) * 0.9).toInt(),
+            accuracy = (Random.nextInt(100, 1000) * 0.9).toInt(),
+            observation = (Random.nextInt(100, 1000) * 0.9).toInt(),
+            memory = (Random.nextInt(100, 1000) * 0.9).toInt()
         )
+
+//        Graph(
+//            speed = (851 * 0.9).toInt(),
+//            judgement = (803 * 0.9).toInt(),
+//            calculation = (701 * 0.9).toInt(),
+//            accuracy = (951 * 0.9).toInt(),
+//            observation = (845 * 0.9).toInt(),
+//            memory = (998 * 0.9).toInt()
+//        )
 
 
     }
@@ -781,3 +869,133 @@ fun Chin(modifier: Modifier) {
 }
 //endregion
 // ###
+
+//region ButtonChallenge
+@Composable
+private fun ButtonChallenge() {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .clip(RoundedCornerShape(25))
+            .background(color = Color(0xFF00BAB9))
+            .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(25))
+            .noRippleClickable { },
+    ) {
+        Text(
+            text = "Challenge",
+            fontSize = 25.sp,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.W400,
+            modifier = Modifier
+                .padding(horizontal = 40.dp, vertical = 20.dp)
+        )
+    }
+}
+//endregion
+//region GradeDialog
+@Composable
+fun GradeDialog(
+    onClickDismiss: () -> Unit
+){
+
+    val gradeList = mutableListOf(
+        mutableListOf("level_1_mouse.png", false),
+        mutableListOf("level_2_snake.png", false),
+        mutableListOf("level_3_beaver.png", false),
+        mutableListOf("level_4_pig.png", false),
+        mutableListOf("level_5_cow.png", false),
+        mutableListOf("level_6_cat.png", false),
+        mutableListOf("level_7_fox.png", false),
+        mutableListOf("level_8_dog.png", false),
+        mutableListOf("level_9_giraffe.png", false),
+        mutableListOf("level_10_hippo.png", false),
+        mutableListOf("level_11_elephant.png", false),
+        mutableListOf("level_12_bear.png", true),
+        mutableListOf("level_13_eagle.png", false),
+        mutableListOf("level_14_lion.png", false)
+    )
+    var checker = false  // Можно оставить?
+
+
+    Dialog(
+        onDismissRequest = { onClickDismiss() },
+        content = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .background(color = Color(0xFFE6E6E6))
+            ) {
+
+                //region Крестик
+                AssetImage(
+                    fileName = "ic_cancel.png",
+                    modifier = Modifier
+                        .offset(x = (10).dp, y = (-10).dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(width = 2.dp, color = Color.White, shape = CircleShape)
+                        .background(color = Color.White)
+                        .align(alignment = Alignment.End)
+                        .noRippleClickable { onClickDismiss() }
+                )
+                //endregion
+                GradeListLabel()
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()){
+                    LazyVerticalGrid(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(color = Color(0xFFE6E6E6)),
+                        columns = GridCells.Adaptive(minSize = 60.dp)
+                    ) {
+                        items(gradeList.size) { position ->
+                            Box(
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .clip(CircleShape)
+                                    .zIndex(2f)
+                                    .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = CircleShape),
+                                contentAlignment = Alignment.Center
+                            ){
+
+                                if (!checker){
+                                    if (gradeList[position][1] == true){ checker = true }
+                                    AssetImage(fileName = gradeList[position][0] as String, modifier = Modifier.padding(5.dp))
+                                }else {
+                                    AssetImage(fileName = "ic_grade_question.png", modifier = Modifier.padding(5.dp))
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+
+            }
+        },
+    )
+}
+//endregion
+//region AchievementsItemLabel
+@Composable
+private fun GradeListLabel() {
+    Text(
+        text = "Grade List",
+        color = Color(0xFF00BBBA),
+        fontSize = 26.sp,
+        softWrap = false,
+        fontWeight = FontWeight.W400,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(Alignment.Top)
+            .offset(y = -(20).dp)
+    )
+}
+//endregion
+

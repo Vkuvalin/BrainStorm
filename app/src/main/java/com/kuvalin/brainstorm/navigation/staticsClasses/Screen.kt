@@ -10,6 +10,7 @@ sealed class Screen(
 
     object MainMenu : Screen(ROUTE_MAIN_MENU)
     object Menu : Screen(ROUTE_MENU)
+    object Profile : Screen(ROUTE_PROFILE)
 
     object Friends : Screen(ROUTE_FRIENDS)
     object Achievements : Screen(ROUTE_ACHIEVEMENTS)
@@ -23,6 +24,7 @@ sealed class Screen(
 
         const val ROUTE_MAIN_MENU = "main_menu"
         const val ROUTE_MENU = "menu"
+        const val ROUTE_PROFILE = "profile"
 
         const val ROUTE_FRIENDS = "friends"
         const val ROUTE_ACHIEVEMENTS = "achievements"

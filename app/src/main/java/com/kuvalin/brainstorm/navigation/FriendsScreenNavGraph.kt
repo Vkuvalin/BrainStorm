@@ -33,29 +33,3 @@ fun FriendsScreenNavGraph(
 }
 
 
-
-//region Если не понадобится
-//    listFriendsScreenContent: @Composable () -> Unit,
-//    messagesScreenContent: @Composable () -> Unit,
-//    requestsScreenContent: @Composable () -> Unit,
-
-//        friendsScreenNavGraph(
-//            listFriendsScreenContent = listFriendsScreenContent,
-//            messagesScreenContent = messagesScreenContent,
-//            requestsScreenContent = requestsScreenContent
-//        )
-
-
-//            listFriendsScreenContent = {
-//                Box(modifier = Modifier.fillMaxSize().background(color = Color.Red)) {}
-//            },
-//            messagesScreenContent = {
-//                Box(modifier = Modifier.fillMaxSize().background(color = Color.Blue)) {}
-//            },
-//            requestsScreenContent = {
-//                Box(modifier = Modifier.fillMaxSize().background(color = Color.Red)) {}
-//            },
-//endregion
-
-
-

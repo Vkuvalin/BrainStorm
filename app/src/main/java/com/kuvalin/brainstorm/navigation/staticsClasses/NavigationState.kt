@@ -25,6 +25,11 @@ class NavigationState(
         navHostController.navigate(Screen.Menu.route)
     }
 
+    // Функция перехода в профиль с главного экрана (аватарка)
+    fun navigateToProfile() {
+        navHostController.navigate(Screen.Profile.route)
+    }
+
 }
 
 @Composable

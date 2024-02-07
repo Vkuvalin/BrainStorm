@@ -8,8 +8,10 @@ import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 
 fun NavGraphBuilder.menuScreenNavGraph(
     menuScreenContent: @Composable () -> Unit,
-    mainMenuScreenContent: @Composable () -> Unit
+    mainMenuScreenContent: @Composable () -> Unit,
+    profileScreenContent: @Composable () -> Unit
 ) {
+
     navigation(
         startDestination = Screen.MainMenu.route,
         route = Screen.Home.route
@@ -20,6 +22,9 @@ fun NavGraphBuilder.menuScreenNavGraph(
         composable(Screen.Menu.route) {
             menuScreenContent()
         }
-
+        composable(Screen.Profile.route) {
+            profileScreenContent()
+        }
     }
+
 }

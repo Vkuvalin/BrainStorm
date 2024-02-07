@@ -25,6 +25,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,17 +48,23 @@ import com.kuvalin.brainstorm.navigation.NavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
-import com.kuvalin.brainstorm.presentation.BrainLoading
+import com.kuvalin.brainstorm.presentation.animation.BrainLoading
 import com.kuvalin.brainstorm.presentation.screens.achievements.AchievementsScreen
+import com.kuvalin.brainstorm.presentation.screens.friends.AddFriendsButtonContent
 import com.kuvalin.brainstorm.presentation.screens.friends.FriendsMainScreen
-import com.kuvalin.brainstorm.presentation.screens.menu.MenuScreen
+import com.kuvalin.brainstorm.presentation.screens.achievements.QuestionButton
+import com.kuvalin.brainstorm.presentation.screens.games.GameSettingsButton
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.menu.MenuScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.profile.ProfileScreenContent
 import com.kuvalin.brainstorm.presentation.screens.statistics.StatisticsMainScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onClickRefreshButton: () -> Unit
+) {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     val navigationState = rememberNavigationState()
@@ -76,6 +85,7 @@ fun MainScreen() {
     val separatorColor = Color.Gray
     val separatorWidth = 1
 
+
     /* ########################################################################################## */
     Scaffold(
         topBar = {
@@ -92,7 +102,12 @@ fun MainScreen() {
                         .background(color = Color(0xFF373737)),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    TopAppBarContent(navigationState)
+                    TopAppBarContent(
+                        navigationState = navigationState,
+                        onClickRefreshButton = {
+                            onClickRefreshButton()
+                        }
+                    )
                 }
                 //endregion
                 //region TopAppBar 2
@@ -223,13 +238,21 @@ fun MainScreen() {
         //region AppNavGraph
         AppNavGraph(
             navHostController = navigationState.navHostController,
-            mainMenuScreenContent = { MainMenuScreen(paddingValues) },
+            mainMenuScreenContent = { MainMenuScreen(navigationState, paddingValues) },
             menuScreenContent = { MenuScreen() },
+            profileScreenContent = { ProfileScreenContent(paddingValues) },
 
             friendsScreenContent = { FriendsMainScreen(paddingValues) },
             achievementsScreenContent = { AchievementsScreen(paddingValues) },
             statisticScreenContent = { StatisticsMainScreen(paddingValues) },
-            gamesScreenContent = { BrainLoading() }
+            gamesScreenContent = {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color(0xFFE6E6E6))
+                ){
+                    BrainLoading()
+                }
+            }
         )
         //endregion
 
@@ -239,8 +262,12 @@ fun MainScreen() {
 
 
 //region TopAppBarContent
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-private fun TopAppBarContent(navigationState: NavigationState) {
+private fun TopAppBarContent(
+    navigationState: NavigationState,
+    onClickRefreshButton: () -> Unit
+) {
 
     // Получаем доступ к текущему файлу NavDestination, чтобы узнать, на каком мы экране.
     val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
@@ -252,6 +279,27 @@ private fun TopAppBarContent(navigationState: NavigationState) {
     var screenName = ""
     val listFilesNames = mutableListOf<String>()
     val listModifierButtons = mutableListOf<Modifier>()
+
+    var clickOnShareState by remember { mutableStateOf(false) }
+    if (clickOnShareState){
+        ShareContent(){ clickOnShareState = false }
+    }
+
+    var clickOnAddFriendsButton by remember { mutableStateOf(false) }
+    if (clickOnAddFriendsButton){
+        AddFriendsButtonContent(){ clickOnAddFriendsButton = false }
+    }
+
+    var clickOnAddQuestionButton by remember { mutableStateOf(false) }
+    if (clickOnAddQuestionButton){
+        QuestionButton(){ clickOnAddQuestionButton = false }
+    }
+
+    var clickOnGameSettingsButton by remember { mutableStateOf(false) }
+    if (clickOnGameSettingsButton){
+        GameSettingsButton(){ clickOnGameSettingsButton = false }
+    }
+
 
     //region Кнопки и их логика
     when (selected) {
@@ -272,28 +320,34 @@ private fun TopAppBarContent(navigationState: NavigationState) {
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        /* TODO - тут для каждой иконки нужно будет задать свою логику */
+                        clickOnShareState = true
                     }
             )
+        }
+        "menu" -> {
+            screenName = "Menu"
+        }
+        "profile" -> {
+            screenName = "Profile"
         }
         "friends" -> {
             screenName = "Friends"
 
             listFilesNames.add("tab_refresh.png")
+            listModifierButtons.add(
+                Modifier
+                    .size(40.dp)
+                    .noRippleClickable {
+                        onClickRefreshButton()
+                    }
+            )
+
             listFilesNames.add("tab_add_friends.png")
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        /* TODO - тут для каждой иконки нужно будет задать свою логику */
-                    }
-            )
-
-            listModifierButtons.add(
-                Modifier
-                    .size(40.dp)
-                    .noRippleClickable {
-                        /* TODO - тут для каждой иконки нужно будет задать свою логику */
+                        clickOnAddFriendsButton = true
                     }
             )
         }
@@ -305,7 +359,7 @@ private fun TopAppBarContent(navigationState: NavigationState) {
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        /* TODO - тут для каждой иконки нужно будет задать свою логику */
+                        clickOnAddQuestionButton = true
                     }
             )
 
@@ -313,12 +367,12 @@ private fun TopAppBarContent(navigationState: NavigationState) {
         "statistics" -> {
             screenName = "Statistics"
 
-            listFilesNames.add("tab_zz.png")
+            listFilesNames.add("tab_refresh_stats.png")
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        /* TODO - тут для каждой иконки нужно будет задать свою логику */
+                        onClickRefreshButton()
                     }
             )
 
@@ -330,8 +384,8 @@ private fun TopAppBarContent(navigationState: NavigationState) {
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
-                    .clickable {
-                        /* TODO - тут для каждой иконки нужно будет задать свою логику */
+                    .noRippleClickable {
+                        clickOnGameSettingsButton = true
                     }
             )
         }
@@ -385,11 +439,12 @@ private fun TopAppBarContent(navigationState: NavigationState) {
         listFilesNames.forEachIndexed { index, fileName ->
             if (index > 0 && index != listFilesNames.size) { Spacer(modifier = Modifier.width(5.dp)) }
 
-            if (fileName == "tab_zz.png"){  // Почему-то, сука, в виде иконци уменьшается до невозможного
+            if (fileName == "tab_refresh_stats.png"){  // Почему-то, сука, в виде иконци уменьшается до невозможного
                 Image(
-                    bitmap = GetAssetBitmap(fileName = "tab_zz.png"),
+                    bitmap = GetAssetBitmap(fileName = "tab_refresh_stats.png"),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(Color.White)
+                    colorFilter = ColorFilter.tint(Color.White),
+                    modifier = listModifierButtons[index]
                 )
             }else {
                 Icon(
@@ -405,4 +460,7 @@ private fun TopAppBarContent(navigationState: NavigationState) {
 
 }
 //endregion
+
+
+
 

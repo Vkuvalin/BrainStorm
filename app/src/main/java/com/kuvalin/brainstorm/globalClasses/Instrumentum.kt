@@ -61,6 +61,9 @@ fun GetAssetBitmap(fileName: String): ImageBitmap {
     return BitmapFactory.decodeStream(inputStream).asImageBitmap()
 }
 //endregion
+
+
+// Сделать в базе архивчик, в который складывать пути к известным файлам
 //region Find Asset Files (если будет находить несколько файлов с одинаковым именем, будет выдавать все пути)
 fun findAssetFiles(context: Context, fileName: String): List<String> {
     val resultPaths = mutableListOf<String>()
@@ -96,6 +99,7 @@ fun findAssetFiles(context: Context, fileName: String): List<String> {
     return resultPaths
 }
 //endregion
+
 
 //region Расширение Modifier для создания кликабельного элемента без волнового эффекта
 fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {

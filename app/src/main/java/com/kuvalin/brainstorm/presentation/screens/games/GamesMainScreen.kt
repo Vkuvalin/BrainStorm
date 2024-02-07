@@ -1,6 +1,5 @@
-package com.kuvalin.brainstorm.presentation.screens.friends
+package com.kuvalin.brainstorm.presentation.screens.games
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -32,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,25 +40,24 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.navigation.FriendsNavigationItem
-import com.kuvalin.brainstorm.navigation.FriendsScreenNavGraph
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun FriendsMainScreen(
+fun GamesMainScreen(
     paddingValuesParent: PaddingValues
-) {
+){
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    val configuration = LocalConfiguration.current
+
+    val screenWidth = configuration.screenWidthDp
+    val dynamicFontSize = (screenWidth/25)
+
     val navigationState = rememberNavigationState()
-
-
-    // TopAppBar
-    val appbarHeight = 50
-
     /* ########################################################################################## */
+
 
     Scaffold(
         modifier = Modifier
@@ -69,15 +67,13 @@ fun FriendsMainScreen(
         topBar = {
 
             Column(
-                modifier = Modifier
-                ,
+                modifier = Modifier,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 BottomAppBar(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(appbarHeight.dp)
                 ) {
 
                     val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
@@ -122,31 +118,8 @@ fun FriendsMainScreen(
                                     )
                                 }
                             }
-                            ,
-                            colors = NavigationBarItemDefaults
-                                .colors(
-                                    indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                        LocalAbsoluteTonalElevation.current
-                                    )
-                                )
                         )
 
-                        if (index < items.size - 1) {
-                            Column (
-                                modifier = Modifier.zIndex(1f)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .offset(y = (-2.5).dp)
-                                        .fillMaxHeight()
-                                        .width(8.dp)
-                                        .background(Color(0xFFE6E6E6))
-                                        .border((3.5).dp, color = Color(0xFF00BBBA))
-                                        .requiredHeight(50.dp)
-
-                                )
-                            }
-                        }
 
                     }
                 }
@@ -157,21 +130,46 @@ fun FriendsMainScreen(
 
     ) { paddingValues ->
 
-        FriendsScreenNavGraph(
-            navHostController = navigationState.navHostController,
-            listFriendsScreenContent = {
-                FriendsContent(paddingValues)
-            },
-            messagesScreenContent = { Box(modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xFFE6E6E6))) {} },
-            requestsScreenContent = { Box(modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xFFE6E6E6))) {} }
-        )
-
+        Text(paddingValues.toString())
     }
+
 
 }
 
 
+
+
+
+
+
+
+//@Composable
+//fun GamesMainScreen(
+//    paddingValuesParent: PaddingValues
+//){
+//
+//    val configuration = LocalConfiguration.current
+//
+//    val screenWidth = configuration.screenWidthDp
+//    val dynamicFontSize = (screenWidth/25)
+//
+//
+//    Box(modifier = Modifier.fillMaxSize()){
+//        LazyVerticalGrid(
+//            horizontalArrangement = Arrangement.spacedBy(8.dp),
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(top = paddingValuesParent.calculateTopPadding())
+//                .background(color = Color(0xFFE6E6E6)),
+//            columns = GridCells.Fixed(3) // .Adaptive(minSize = 100.dp)
+//        ) {
+////            items(achievementsList.size) { position ->
+////
+////
+////            }
+//        }
+//    }
+//
+//
+//}
