@@ -27,11 +27,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 
 @Composable
 fun FriendsContent(
     paddingValues: PaddingValues
 ){
+
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
 
     //Button
     val configuration = LocalConfiguration.current
@@ -42,8 +45,10 @@ fun FriendsContent(
         AddFriendsButtonContent(){ onClickButtonState = false }
     }
 
-    // ListFriend
+    // ListFriend (Будет прилетать из базы)
     var listFriends = mutableListOf("Ваня", "Дима", "Катя", "Лиза")
+
+    /* ########################################################################################## */
 
 
     Column(
@@ -53,9 +58,10 @@ fun FriendsContent(
             .background(color = Color(0xFFE6E6E6))
     ) {
 
-        if (listFriends.size == 0){
-            // pass
+        if (listFriends.size == 0){ // Очевидно тут ошибка
+            //pass
         }else {
+            //region Кнопка добавления
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -68,10 +74,10 @@ fun FriendsContent(
                     modifier = Modifier
                         .width(dynamicRowWidth.dp)
                         .clip(RoundedCornerShape(14))
-                        .background(color = Color(0xFFFE5FA6))
+                        .background(color = PinkAppColor)
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFFE5FA6),
+                            color = PinkAppColor,
                             shape = RoundedCornerShape(14)
                         )
                         .noRippleClickable { onClickButtonState = true }
@@ -79,7 +85,7 @@ fun FriendsContent(
                     Text(
                         text = "Add Friends",
                         fontSize = 24.sp,
-                        color = Color(0xFFE6E6E6),
+                        color = Color.White,
                         fontWeight = FontWeight.W400,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -87,6 +93,7 @@ fun FriendsContent(
                     )
                 }
             }
+            //endregion
         }
 
 

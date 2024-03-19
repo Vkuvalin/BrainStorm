@@ -7,13 +7,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 
-// Бля, потом разобрать, хули тут написано. Это просто паттерн, но нужно его понять раз, чтобы потом легко воспроизводить.
 class NavigationState(
     val navHostController: NavHostController
 ){
 
+
     fun navigateTo(route: String) {
-        navHostController.navigate(route) {
+        navHostController.navigate(route)
+        {
             popUpTo(navHostController.graph.findStartDestination().id) {saveState = true}
             launchSingleTop = true
             restoreState = true
@@ -34,7 +35,7 @@ class NavigationState(
 
 @Composable
 fun rememberNavigationState(
-    navHostController: NavHostController = rememberNavController()
+    navHostController: NavHostController = rememberNavController(),
 ): NavigationState {
     return remember {
         NavigationState(navHostController)

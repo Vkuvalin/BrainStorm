@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
 import com.kuvalin.brainstorm.ui.theme.checkedIconColor
 import com.kuvalin.brainstorm.ui.theme.checkedThumbColor
@@ -54,15 +58,18 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedBorderColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedIconColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedThumbColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuScreen(){
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
     //Buttons
     val dynamicRowWidth = (screenWidth/1.5).toInt()
-
 
     //region Modifiers
     val modifierForCloseButton = Modifier
@@ -80,7 +87,6 @@ fun MenuScreen(){
         .background(color = Color.White)
     //endregion
 
-
     var announcementButtonState by remember { mutableStateOf(false) }
     var settingsButtonState by remember { mutableStateOf(false) }
     var informationButtonState by remember { mutableStateOf(false) }
@@ -90,6 +96,7 @@ fun MenuScreen(){
     var clickButtonState by remember { mutableStateOf(false) }
     clickButtonState = announcementButtonState || settingsButtonState || informationButtonState || contactsButtonState
 
+    //region Кнопки
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -142,12 +149,14 @@ fun MenuScreen(){
             }
         }
 
-        if (announcementButtonState) { AnnouncementContent(modifierForCloseButton) { announcementButtonState = false} }
-        if (settingsButtonState) { SettingsContent(modifierForCloseButton2) { settingsButtonState = false } }
-        if (announcementButtonState) { AnnouncementContent(modifierForCloseButton) { announcementButtonState = false} }
-        if (announcementButtonState) { AnnouncementContent(modifierForCloseButton) { announcementButtonState = false} }
+        if (announcementButtonState) { AnnouncementContent(modifierForCloseButton
+        ) { announcementButtonState = false} }
+        if (settingsButtonState) { SettingsContent(
+            modifierForCloseButton2
+        ) { settingsButtonState = false } }
 
     }
+    //endregion
 }
 
 //region MenuText
@@ -160,6 +169,10 @@ private fun MenuText(
     onPressButton: () -> Unit
 ) {
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
@@ -171,7 +184,12 @@ private fun MenuText(
                 color = if (clickButtonState) Color(0xFFE6E6E6) else backgroundColor,
                 shape = RoundedCornerShape(14)
             )
-            .noRippleClickable { onPressButton() }
+            .noRippleClickable {
+                scope.launch {
+                    MusicPlayer(context).playChoiceClick()
+                }
+                onPressButton()
+            }
     ){
         Text(
             text = text,
@@ -194,8 +212,17 @@ fun AnnouncementContent(
     onClickDismiss: () -> Unit
 ){
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            scope.launch {
+                MusicPlayer(context).playChoiceClick()
+            }
+            onClickDismiss()
+        },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -208,6 +235,9 @@ fun AnnouncementContent(
                         modifier = customModifier
                             .align(alignment = Alignment.End)
                             .noRippleClickable {
+                                scope.launch {
+                                    MusicPlayer(context).playChoiceClick()
+                                }
                                 onClickDismiss()
                             }
                     )
@@ -220,7 +250,7 @@ fun AnnouncementContent(
                             .clip(RoundedCornerShape(5))
                             .border(
                                 width = 0.01.dp,
-                                color = Color(0xFF00BBBA),
+                                color = CyanAppColor,
                                 shape = RoundedCornerShape(5)
                             )
                     )
@@ -236,6 +266,10 @@ fun SettingsContent(
     onClickDismiss: () -> Unit
 ) {
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenWidthDp
 
@@ -244,7 +278,12 @@ fun SettingsContent(
     var vibrationState by remember { mutableStateOf(false) }
 
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            scope.launch {
+                MusicPlayer(context).playChoiceClick()
+            }
+            onClickDismiss()
+        },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -258,7 +297,12 @@ fun SettingsContent(
                     fileName = "ic_cancel.png",
                     modifier = customModifier
                         .align(alignment = Alignment.End)
-                        .noRippleClickable { onClickDismiss() }
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context).playChoiceClick()
+                            }
+                            onClickDismiss()
+                        }
                 )
 
                 LabelText("Settings")
@@ -352,7 +396,7 @@ private fun SwitchButton(
 private fun LabelText(text: String) {
     Text(
         text = text,
-        color = Color(0xFF00BBBA),
+        color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
         fontWeight = FontWeight.W400,

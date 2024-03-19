@@ -3,38 +3,29 @@ package com.kuvalin.brainstorm.navigation.staticsClasses
 sealed class GamesScreen(
     val route: String
 ) {
-    object Operations : Screen(ROUTE_OPERATIONS)
-    object FlickMaster : Screen(ROUTE_FLICK_MASTER)
-    object Simplicity : Screen(ROUTE_SIMPLICITY)
-    object ReverseRPS : Screen(ROUTE_REVERSE_RPS)
-    object TouchTheNumber : Screen(ROUTE_TOUCH_THE_NUMBER)
-    object FollowTheLeader : Screen(ROUTE_FOLLOW_THE_LEADER)
-    object AdditionAddiction : Screen(ROUTE_ADDITION_ADDICTION)
-    object Matching : Screen(ROUTE_MATCHING)
-    object ColorOfDeception : Screen(ROUTE_COLOR_OF_DECEPTION)
-    object Concentration : Screen(ROUTE_CONCENTRATION)
-    object HighOrLow : Screen(ROUTE_HIGH_OR_LOW)
-    object BirdWatching : Screen(ROUTE_BIRD_WATCHING)
-    object AdditionLink : Screen(ROUTE_ADDITION_LINK)
-    object Reflection : Screen(ROUTE_REFLECTION)
-    object UnfollowTheLeader : Screen(ROUTE_UNFOLLOW_THE_LEADER)
+    object GameInitial : GamesScreen(ROUTE_GAME_INITIAL)
+    object FlickMaster : GamesScreen(ROUTE_FLICK_MASTER)
+    object AdditionAddiction : GamesScreen(ROUTE_ADDITION_ADDICTION)
+    object Reflection : GamesScreen(ROUTE_REFLECTION)
+
+    object PathToSafety : GamesScreen(ROUTE_PATH_TO_SAFETY)
+    object RapidSorting : GamesScreen(ROUTE_RAPID_SORTING)
+    object Make10 : GamesScreen(ROUTE_MAKE_10)
+    object BreakTheBlock : GamesScreen(ROUTE_BREAK_THE_BLOCK)
+    object HexaChain : GamesScreen(ROUTE_HEXA_CHAIN)
+    object ColorSwitch : GamesScreen(ROUTE_COLOR_SWITCH)
 
     companion object {
-
-        const val ROUTE_OPERATIONS = "game_operations"
+        const val ROUTE_GAME_INITIAL = "game_initial"
         const val ROUTE_FLICK_MASTER = "game_flick_master"
-        const val ROUTE_SIMPLICITY = "game_simplicity"
-        const val ROUTE_REVERSE_RPS = "game_reverse_rps"
-        const val ROUTE_TOUCH_THE_NUMBER = "game_touch_the_number"
-        const val ROUTE_FOLLOW_THE_LEADER = "game_follow_the_leader"
-        const val ROUTE_ADDITION_ADDICTION = "game_addition_addiction "
-        const val ROUTE_MATCHING = "game_matching"
-        const val ROUTE_COLOR_OF_DECEPTION = "game_color_of_deception"
-        const val ROUTE_CONCENTRATION = "game_concentration"
-        const val ROUTE_HIGH_OR_LOW = "game_high_or_low"
-        const val ROUTE_BIRD_WATCHING = "game_bird_watching"
-        const val ROUTE_ADDITION_LINK = "game_addition_link"
+        const val ROUTE_ADDITION_ADDICTION = "game_addition_addiction"
         const val ROUTE_REFLECTION = "game_reflection"
-        const val ROUTE_UNFOLLOW_THE_LEADER = "game_unfollow_the_leader"
+
+        const val ROUTE_PATH_TO_SAFETY = "game_path_to_safety"
+        const val ROUTE_RAPID_SORTING = "game_rapid_sorting"
+        const val ROUTE_MAKE_10 = "game_make_10"
+        const val ROUTE_BREAK_THE_BLOCK = "game_break_the_block"
+        const val ROUTE_HEXA_CHAIN = "game_hexa_chain"
+        const val ROUTE_COLOR_SWITCH = "game_color_switch"
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,16 +37,35 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.ShareCompany
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun AddFriendsButtonContent(
     onClickDismiss: () -> Unit
 ){
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
 
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            scope.launch {
+                MusicPlayer(context = context).run {
+                    playChoiceClick()
+                    delay(3000)
+                    release()
+                }
+            }
+            onClickDismiss()
+        },
         content = {
 
             Column(
@@ -63,7 +83,16 @@ fun AddFriendsButtonContent(
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
-                        .noRippleClickable { onClickDismiss() }
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
                 )
                 //endregion
 
@@ -110,7 +139,7 @@ fun AddFriendsButtonContent(
 private fun AddFriendsButtonLabel() {
     Text(
         text = "Add Friends",
-        color = Color(0xFF00BBBA),
+        color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
         fontWeight = FontWeight.W400,

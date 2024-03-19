@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,20 +35,42 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ShareContent(
     onClickDismiss: () -> Unit
 ) {
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val musicScope = CoroutineScope(Dispatchers.Default)
+
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            musicScope.launch {
+                MusicPlayer(context = context).run {
+                    playChoiceClick()
+                    delay(3000)
+                    release()
+                }
+            }
+            onClickDismiss()
+        },
         content = {
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .background(color = Color(0xFFE6E6E6))
+                    .background(color = BackgroundAppColor)
             ) {
 
                 //region Крестик
@@ -60,7 +83,16 @@ fun ShareContent(
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
-                        .noRippleClickable { onClickDismiss() }
+                        .noRippleClickable {
+                            musicScope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
                 )
                 //endregion
                 ShareLabel()
@@ -88,7 +120,7 @@ fun ShareContent(
                         modifier = Modifier
                             .height(80.dp)
                             .fillMaxWidth()
-                            .background(color = Color(0xFF00BAB9))
+                            .background(color = CyanAppColor)
                             .wrapContentHeight()
                             .padding(horizontal = 24.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.Start,
@@ -133,9 +165,9 @@ fun ShareContent(
                             .offset(x = (35 / 2).dp)
                         ){
                             ShareStatisticsCard(
-                                pathImage = "av_papa.png",
+                                pathImage = "level_12_bear.png",
                                 cardName = "Grade",
-                                text = "Turtle"
+                                text = "Bear"
                             )
                         }
 
@@ -180,7 +212,7 @@ fun ShareContent(
 private fun ShareLabel() {
     Text(
         text = "Share",
-        color = Color(0xFF00BBBA),
+        color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
         fontWeight = FontWeight.W400,
@@ -259,8 +291,8 @@ fun ShareStatisticsCard(
                     } else {
                         LinearProgressIndicator(
                             progress = 0.7f,
-                            color = Color(0xFF01BBBA),
-                            trackColor = Color(0xFF373737),
+                            color = CyanAppColor,
+                            trackColor = LinearTrackColor,
                             modifier = Modifier
                                 .padding(end = 5.dp)
                                 .height(10.dp)

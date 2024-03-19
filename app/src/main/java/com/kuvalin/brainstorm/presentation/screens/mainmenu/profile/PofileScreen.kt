@@ -35,11 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,8 +48,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
-import com.kuvalin.brainstorm.globalClasses.toPx
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.menu.AnnouncementContent
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
 import com.kuvalin.brainstorm.ui.theme.checkedIconColor
 import com.kuvalin.brainstorm.ui.theme.checkedThumbColor
@@ -109,7 +106,7 @@ fun ProfileScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
-                .background(color = Color(0xFF00BAB9)),
+                .background(color = CyanAppColor),
             contentAlignment = Alignment.Center
         ) {
             //region Avatar
@@ -160,7 +157,7 @@ fun ProfileScreenContent(
                     Image(
                         bitmap = GetAssetBitmap(fileName = "ic_profile_camera.png"),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(Color(0xFFFE5FA6)),
+                        colorFilter = ColorFilter.tint(PinkAppColor),
                         modifier = Modifier
                             .size(20.dp)
                     )
@@ -321,10 +318,10 @@ private fun SaveButton(
         modifier = Modifier
             .width(150.dp)
             .clip(RoundedCornerShape(14))
-            .background(color = Color(0xFF00BAB9))
+            .background(color = CyanAppColor)
             .border(
                 width = 1.dp,
-                color = Color(0xFF00BAB9),
+                color = CyanAppColor,
                 shape = RoundedCornerShape(14)
             )
             .noRippleClickable { onPressButton() }
@@ -332,7 +329,7 @@ private fun SaveButton(
         Text(
             text = "Save",
             fontSize = 24.sp,
-            color = Color(0xFFE6E6E6),
+            color = Color.White,
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
             modifier = Modifier

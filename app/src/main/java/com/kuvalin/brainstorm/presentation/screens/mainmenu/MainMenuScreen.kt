@@ -57,7 +57,21 @@ import androidx.compose.ui.zIndex
 import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
+import com.kuvalin.brainstorm.ui.theme.CrosshairColor
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.GameLevelAColor
+import com.kuvalin.brainstorm.ui.theme.GameLevelBColor
+import com.kuvalin.brainstorm.ui.theme.GameLevelCColor
+import com.kuvalin.brainstorm.ui.theme.GameLevelSColor
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
@@ -67,15 +81,18 @@ fun MainMenuScreen(
     paddingValues: PaddingValues
 ) {
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val musicScope = CoroutineScope(Dispatchers.Default)
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
 
-
     Column(
         modifier = Modifier
             .padding(top = paddingValues.calculateTopPadding())
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
             .fillMaxSize()
     ) {
 
@@ -84,7 +101,7 @@ fun MainMenuScreen(
             modifier = Modifier
                 .height(80.dp)
                 .fillMaxWidth()
-                .background(color = Color(0xFF00BAB9)) // TODO вынести цвета в отдельный файл (ну а вообще-то я потом всё ещё 1000 раз буду причесывать)
+                .background(color = CyanAppColor)
                 .wrapContentHeight()
                 .padding(horizontal = 24.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -92,7 +109,16 @@ fun MainMenuScreen(
         ) {
 
             // Аватарка
-            Box(modifier = Modifier.noRippleClickable { navigationState.navigateToProfile() }){
+            Box(modifier = Modifier.noRippleClickable {
+                navigationState.navigateToProfile()
+                musicScope.launch {
+                    MusicPlayer(context = context).run {
+                        playChangeNavigation()
+                        delay(3000)
+                        release()
+                    }
+                }
+            }){
                 Box(
                     modifier = Modifier
                         .size(60.dp)
@@ -201,7 +227,6 @@ fun MainMenuScreen(
         }
 //endregion
 
-
         Column(
             modifier = Modifier
                 .height(screenHeight)
@@ -213,7 +238,6 @@ fun MainMenuScreen(
             StatisticsCards(screenWidth)
             DrawingChart()
             ButtonChallenge()
-
 
         }
 
@@ -236,7 +260,7 @@ fun StatisticsCards(screenWidth: Dp) {
         StatisticsCard(
             type = "Grade",
             cardName = "Grade",
-            text = "Turtle"
+            text = "Bear"
         )
 
         StatisticsCard(
@@ -258,16 +282,19 @@ fun StatisticsCard(
     text2: String = ""
 ) {
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
     val configuration = LocalConfiguration.current
 
     val leagueList = mutableListOf(
-        mutableListOf("S", Color(0xFFE85B9D), false),
-        mutableListOf("A", Color(0xFFF28B01), true),
-        mutableListOf("B", Color(0xFFF3CB00), false),
-        mutableListOf("C", Color(0xFFBECF0D), false)
+        mutableListOf("S", GameLevelSColor, false),
+        mutableListOf("A", GameLevelAColor, true),
+        mutableListOf("B", GameLevelBColor, false),
+        mutableListOf("C", GameLevelCColor, false)
     )
 
-    val gradeList = mutableListOf(
+    val gradeList = mutableListOf( // TODO перевести в базу, а затем добавить в ShareStatistics.kt
         mutableListOf("level_1_mouse.png", false),
         mutableListOf("level_2_snake.png", false),
         mutableListOf("level_3_beaver.png", false),
@@ -285,9 +312,7 @@ fun StatisticsCard(
     )
 
     var onClickGrade by remember { mutableStateOf(false) }
-    if (onClickGrade){
-        GradeDialog() { onClickGrade = false }
-    }
+    if (onClickGrade){ GradeDialog(MusicPlayer(context = context)) { onClickGrade = false } }
 
     Row(
         modifier = Modifier.width(configuration.screenWidthDp.dp / 2),
@@ -301,9 +326,12 @@ fun StatisticsCard(
                 .background(color = Color.White)
                 .border(width = 1.dp, color = Color.White, shape = CircleShape)
                 .noRippleClickable {
-                   if (type == "Grade"){
-                       onClickGrade = true
-                   }
+                    if (type == "Grade"){
+                        scope.launch {
+                            MusicPlayer(context).playChoiceClick()
+                        }
+                        onClickGrade = true
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -387,8 +415,8 @@ fun StatisticsCard(
                     } else {
                         LinearProgressIndicator(
                             progress = 0.7f,
-                            color = Color(0xFF01BBBA),
-                            trackColor = Color(0xFF373737),
+                            color = CyanAppColor,
+                            trackColor = LinearTrackColor,
                             modifier = Modifier
                                 .padding(end = 5.dp)
                                 .height(10.dp)
@@ -533,7 +561,7 @@ fun Crosshair(modifier: Modifier) {
                 lineTo(center.x - (degreeConstant * length).dp.toPx(), center.y - length.dp.toPx())
 
             },
-            color = Color(0xFF00C5C0),
+            color = CrosshairColor,
             style = Stroke(width = 1.dp.toPx()),
         )
     }
@@ -586,7 +614,7 @@ fun Graph(
                 lineTo(center.x, center.y - calculateLevel(speed, policy = true).dp.toPx()) // Speed
 
             },
-            color = Color(0xFF05A5A3),
+            color = CrosshairColor,
             style = Fill,
             alpha = 0.5f
         )
@@ -625,22 +653,6 @@ fun SkillName(text: String, x: Float = 0f, y: Float = 0f) {
         val firstPositionX = center.x + x.dp.toPx()
         val firstPositionY = center.y + y.dp.toPx()
 
-        //region Старый вариант
-//        val paint = Paint().apply {
-//            textAlign = Paint.Align.CENTER
-//            textSize = 12.sp.toPx()
-//            color = Color(0xFF959DCE).toArgb()
-//        }
-//
-//
-//        drawContext.canvas.nativeCanvas.drawText(
-//            "$text",
-//            firstPositionX,
-//            firstPositionY,
-//            paint
-//        )
-        //endregion
-
         val textLayoutResult = textMeasurer.measure(
             text = text,
             style = TextStyle(
@@ -675,22 +687,6 @@ fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f) {
     ) {
         val firstPositionX = center.x
         val firstPositionY = center.y + y.dp.toPx()
-
-        //region Старый вариант
-//        val paint = Paint().apply {
-//            textAlign = Paint.Align.CENTER
-//            textSize = 12.sp.toPx()
-//            color = Color(0xFF959DCE).toArgb()
-//        }
-//
-//
-//        drawContext.canvas.nativeCanvas.drawText(
-//            "$text",
-//            firstPositionX,
-//            firstPositionY,
-//            paint
-//        )
-        //endregion
 
         val textLayoutResult = textMeasurer.measure(
             text = text,
@@ -877,7 +873,7 @@ private fun ButtonChallenge() {
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .clip(RoundedCornerShape(25))
-            .background(color = Color(0xFF00BAB9))
+            .background(color = CyanAppColor)
             .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(25))
             .noRippleClickable { },
     ) {
@@ -896,8 +892,10 @@ private fun ButtonChallenge() {
 //region GradeDialog
 @Composable
 fun GradeDialog(
+    mediaPlayer: MusicPlayer,
     onClickDismiss: () -> Unit
 ){
+    val musicScope = CoroutineScope(Dispatchers.Default)
 
     val gradeList = mutableListOf(
         mutableListOf("level_1_mouse.png", false),
@@ -919,7 +917,16 @@ fun GradeDialog(
 
 
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            musicScope.launch {
+                mediaPlayer.run {
+                    playChoiceClick()
+                    delay(3000)
+                    release()
+                }
+            }
+            onClickDismiss()
+        },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -938,7 +945,16 @@ fun GradeDialog(
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
-                        .noRippleClickable { onClickDismiss() }
+                        .noRippleClickable {
+                            musicScope.launch {
+                                mediaPlayer.run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
                 )
                 //endregion
                 GradeListLabel()
@@ -950,6 +966,7 @@ fun GradeDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(5.dp)
                             .background(color = Color(0xFFE6E6E6)),
                         columns = GridCells.Adaptive(minSize = 60.dp)
                     ) {
@@ -986,7 +1003,7 @@ fun GradeDialog(
 private fun GradeListLabel() {
     Text(
         text = "Grade List",
-        color = Color(0xFF00BBBA),
+        color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
         fontWeight = FontWeight.W400,

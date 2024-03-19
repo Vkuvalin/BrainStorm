@@ -24,7 +24,21 @@ val WhiteAppBackground = Color(0xFFF9F9F9)
 
 
 
+// App Colors
+val BackgroundAppColor = Color(0xFFE6E6E6)
+val CyanAppColor = Color(0xFF00BBBA)
+val PinkAppColor = Color(0xFFEB6FA6)
+val LinearTrackColor = Color(0xFF373737)
 
 
-//val Purple1 = Color(0xFF391B8F)
-//val Alpha0 = Color(0xFFFFFF)
+
+// Game Level
+val GameLevelSColor = Color(0xFFE85B9D)
+val GameLevelAColor = Color(0xFFF28B01)
+val GameLevelBColor = Color(0xFFF3CB00)
+val GameLevelCColor = Color(0xFFBECF0D)
+
+
+
+//Crosshair
+val CrosshairColor = Color(0xFF00C5C0)

@@ -46,16 +46,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kuvalin.brainstorm.ui.theme.WhiteAppBackground
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.ui.theme.Beige
 import com.kuvalin.brainstorm.ui.theme.Blue
 import com.kuvalin.brainstorm.ui.theme.Orange
 import com.kuvalin.brainstorm.ui.theme.Red
 import com.kuvalin.brainstorm.ui.theme.White
+import com.kuvalin.brainstorm.ui.theme.WhiteAppBackground
 import com.kuvalin.brainstorm.ui.theme.Yellow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -256,6 +259,9 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
     var isBrainAnimationEnd by remember { mutableStateOf(false) }
     var loadingHasStarted by remember { mutableStateOf(false) }
     val scope = CoroutineScope(Dispatchers.Default)
+    val context = LocalContext.current
+    val musicScope = CoroutineScope(Dispatchers.Default)
+
 
     //region Brain animation
     //region RedPart
@@ -529,6 +535,13 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
             ) {
                 if (isBrainAnimationEnd) {
                     scope.launch {
+                        musicScope.launch {
+                            MusicPlayer(context = context).run {
+                                playChoiceClick()
+                                delay(3000)
+                                release()
+                            }
+                        }
                         isBrainAnimationEnd = !isBrainAnimationEnd // Для блокировки кнопки
                         delay(500)
                         loadingHasStarted = !loadingHasStarted

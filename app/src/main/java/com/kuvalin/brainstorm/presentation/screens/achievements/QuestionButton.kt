@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,21 +28,39 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun QuestionButton(
     onClickDismiss: () -> Unit
 ){
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
 
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            scope.launch {
+                MusicPlayer(context = context).run {
+                    playChoiceClick()
+                    delay(3000)
+                    release()
+                }
+            }
+            onClickDismiss()
+        },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xE6E6E6E6))
+                    .background(color = Color(0xFFE6E6E6))
             ) {
                 //region Крестик
                 AssetImage(
@@ -53,7 +72,16 @@ fun QuestionButton(
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
-                        .noRippleClickable { onClickDismiss() }
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
                 )
                 //endregion
 

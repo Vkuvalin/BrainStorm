@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -40,39 +41,43 @@ import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AchievementsScreen(
     paddingParent: PaddingValues
 ) {
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     val configuration = LocalConfiguration.current
-
     val screenWidth = configuration.screenWidthDp
     val dynamicFontSize = (screenWidth/25)
 
-    // Можно сделать в 2 массива фото-подпись
+    // Вот эта срань позде переедет в базу
     val achievementsList = mutableListOf(
         mutableListOf("ic_3000 points.png", "3000 баллов", "Наберите более 3000 баллов за одну игру."),
         mutableListOf("ic_knowledge_base.png", "База знаний", "Достигните более 950 очков навыка 'память'."),
         mutableListOf("ic_accuracy.png", "Не промахнусь", "Достигните более 950 очков навыка 'точность'."),
-        mutableListOf("ic_thinking.png", "Дофига логичный", "Достигните более 950 очков навыка 'суждение'."),
+        mutableListOf("ic_thinking.png", "Сама логика", "Достигните более 950 очков навыка 'суждение'."),
         mutableListOf("ic_calculate.png", "Калькулятор", "Достигните более 950 очков навыка 'вычисление'."),
-        mutableListOf("ic_deft.png", "Недооценивай", "5 раз вырвите победу в последней игре."),
+        mutableListOf("ic_deft.png", "Не уйдешь", "5 раз вырвите победу в последней игре."),
         mutableListOf("ic_invincible.png", "Непобедимый", "Выиграйте 10 игр подряд."),
-        mutableListOf("ic_observation.png", "Никто не скроется", "Достигните более 950 очков навыка 'наблюдательность'."),
+        mutableListOf("ic_observation.png", "Не скроешься", "Достигните более 950 очков навыка 'наблюдательность'."),
         mutableListOf("ic_conqueror.png", "Покоритель", "Доберитесь до S лиги."),
         mutableListOf("ic_speed.png", "Флеш не ровня", "Достигните более 950 очков навыка 'скорость'."),
         mutableListOf("ic_top_1.png", "Топ 1", "Займите 1-е место в лиге.")
     )
     val achievementsActiveState = mutableListOf(
-        true, false,
-        false, false,
-        true, false,
-        true, false,
-        false, true,
-        false
+        true, false, false, false, true, false, true, false, false, true, false
     )
+    /* ########################################################################################## */
+
 
     Box(modifier = Modifier.fillMaxSize()){
         LazyVerticalGrid(
@@ -85,15 +90,14 @@ fun AchievementsScreen(
             columns = GridCells.Fixed(2) // .Adaptive(minSize = 100.dp)
         ) {
             items(achievementsList.size) { position ->
-
                 AchievementsItem(achievementsList, position, dynamicFontSize, achievementsActiveState)
-
             }
         }
     }
 
 }
 
+//region AchievementsItem
 @Composable
 private fun AchievementsItem(
     achievementsList: MutableList<MutableList<String>>,
@@ -102,6 +106,8 @@ private fun AchievementsItem(
     activeStateList: List<Boolean>
 ) {
 
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
     var clickOnAchievementState by remember { mutableStateOf(false) }
 
     if (clickOnAchievementState){
@@ -119,7 +125,10 @@ private fun AchievementsItem(
             .clip(RoundedCornerShape(20))
             .background(color = Color(0xFFE6E6E6))
             .padding(25.dp)
-            .noRippleClickable { clickOnAchievementState = true },
+            .noRippleClickable {
+                scope.launch { MusicPlayer(context).playChoiceClick() }
+                clickOnAchievementState = true
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
@@ -133,15 +142,14 @@ private fun AchievementsItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = achievementsList[position][1],
-            color = Color(0xFF00ACAB),
+            color = CyanAppColor,
             fontWeight = FontWeight.W500,
             fontSize = dynamicFontSize.sp,
             modifier = Modifier.alpha(if(isActive) 0.5f else 1f)
         )
     }
 }
-
-
+//endregion
 //region AchievementsItemContent
 @Composable
 fun AchievementsItemContent(
@@ -151,18 +159,31 @@ fun AchievementsItemContent(
     onClickDismiss: () -> Unit
 ) {
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenWidthDp
 
 
     Dialog(
-        onDismissRequest = { onClickDismiss() },
+        onDismissRequest = {
+            scope.launch {
+                MusicPlayer(context = context).run {
+                    playChoiceClick()
+                    delay(3000)
+                    release()
+                }
+            }
+            onClickDismiss()
+        },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xE6E6E6E6))
+                    .background(color = Color(0xFFE6E6E6))
                     .height(screenHeight.dp),
             ) {
 
@@ -176,7 +197,16 @@ fun AchievementsItemContent(
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
-                        .noRippleClickable { onClickDismiss() }
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
                 )
                 //endregion
                 AchievementsItemLabel(achievementsName)
@@ -205,13 +235,12 @@ fun AchievementsItemContent(
     )
 }
 //endregion
-
 //region AchievementsItemLabel
 @Composable
 private fun AchievementsItemLabel(text: String) {
     Text(
         text = text,
-        color = Color(0xFF00BBBA),
+        color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
         fontWeight = FontWeight.W400,
@@ -223,3 +252,8 @@ private fun AchievementsItemLabel(text: String) {
     )
 }
 //endregion
+
+
+
+
+
