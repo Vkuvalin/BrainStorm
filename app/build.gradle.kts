@@ -4,6 +4,8 @@ plugins {
     id ("kotlin-parcelize")
     id ("kotlin-kapt")
     id("com.google.devtools.ksp")
+
+    id("com.google.gms.google-services") // Для FireBase
 }
 
 android {
@@ -107,6 +109,11 @@ dependencies {
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
     //endregion
 
+    //region FireBase
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    //endregion
 
     implementation("androidx.core:core-ktx:1.10.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

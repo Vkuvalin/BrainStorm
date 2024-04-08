@@ -1,5 +1,7 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.menu
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,19 +33,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
+import com.kuvalin.brainstorm.globalClasses.signInFirebase
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.ShareCompany
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
 import com.kuvalin.brainstorm.ui.theme.checkedIconColor
 import com.kuvalin.brainstorm.ui.theme.checkedThumbColor
@@ -60,6 +72,7 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedThumbColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -91,10 +104,12 @@ fun MenuScreen(){
     var settingsButtonState by remember { mutableStateOf(false) }
     var informationButtonState by remember { mutableStateOf(false) }
     var contactsButtonState by remember { mutableStateOf(false) }
+    var registrationButtonState by remember { mutableStateOf(false) }
 
 
     var clickButtonState by remember { mutableStateOf(false) }
-    clickButtonState = announcementButtonState || settingsButtonState || informationButtonState || contactsButtonState
+    clickButtonState = announcementButtonState || settingsButtonState || informationButtonState
+            || contactsButtonState || registrationButtonState
 
     //region Кнопки
     Box(
@@ -147,13 +162,27 @@ fun MenuScreen(){
 //                contactsButtonState = true
                 settingsButtonState = true
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            MenuText(
+                clickButtonState = clickButtonState,
+                text = "Registration",
+                backgroundColor = Color(0xFF009688),
+                width = dynamicRowWidth
+            ) {
+                registrationButtonState = true
+            }
         }
 
-        if (announcementButtonState) { AnnouncementContent(modifierForCloseButton
-        ) { announcementButtonState = false} }
-        if (settingsButtonState) { SettingsContent(
-            modifierForCloseButton2
-        ) { settingsButtonState = false } }
+        if (announcementButtonState) {
+            AnnouncementContent(modifierForCloseButton) { announcementButtonState = false}
+        }
+        if (settingsButtonState) {
+            SettingsContent(modifierForCloseButton2) { settingsButtonState = false }
+        }
+        if (registrationButtonState) {
+            RegistrationContent() { registrationButtonState = false }
+        }
 
     }
     //endregion
@@ -194,7 +223,7 @@ private fun MenuText(
         Text(
             text = text,
             fontSize = 24.sp,
-            color = if (clickButtonState) Color(0xFFFFFFFF) else Color(0xFFE6E6E6),
+            color = Color(0xFFFFFFFF),
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -391,6 +420,250 @@ private fun SwitchButton(
 
 //endregion
 
+//region RegistrationContent
+@Composable
+fun RegistrationContent(
+    onClickDismiss: () -> Unit
+){
+    // Для проигрывания звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
+
+    // Authorization -> Firebase
+    val auth = Firebase.auth
+    var userEmail by remember { mutableStateOf("") }
+    var userPassword by remember { mutableStateOf("") }
+    var authState by remember { mutableStateOf(false) } // TODO Затем добавить в GlobalStates
+
+
+    Dialog(
+        onDismissRequest = {
+            scope.launch {
+                MusicPlayer(context = context).run {
+                    playChoiceClick()
+                    delay(3000)
+                    release()
+                }
+            }
+            onClickDismiss()
+        },
+        content = {
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .background(color = Color(0xE6E6E6E6))
+            ) {
+                //region Крестик
+                AssetImage(
+                    fileName = "ic_cancel.png",
+                    modifier = Modifier
+                        .offset(x = (10).dp, y = (-10).dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(width = 2.dp, color = Color.White, shape = CircleShape)
+                        .background(color = Color.White)
+                        .align(alignment = Alignment.End)
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
+                )
+                //endregion
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 50.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    LabelText("Registration")
+                    Text(
+                        text = "Зарегистрируйтесь для синхронизации с другими устройствами",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.offset(y = (-10).dp)
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)
+                    ) {
+
+                        // Проверяем авторизован ли уже пользователь
+                        if (auth.currentUser != null){ // TODO Почему-то двойная рекомпозиция
+                            authState = true
+                        }
+
+                        // Если не авторизован, то убираем инпуты
+                        if (!authState) {
+                            CustomTextFieldFiendsScreen(placeholder = "Enter your email"){email ->
+                                userEmail = email
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            CustomTextFieldFiendsScreen(placeholder = "Enter your password"){pass ->
+                                userPassword = pass
+                            }
+                        }
+
+
+                        Spacer(modifier = Modifier.height(20.dp))
+                        RegistrationButton(authState){
+
+
+                            if (!authState) {
+
+                                // Пользователь не авторизован
+                                scope.launch {
+                                    authState = signInFirebase(userEmail, userPassword)
+
+                                    if (!authState){
+                                        Log.d("AUTH", "REGISTRATION")
+                                        auth.createUserWithEmailAndPassword(
+                                            userEmail,
+                                            userPassword
+                                        )
+                                            .addOnSuccessListener {
+                                                // TODO Подумать, что после выводить
+                                                Log.d("AUTH", "REGISTRATION SUCCESS")
+
+                                                scope.launch {
+                                                    authState = signInFirebase(userEmail, userPassword)
+                                                }
+                                                // При успехе я должен делать запись данных во внутреннюю базу данных,
+                                                // Чтобы дальше брать инфу и логиниться при загрузке прилы.
+                                                // Не уверен, что это гуд по безопаске, но первая мысль.
+                                            }
+                                            .addOnFailureListener{
+                                                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                                            }
+                                    }else{
+                                        Log.d("AUTH", "$authState")
+                                        Log.d("AUTH", "SING IN")
+                                    }
+
+                                }
+
+                            }else{
+
+                                Log.d("AUTH", "SING OUT")
+                                auth.signOut()
+                                authState = false
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                    )
+                }
+            }
+
+        },
+    )
+}
+
+
+
+
+//region CustomTextField
+@Composable
+private fun CustomTextFieldFiendsScreen(
+    placeholder: String,
+    inputText: (String) -> Unit
+) {
+    var value by remember { mutableStateOf("") }
+    var isFocused by remember { mutableStateOf(false) }
+
+    BasicTextField(
+        value = value,
+        onValueChange = { newText ->
+            inputText(newText)
+            value = newText
+            isFocused = true
+        },
+        textStyle = TextStyle(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+        ),
+        modifier = Modifier
+            .onFocusChanged {
+                isFocused = it.isFocused
+            },
+        decorationBox = { innerTextField ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(size = 10.dp))
+                    .background(color = Color.White)
+                    .border(
+                        width = 2.dp,
+                        color = Color(0xFFAAE9E6),
+                        shape = RoundedCornerShape(size = 10.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp), // inner padding
+            ) {
+                if (value.isEmpty() && !isFocused) {
+                    Text(
+                        text = placeholder,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.LightGray
+                    )
+                }
+                innerTextField()
+            }
+        }
+    )
+}
+//endregion
+//region RegistrationButton
+@Composable
+private fun RegistrationButton(
+    authState: Boolean,
+    onPressButton: () -> Unit
+) {
+
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+
+            .clip(RoundedCornerShape(14))
+            .background(color = if(!authState) CyanAppColor else PinkAppColor)
+            .border(
+                width = 1.dp,
+                color = CyanAppColor,
+                shape = RoundedCornerShape(14)
+            )
+            .noRippleClickable { onPressButton() }
+    ){
+        Text(
+            text = if (!authState) "Войти" else "Выйти",
+            fontSize = 24.sp,
+            color = Color.White,
+            fontWeight = FontWeight.W400,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(10.dp)
+        )
+    }
+
+}
+//endregion
+
+//endregion
+
+
 //region LabelText
 @Composable
 private fun LabelText(text: String) {
@@ -404,6 +677,7 @@ private fun LabelText(text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(Alignment.Top)
+            .offset(y = -(20).dp)
     )
 }
 //endregion

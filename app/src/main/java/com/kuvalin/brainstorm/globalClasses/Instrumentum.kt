@@ -20,11 +20,17 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
 import okio.IOException
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 // ###################### АКТИВНЫЕ ######################
@@ -206,6 +212,7 @@ fun playSound(mMediaPlayer: MediaPlayer, scope: CoroutineScope): Boolean {
 
 // ###################### Анимация нажатия
 //region Расширение Modifier для создания кликабельного элемента без волнового эффекта
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
 fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
     clickable(indication = null,
         interactionSource = remember { MutableInteractionSource() }) {
@@ -224,6 +231,22 @@ object NoRippleTheme : RippleTheme {
 //endregion
 // ######################
 
+// ###################### Авторизация Firebase
+@SuppressLint("CoroutineCreationDuringComposition")
+suspend fun signInFirebase(email: String, pass: String): Boolean {
+
+    return suspendCoroutine { continuation ->
+        val auth = Firebase.auth
+        auth.signInWithEmailAndPassword(email, pass)
+            .addOnSuccessListener {
+                continuation.resume(true)
+            }
+            .addOnFailureListener {
+                continuation.resume(false)
+            }
+    }
+}
+// ######################
 
 // ######################################################
 

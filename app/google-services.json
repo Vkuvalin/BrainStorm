@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "404505135923",
+    "project_id": "brain-storm-ed0a8",
+    "storage_bucket": "brain-storm-ed0a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404505135923:android:9845c6df20f0f50f2a4c46",
+        "android_client_info": {
+          "package_name": "com.kuvalin.brainstorm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb1dNb_eh6HoOT4-Slk130ratb0L9voAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -81,6 +81,7 @@ fun MainMenuScreen(
     paddingValues: PaddingValues
 ) {
 
+
     // Для проигрывания звуков
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
