@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -233,7 +234,7 @@ object NoRippleTheme : RippleTheme {
 
 // ###################### Авторизация Firebase
 @SuppressLint("CoroutineCreationDuringComposition")
-suspend fun signInFirebase(email: String, pass: String): Boolean {
+suspend fun signInFirebase(context: Context, email: String, pass: String): Boolean {
 
     return suspendCoroutine { continuation ->
         val auth = Firebase.auth
@@ -242,6 +243,7 @@ suspend fun signInFirebase(email: String, pass: String): Boolean {
                 continuation.resume(true)
             }
             .addOnFailureListener {
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
                 continuation.resume(false)
             }
     }

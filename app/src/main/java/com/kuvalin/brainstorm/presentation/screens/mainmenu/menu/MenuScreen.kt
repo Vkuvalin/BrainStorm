@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
@@ -53,6 +56,7 @@ import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.globalClasses.signInFirebase
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.ShareCompany
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
 import com.kuvalin.brainstorm.ui.theme.checkedIconColor
@@ -80,6 +84,15 @@ fun MenuScreen(){
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+
+    // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
+
+    val db = Firebase.firestore
+
+    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+
 
     //Buttons
     val dynamicRowWidth = (screenWidth/1.5).toInt()
@@ -223,7 +236,7 @@ private fun MenuText(
         Text(
             text = text,
             fontSize = 24.sp,
-            color = Color(0xFFFFFFFF),
+            color = if (clickButtonState) Color(0xFFE6E6E6) else Color(0xFFFFFFFF),
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -419,7 +432,6 @@ private fun SwitchButton(
 
 
 //endregion
-
 //region RegistrationContent
 @Composable
 fun RegistrationContent(
@@ -434,7 +446,15 @@ fun RegistrationContent(
     val auth = Firebase.auth
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
-    var authState by remember { mutableStateOf(false) } // TODO Затем добавить в GlobalStates
+
+    // DataStore -> Firebase
+    val db = Firebase.firestore
+
+    // TODO Затем добавить в GlobalStates (чтобы подхватывать в других местах)
+    var authState by remember { mutableStateOf(false) }
+
+
+    // TODO Сделать поле ввода пароля секретным/скрытным
 
 
     Dialog(
@@ -481,16 +501,18 @@ fun RegistrationContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 50.dp),
+                        .padding(horizontal = 30.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
                     LabelText("Registration")
-                    Text(
-                        text = "Зарегистрируйтесь для синхронизации с другими устройствами",
+                    Text( // TODO заменить текст на имя или что-то прикольное
+                        text = if (!authState) "Зарегистрируйтесь для синхронизации с другими устройствами"
+                        else "Вы авторизованы",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.offset(y = (-10).dp)
                     )
+
                     Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -505,6 +527,7 @@ fun RegistrationContent(
                         }
 
                         // Если не авторизован, то убираем инпуты
+                        //region CustomTextFieldFiendsScreen - Поля ввода
                         if (!authState) {
                             CustomTextFieldFiendsScreen(placeholder = "Enter your email"){email ->
                                 userEmail = email
@@ -514,53 +537,147 @@ fun RegistrationContent(
                                 userPassword = pass
                             }
                         }
-
+                        //endregion
 
                         Spacer(modifier = Modifier.height(20.dp))
-                        RegistrationButton(authState){
+
+                        Row( // TODO не забыть сделать динамичный размер для элементов
+                            horizontalArrangement = if(!authState) Arrangement.SpaceBetween else Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            if (!authState){
+                                //region RegistrationButton
+                                RegistrationButton(){
+                                    Log.d("AUTH", "REGISTRATION")
+                                    auth.createUserWithEmailAndPassword(
+                                        userEmail,
+                                        userPassword
+                                    )
+                                        .addOnSuccessListener {
+                                            // TODO Подумать, что после выводить
+                                            Log.d("AUTH", "REGISTRATION SUCCESS")
+
+                                            scope.launch {
+                                                authState = signInFirebase(context, userEmail, userPassword)
 
 
-                            if (!authState) {
-
-                                // Пользователь не авторизован
-                                scope.launch {
-                                    authState = signInFirebase(userEmail, userPassword)
-
-                                    if (!authState){
-                                        Log.d("AUTH", "REGISTRATION")
-                                        auth.createUserWithEmailAndPassword(
-                                            userEmail,
-                                            userPassword
-                                        )
-                                            .addOnSuccessListener {
-                                                // TODO Подумать, что после выводить
-                                                Log.d("AUTH", "REGISTRATION SUCCESS")
-
-                                                scope.launch {
-                                                    authState = signInFirebase(userEmail, userPassword)
-                                                }
                                                 // При успехе я должен делать запись данных во внутреннюю базу данных,
                                                 // Чтобы дальше брать инфу и логиниться при загрузке прилы.
                                                 // Не уверен, что это гуд по безопаске, но первая мысль.
+
+                                                // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
+                                                val user = hashMapOf(
+                                                    "first" to "Vlad3",
+                                                    "last" to "Kuvalin3",
+                                                    "born" to 1996,
+                                                    "email" to userEmail,
+                                                    "pass" to userPassword,
+                                                    "language" to "Russia"
+                                                )
+
+                                                val appCurrency = hashMapOf(
+                                                    "life" to 3,
+                                                    "coins" to 250
+                                                )
+
+//                                            db.collection("users") // Дальше бы мне пришлось чередовать .document и .collection
+//                                                .add(user)
+//                                                .addOnSuccessListener { documentReference ->
+//                                                    Log.d("DATABASE", "DocumentSnapshot added with ID: ${documentReference.id}")
+//                                                }
+//                                                .addOnFailureListener { e ->
+//                                                    Log.w("DATABASE", "Error adding document", e)
+//                                                }
+
+                                                // auth.uid -> т.к. в rules я указал именно такие настройки
+                                                db.document("users/${auth.uid}/user_data/personal_data/")
+                                                    .set(user)
+                                                    .addOnSuccessListener { documentReference ->
+                                                        Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        Log.w("DATABASE", "Error adding document", e)
+                                                    }
+
+                                                db.document("users/${auth.uid}/user_data/app_currency")
+                                                    .set(appCurrency)
+                                                    .addOnSuccessListener { documentReference ->
+                                                        Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        Log.w("DATABASE", "Error adding document", e)
+                                                    }
+                                                // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                                             }
-                                            .addOnFailureListener{
-                                                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
-                                            }
-                                    }else{
-                                        Log.d("AUTH", "$authState")
+
+
+                                        }
+                                        .addOnFailureListener{
+                                            Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                                        }
+                                }
+                                //endregion
+                                //region ForgotPassButton
+                                ForgotPassButton(){
+                                    if (userEmail != ""){
+                                        auth.sendPasswordResetEmail(userEmail)
+                                        Toast.makeText(
+                                            context,
+                                            "На указанную почту была отправлена ссылка для смены пароля",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Пожалуйста, заполните поле Email",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                                //endregion
+                            }
+
+                            //region LogInLogOutButton
+                            LogInLogOutButton(authState){
+                                if (!authState) {
+                                    scope.launch {
+                                        authState = signInFirebase(context, userEmail, userPassword)
                                         Log.d("AUTH", "SING IN")
+
+//                                        db.collection("users")
+//                                            .get()
+//                                            .addOnSuccessListener {result ->
+//                                                for (document in result){
+//                                                    Log.d("DATABASE", "${document.id} => ${document.data}")
+//                                                    Log.d("DATABASE", "${document.data["email"]}")
+//                                                }
+//
+//                                            }
+
+                                        db.document("users/${auth.uid}/user_data/app_currency/")
+                                            .addSnapshotListener { value, error ->
+                                                Log.d("DATABASE", "${value?.data?.get("coins")}")
+                                            }
+//                                            .addOnSuccessListener {result ->
+//                                                for (document in result){
+//                                                    Log.d("DATABASE", "${document.id} => ${document.data}")
+//                                                    Log.d("DATABASE", "${document.data["email"]}")
+//                                                }
+//
+//                                            }
                                     }
 
+                                }else{
+                                    Log.d("AUTH", "SING OUT")
+                                    auth.signOut()
+                                    authState = false
                                 }
-
-                            }else{
-
-                                Log.d("AUTH", "SING OUT")
-                                auth.signOut()
-                                authState = false
                             }
+                            //endregion
                         }
                     }
+
                     Spacer(modifier = Modifier
                         .fillMaxWidth()
                         .height(10.dp)
@@ -592,7 +709,7 @@ private fun CustomTextFieldFiendsScreen(
             isFocused = true
         },
         textStyle = TextStyle(
-            fontSize = 20.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = Color.DarkGray
         ),
@@ -616,7 +733,7 @@ private fun CustomTextFieldFiendsScreen(
                 if (value.isEmpty() && !isFocused) {
                     Text(
                         text = placeholder,
-                        fontSize = 18.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         color = Color.LightGray
                     )
@@ -629,7 +746,37 @@ private fun CustomTextFieldFiendsScreen(
 //endregion
 //region RegistrationButton
 @Composable
-private fun RegistrationButton(
+private fun RegistrationButton(onPressButton: () -> Unit) {
+
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+
+            .clip(RoundedCornerShape(14))
+            .background(color = PinkAppColor)
+            .border(
+                width = 1.dp,
+                color = PinkAppColor,
+                shape = RoundedCornerShape(14)
+            )
+            .noRippleClickable { onPressButton() }
+    ){
+        Text(
+            text = "Создать",
+            fontSize = 14.sp,
+            color = Color.White,
+            fontWeight = FontWeight.W400,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(10.dp)
+        )
+    }
+
+}
+//endregion
+//region LogInLogOutButton
+@Composable
+private fun LogInLogOutButton(
     authState: Boolean,
     onPressButton: () -> Unit
 ) {
@@ -639,17 +786,49 @@ private fun RegistrationButton(
         modifier = Modifier
 
             .clip(RoundedCornerShape(14))
-            .background(color = if(!authState) CyanAppColor else PinkAppColor)
+            .background(color = if (!authState) CyanAppColor else PinkAppColor)
             .border(
                 width = 1.dp,
-                color = CyanAppColor,
+                color = if (!authState) CyanAppColor else PinkAppColor,
                 shape = RoundedCornerShape(14)
             )
             .noRippleClickable { onPressButton() }
     ){
         Text(
             text = if (!authState) "Войти" else "Выйти",
-            fontSize = 24.sp,
+            fontSize = 14.sp,
+            color = Color.White,
+            fontWeight = FontWeight.W400,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(10.dp)
+        )
+    }
+
+}
+//endregion
+//region ForgotPassButton
+@Composable
+private fun ForgotPassButton(
+    onPressButton: () -> Unit
+) {
+
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+
+            .clip(RoundedCornerShape(14))
+            .background(color = LinearTrackColor)
+            .border(
+                width = 1.dp,
+                color = LinearTrackColor,
+                shape = RoundedCornerShape(14)
+            )
+            .noRippleClickable { onPressButton() }
+    ){
+        Text(
+            text = "Напомнить",
+            fontSize = 14.sp,
             color = Color.White,
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
@@ -681,5 +860,22 @@ private fun LabelText(text: String) {
     )
 }
 //endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
