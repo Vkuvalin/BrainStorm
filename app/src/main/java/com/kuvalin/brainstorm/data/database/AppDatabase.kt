@@ -4,8 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
+import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
+import com.kuvalin.brainstorm.data.model.UserDbModel
+import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
+import com.kuvalin.brainstorm.domain.entity.AppCurrency
 
 
 /**
@@ -23,7 +26,13 @@ import kotlinx.coroutines.Dispatchers
  *      должен будет ждать, пока другой поток освободит монитор.
  */
 
-@Database(
+@Database(entities = [
+    AppSettingsDbModel::class,
+    GameStatisticDbModel::class,
+    UserDbModel::class,
+    WarStatisticsDbModel::class,
+    AppCurrency::class
+    ],
     version = 1,
     exportSchema = false
 )
@@ -34,7 +43,7 @@ abstract class AppDatabase: RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
         private val LOCK = Any() // Базы данных должны быть синхронизированы
         private const val DB_NAME = "user_data.db"
-        private val scope = CoroutineScope(Dispatchers.IO)
+//        private val scope = CoroutineScope(Dispatchers.IO)
 
         fun getInstance(context: Context): AppDatabase {
 

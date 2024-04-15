@@ -2,7 +2,7 @@ package com.kuvalin.brainstorm.domain.entity
 
 import android.net.Uri
 
-data class User(
+data class Friend(
     val uid: String,
     val name: String,
     val avatar: Uri? = null,

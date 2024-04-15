@@ -1,6 +1,7 @@
 package com.kuvalin.brainstorm.domain.entity
 
-data class GamesStatistics(
+
+data class GameStatistic(
     val gameName: String,
     val gameIconName: String, // Буду создавать через свой ассетс
     val maxGameScore: Int,
