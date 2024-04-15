@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
+import com.kuvalin.brainstorm.data.model.UriTypeConverter
 import com.kuvalin.brainstorm.data.model.UserDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
@@ -35,6 +37,9 @@ import com.kuvalin.brainstorm.domain.entity.AppCurrency
     ],
     version = 1,
     exportSchema = false
+)
+@TypeConverters(
+    UriTypeConverter::class
 )
 abstract class AppDatabase: RoomDatabase() {
 

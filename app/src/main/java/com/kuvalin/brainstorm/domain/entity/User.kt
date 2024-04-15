@@ -7,7 +7,7 @@ data class User(
     val name: String,
     val avatar: Uri? = null,
     val language: String? = null,
-    val listOfMessages: List<String>? = null,
+    val listOfMessages: List<String> = listOf(),
     val gameStatistic: GameStatistic,
     val warStatistics: WarStatistics
 )
