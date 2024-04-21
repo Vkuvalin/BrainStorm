@@ -2,6 +2,7 @@ package com.kuvalin.brainstorm.presentation.screens.mainmenu.profile
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -26,6 +27,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,10 +47,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.kuvalin.brainstorm.domain.entity.SocialData
+import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
@@ -66,6 +77,9 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedBorderColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedIconColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedThumbColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("Recycle")
@@ -74,12 +88,27 @@ fun ProfileScreenContent(
     paddingValues: PaddingValues
 ) {
 
+    val component = getApplicationComponent()
+    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
+
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.IO)
+
+
+    // UserInfo
+    val userUid = Firebase.auth.uid ?: "zero_user_uid"
+    Log.d("UID", "$userUid <------------------- ")
+    // Все равно нужно сохранять. Причем как-то глобально нужно проверять вход и uid в базе
+    var userName by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
+    var userCountry by remember { mutableStateOf("") }
+
+    var twitter by remember { mutableStateOf("") } // Заменить потом на телеграм
     var facebookConnectState by remember { mutableStateOf(false) }
 
 
-    // Open Gallery
+    //region Open Gallery
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val context = LocalContext.current
 
     val getContent = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -92,7 +121,22 @@ fun ProfileScreenContent(
         input.copyTo(outputFile.outputStream())
         selectedImageUri = outputFile.toUri()
     }
+    //endregion
 
+    LaunchedEffect(Unit) {
+        scope.launch {
+            val userInfo = viewModel.getUserInfo.invoke()
+            val socialData = viewModel.getSocialData.invoke()
+
+            userName = userInfo?.name ?: ""
+            userEmail = userInfo?.email ?: ""
+            userCountry = userInfo?.country ?: ""
+            selectedImageUri = userInfo?.avatar
+
+            twitter = socialData?.twitter ?: ""
+            facebookConnectState = socialData?.facebookConnect ?: false
+        }
+    }
 
     var onClickAvatar by remember { mutableStateOf(false) }
     if (onClickAvatar) { onClickAvatar = false }
@@ -140,7 +184,7 @@ fun ProfileScreenContent(
                     }
                 }
 
-                //region Camera
+                //region Camera (icon)
                 Box(
                     modifier = Modifier
                         .size(30.dp)
@@ -174,10 +218,33 @@ fun ProfileScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            ProfileItem(iconFileName = "ic_profile_human.png", placeholder = "Name")
-            ProfileItem(iconFileName = "ic_profile_email.png", placeholder = "Email Address")
-            ProfileItem(iconFileName = "ic_profile_russia.png", placeholder = "Russian Federation")
-            ProfileItem(iconFileName = "ic_twitter.png", placeholder = "Twitter @username")
+            ProfileItem(
+                iconFileName = "ic_profile_human.png",
+                placeholder = "Name",
+                lineContent = userName){name ->
+                userName = name
+            }
+            ProfileItem(
+                iconFileName = "ic_profile_email.png",
+                placeholder = "Email Address",
+                lineContent = userEmail
+            ){email ->
+                userEmail = email
+            }
+            ProfileItem(
+                iconFileName = "ic_profile_russia.png",
+                placeholder = "Russian Federation",
+                lineContent = userCountry
+            ){country ->
+                userCountry = country
+            }
+            ProfileItem(
+                iconFileName = "ic_twitter.png",
+                placeholder = "Twitter @username",
+                lineContent = twitter
+            ){lineContent ->
+                twitter = lineContent
+            }
             //region Facebook
             Row(
                 modifier = Modifier
@@ -198,7 +265,28 @@ fun ProfileScreenContent(
             }
             //endregion
 
-            SaveButton(){  }
+
+            SaveButton(){
+                scope.launch {
+                    viewModel.addUserInfo.invoke(
+                        UserInfo(
+                            uid = userUid,
+                            name = userName,
+                            email = userEmail,
+                            avatar = selectedImageUri,
+                            country = userCountry
+                        )
+                    )
+
+                    viewModel.addSocialData.invoke(
+                        SocialData(
+                            uid = userUid,
+                            twitter = twitter,
+                            facebookConnect = facebookConnectState
+                        )
+                    )
+                }
+            }
         }
 
     }
@@ -209,7 +297,9 @@ fun ProfileScreenContent(
 @Composable
 fun ProfileItem(
     iconFileName: String,
-    placeholder: String
+    placeholder: String,
+    lineContent: String,
+    inputText: (String) -> Unit
 ){
     Row(
         modifier = Modifier
@@ -219,22 +309,27 @@ fun ProfileItem(
     ){
         AssetImage(
             fileName = iconFileName, modifier = Modifier
-            .size(60.dp)
-            .padding(15.dp))
-        CustomTextFieldProfileScreen(placeholder = placeholder)
+                .size(60.dp)
+                .padding(15.dp))
+        CustomTextFieldProfileScreen(placeholder = placeholder, lineContent = lineContent){
+            inputText(it)
+        }
     }
 }
 //endregion
 //region CustomTextField
 @Composable
-private fun CustomTextFieldProfileScreen(placeholder: String) {
-    var value by remember { mutableStateOf("") }
+private fun CustomTextFieldProfileScreen(
+    placeholder: String,
+    lineContent: String,
+    inputText: (String) -> Unit
+) {
     var isFocused by remember { mutableStateOf(false) }
 
     BasicTextField(
-        value = value,
+        value = lineContent,
         onValueChange = { newText ->
-            value = newText
+            inputText(newText)
             isFocused = true
         },
         textStyle = TextStyle(
@@ -259,7 +354,7 @@ private fun CustomTextFieldProfileScreen(placeholder: String) {
                     )
                     .padding(horizontal = 16.dp, vertical = 10.dp), // inner padding
             ) {
-                if (value.isEmpty() && !isFocused) {
+                if (lineContent.isEmpty() && !isFocused) {
                     Text(
                         text = placeholder,
                         fontSize = 18.sp,

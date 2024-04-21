@@ -45,12 +45,14 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.globalClasses.signInFirebase
@@ -526,7 +528,7 @@ fun RegistrationContent(
                             authState = true
                         }
 
-                        // Если не авторизован, то убираем инпуты
+                        // Если авторизован, то убираем инпуты
                         //region CustomTextFieldFiendsScreen - Поля ввода
                         if (!authState) {
                             CustomTextFieldFiendsScreen(placeholder = "Enter your email"){email ->
@@ -542,29 +544,23 @@ fun RegistrationContent(
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Row( // TODO не забыть сделать динамичный размер для элементов
-                            horizontalArrangement = if(!authState) Arrangement.SpaceBetween else Arrangement.Center,
+                            horizontalArrangement = if(!authState) Arrangement.SpaceBetween
+                            else Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             if (!authState){
                                 //region RegistrationButton
                                 RegistrationButton(){
-                                    Log.d("AUTH", "REGISTRATION")
                                     auth.createUserWithEmailAndPassword(
                                         userEmail,
                                         userPassword
                                     )
                                         .addOnSuccessListener {
-                                            // TODO Подумать, что после выводить
-                                            Log.d("AUTH", "REGISTRATION SUCCESS")
 
                                             scope.launch {
                                                 authState = signInFirebase(context, userEmail, userPassword)
 
-
-                                                // При успехе я должен делать запись данных во внутреннюю базу данных,
-                                                // Чтобы дальше брать инфу и логиниться при загрузке прилы.
-                                                // Не уверен, что это гуд по безопаске, но первая мысль.
 
                                                 // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
                                                 val user = hashMapOf(

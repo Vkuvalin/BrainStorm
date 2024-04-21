@@ -6,6 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -15,6 +17,11 @@ object GlobalStates {
 
     private val _runGameState = MutableStateFlow(false)
     val runGameState: StateFlow<Boolean> = _runGameScreenState
+
+    private val _userUid = MutableStateFlow(Firebase.auth.uid.toString()) // Если рега не пройдена, возв null (смотри логи)
+    val userUid: StateFlow<String> = _userUid
+
+
 
     // Внизу
     private val _lifecycleCurrentState = MutableStateFlow(Lifecycle.State.INITIALIZED)
@@ -64,6 +71,7 @@ object GlobalStates {
             "runGameScreenState" -> _runGameScreenState.value = value as Boolean
             "runGameState" -> _runGameState.value = value as Boolean
             "lifecycleCurrentState" -> _lifecycleCurrentState.value = value as Lifecycle.State
+            "userUid" -> _userUid.value = value as String
 //region Примеры
 //            "soundEnabled" -> _soundEnabled.value = value as Boolean
 //            "playerScore" -> _playerScore.value = value as Int

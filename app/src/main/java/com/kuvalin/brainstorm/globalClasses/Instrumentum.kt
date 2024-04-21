@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

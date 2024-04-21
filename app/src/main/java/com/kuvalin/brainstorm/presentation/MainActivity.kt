@@ -5,12 +5,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +24,6 @@ import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.populateResultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.MainScreen
-import com.kuvalin.brainstorm.presentation.screens.welcome.WelcomeScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
 import kotlinx.coroutines.CoroutineScope

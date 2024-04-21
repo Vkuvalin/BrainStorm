@@ -1,9 +1,10 @@
-package com.kuvalin.brainstorm.globalClasses
+package com.kuvalin.brainstorm
 
 import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.kuvalin.brainstorm.di.ApplicationComponent
+import com.kuvalin.brainstorm.di.DaggerApplicationComponent
 
 class BrainStormApplication: Application() {
 

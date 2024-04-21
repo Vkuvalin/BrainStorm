@@ -13,6 +13,6 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(MainMenuViewModel::class)
     @Binds
-    fun bindAppViewModel(viewModel: MainMenuViewModel): ViewModel
+    fun bindMainMenuViewModel(viewModel: MainMenuViewModel): ViewModel
 
 }

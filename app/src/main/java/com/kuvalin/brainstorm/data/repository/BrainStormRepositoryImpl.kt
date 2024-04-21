@@ -7,13 +7,16 @@ import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.User
+import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.SocialData
+import com.kuvalin.brainstorm.domain.entity.UserINTERNET
+import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
 import javax.inject.Inject
 
 class BrainStormRepositoryImpl @Inject constructor(
-    private val context: Context,
+//    private val context: Context,
     private val userDataDao: UserDataDao,
     private val mapper: BrainStormMapper
 ): BrainStormRepository {
@@ -28,69 +31,109 @@ class BrainStormRepositoryImpl @Inject constructor(
     */
 
     // ADD
-    override suspend fun addUser(user: User) { // 2
-        userDataDao.addUser(mapper.mapEntityToDbModelUser(user))
+    override suspend fun addUserInfo(userInfo: UserInfo) { // 2
+        userDataDao.addUserInfo(mapper.mapEntityToDbModelUserInfo(userInfo))
     }
-    override suspend fun addFriend(user: User) { // 2
-        userDataDao.addFriend(mapper.mapEntityToDbModelFriend(user))
-    } // Будет работать только с подключенным интернетом
+    override suspend fun addFriend(friend: UserINTERNET) { // 2
+        userDataDao.addFriendInfo(
+            mapper.mapEntityToDbModelFriendInfo(
+                friend.uid, friend.name, friend.email, friend.avatar, friend.language
+            )
+        )
+        friend.gameStatistic?.map {
+            userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistic(it))
+        }
+        userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(friend.warStatistics))
+    }
+
+    override suspend fun addListOfMessages(listOfMessages: ListOfMessages) {
+        userDataDao.addListOfMessages(mapper.mapEntityToDbModelListOfMessage(listOfMessages))
+    }
+
     override suspend fun addGameStatistic(gameStatistic: GameStatistic) { // 2
-        userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistics(gameStatistic))
-    }
-    override suspend fun addAppSettings(appSettings: AppSettings) { // 1
-        userDataDao.addAppSettings(mapper.mapEntityToDbModelAppSettings(appSettings))
+        userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistic(gameStatistic))
     }
     override suspend fun addWarStatistic(warStatistics: WarStatistics) { // 2
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(warStatistics))
+    }
+
+    override suspend fun addAppSettings(appSettings: AppSettings) { // 1
+        userDataDao.addAppSettings(mapper.mapEntityToDbModelAppSettings(appSettings))
     }
     override suspend fun addAppCurrency(appCurrency: AppCurrency) { // 1 (разумно 2?)
         userDataDao.addAppCurrency(mapper.mapEntityToDbModelAppCurrency(appCurrency))
     }
 
-
-
+    override suspend fun addSocialData(socialData: SocialData) {
+        userDataDao.addSocialData(mapper.mapEntityToDbModelSocialData(socialData))
+    }
 
 
 
 
     // GET
-    override suspend fun getUser(): User { // 2
-        return mapper.mapDbModelToEntityUser(userDataDao.getUser())
+    override suspend fun getUserInfo(uid: String): UserInfo? {
+        return mapper.mapDbModelToEntityUserInfo(userDataDao.getUserInfo(uid))
+    }
+
+    override suspend fun getFriend(uid: String): Friend {
+        return mapper.mapDbModelToEntityFriend(
+            userDataDao.getFriendInfo(uid),
+            userDataDao.getListOfMessages(uid),
+            userDataDao.getListGamesStatistics(uid),
+            userDataDao.getWarStatistic(uid)
+        )
+    }
+    override suspend fun getFriendList(): List<Friend> {
+        return  userDataDao.getFriendsWithAllInfo().map {
+            mapper.mapDbModelToEntityFriend(
+                it.friendInfoDbModel,
+                it.listOfMessagesDbModel,
+                it.gameStatisticDbModel,
+                it.warStatisticsDbModel
+            )
+        }.toList()
     }
 
 
-    override suspend fun getFriend(uid: String): Friend { // 2
-        return mapper.mapDbModelToEntityFriend(userDataDao.getFriend(uid))
+    override suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic { // 2
+        return mapper.mapDbModelToEntityGamesStatistic(userDataDao.getGameStatistic(uid, gameName))
     }
-    override suspend fun getFriendList(): List<Friend> { // 2
-        return mapper.mapListDbModelToListEntityFriend(userDataDao.getListFriend())
-    }
-
-
-    override suspend fun getGameStatistic(gameName: String): GameStatistic { // 2
-        return mapper.mapDbModelToEntityGamesStatistics(userDataDao.getGameStatistic(gameName))
-    }
-    // Подумать: раз я получаю список объектов, из которого я могу вытащить объект, то
-    // для чего мне тогда одиночный вызов getGameStatistic и налогичные getFriend
-    // Вот getUserInfo понятно: когда я листал бы списки пользователей. Их же нет в других коллекциях
-    override suspend fun getListGamesStatistics(): List<GameStatistic> { // 2
-        return mapper.mapListDbModelToListEntityGameStatistic(userDataDao.getGamesStatistics())
+    override suspend fun getListGamesStatistics(uid: String): List<GameStatistic> { // 2
+        return mapper.mapListDbModelToListEntityGameStatistics(userDataDao.getListGamesStatistics(uid))
     }
 
 
-    override suspend fun getAppSettings(): AppSettings { // 1
+    override suspend fun getAppSettings(): AppSettings {
         return mapper.mapDbModelToEntityAppSettings(userDataDao.getAppSettings())
     }
 
 
-    override suspend fun getWarStatistic(): WarStatistics { // 2
-        return mapper.mapDbModelToEntityWarsStatistics(userDataDao.getWarStatistic())
+    override suspend fun getWarStatistic(uid: String): WarStatistics {
+        return mapper.mapDbModelToEntityWarsStatistics(userDataDao.getWarStatistic(uid))
     }
 
 
-    override suspend fun getAppCurrency(): AppCurrency { // 1 (разумно 2?)
+    override suspend fun getAppCurrency(): AppCurrency {
         return mapper.mapDbModelToEntityAppCurrency(userDataDao.getAppCurrency())
     }
 
-    // Дальше сюда добавится также полностью зависимый от инета функционал GAMES для совместки
+    override suspend fun getSocialData(uid: String): SocialData? {
+        return mapper.mapDbModelToEntitySocialData(userDataDao.getSocialData(uid))
+    }
+
+
+// Дальше сюда добавится также полностью зависимый от инета функционал GAMES для совместки
 }
+
+
+
+
+
+
+
+
+
+
+
+

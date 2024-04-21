@@ -4,35 +4,47 @@ import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.User
+import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.SocialData
+import com.kuvalin.brainstorm.domain.entity.UserINTERNET
+import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 
 
 interface BrainStormRepository {
 
     // ADD
-    suspend fun addUser(user: User)
-    suspend fun addFriend(user: User)
+    suspend fun addUserInfo(userInfo: UserInfo)
+
+    // Сюда будет поставляться UserInternet + ещё пока не понятно, как именно это будет происходить
+    suspend fun addFriend(userINTERNET: UserINTERNET)
+    // Но фундамент сформирован!
+
+    suspend fun addListOfMessages(listOfMessages: ListOfMessages)
+
     suspend fun addGameStatistic(gameStatistic: GameStatistic)
-    suspend fun addAppSettings(appSettings: AppSettings)
     suspend fun addWarStatistic(warStatistics: WarStatistics)
+
+    suspend fun addAppSettings(appSettings: AppSettings)
     suspend fun addAppCurrency(appCurrency: AppCurrency)
 
+    suspend fun addSocialData(socialData: SocialData)
 
     // GET
-    suspend fun getUser(): User
+    suspend fun getUserInfo(uid: String): UserInfo?
 
-    suspend fun getFriend(uid: String): Friend
-    suspend fun getFriendList(): List<Friend>
+    suspend fun getFriend(uid: String): Friend // Точно ли будет нужно?
+    suspend fun getFriendList(): List<Friend> // Ведь я могу отсюда доставить всех
 
-    suspend fun getGameStatistic(gameName: String): GameStatistic
-    suspend fun getListGamesStatistics(): List<GameStatistic> // онлайн
+    suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic
+    suspend fun getListGamesStatistics(uid: String): List<GameStatistic>
+
+    suspend fun getWarStatistic(uid: String): WarStatistics
 
     suspend fun getAppSettings(): AppSettings
-
-    suspend fun getWarStatistic(): WarStatistics
-
     suspend fun getAppCurrency(): AppCurrency
+
+    suspend fun getSocialData(uid: String): SocialData?
 
 
 }

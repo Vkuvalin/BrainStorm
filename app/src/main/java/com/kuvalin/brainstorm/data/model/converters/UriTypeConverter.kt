@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.data.model
+package com.kuvalin.brainstorm.data.model.converters
 
 import android.net.Uri
 import androidx.room.TypeConverter

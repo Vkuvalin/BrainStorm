@@ -4,11 +4,16 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
-import com.kuvalin.brainstorm.data.model.FriendDbModel
+import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
+import com.kuvalin.brainstorm.data.model.FriendWithAllInfo
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.UserDbModel
+import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
+import com.kuvalin.brainstorm.data.model.SocialDataDbModel
+import com.kuvalin.brainstorm.data.model.UserInfoDbModel
+import com.kuvalin.brainstorm.data.model.UserWithAllInfo
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 
 @Dao
@@ -16,28 +21,107 @@ interface UserDataDao {
 
     // User
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addUser(userDbModel: UserDbModel)
-    @Query("SELECT * FROM user_info")
-    suspend fun getUser(): UserDbModel
+    suspend fun addUserInfo(userInfoDbModel: UserInfoDbModel)
+    @Query("SELECT * FROM user_info WHERE uid=:uid")
+    suspend fun getUserInfo(uid: String): UserInfoDbModel
+
+    @Transaction
+    @Query(
+        """
+        SELECT user_info.uid,
+            user_info.name,
+            user_info.email,
+            user_info.avatar,
+            user_info.country,
+            list_of_messages.listOfMessages,
+            games_statistics.gameName,
+            games_statistics.gameIconName,
+            games_statistics.maxGameScore,
+            games_statistics.avgGameScore,
+            wars_statistics.winRate,
+            wars_statistics.wins,
+            wars_statistics.losses,
+            wars_statistics.draws,
+            wars_statistics.highestScore
+        FROM 
+            user_info
+        LEFT JOIN 
+            list_of_messages ON user_info.uid = list_of_messages.uid
+        LEFT JOIN 
+            games_statistics ON user_info.uid = games_statistics.uid
+        LEFT JOIN 
+            wars_statistics ON user_info.uid = wars_statistics.uid
+    """
+    )
+    suspend fun getUserWithAllInfo(): UserWithAllInfo
+
 
 
     // Friend
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addFriend(friendDbModel: FriendDbModel)
+    suspend fun addFriendInfo(friendInfoDbModel: FriendInfoDbModel)
     @Query("SELECT * FROM friend_info WHERE uid=:uid")
-    suspend fun getFriend(uid: String): FriendDbModel
-    @Query("SELECT * FROM friend_info")
-    suspend fun getListFriend(): List<FriendDbModel>
+    suspend fun getFriendInfo(uid: String): FriendInfoDbModel
+//    @Query("SELECT * FROM friend_info")
+//    suspend fun getListFriendInfo(): List<FriendInfoDbModel>
+
+    @Transaction
+    @Query(
+        """
+        SELECT friend_info.uid,
+            friend_info.name,
+            friend_info.avatar,
+            friend_info.email,
+            friend_info.country,
+            list_of_messages.listOfMessages,
+            games_statistics.gameName,
+            games_statistics.gameIconName,
+            games_statistics.maxGameScore,
+            games_statistics.avgGameScore,
+            wars_statistics.winRate,
+            wars_statistics.wins,
+            wars_statistics.losses,
+            wars_statistics.draws,
+            wars_statistics.highestScore
+        FROM 
+            friend_info
+        LEFT JOIN 
+            list_of_messages ON friend_info.uid = list_of_messages.uid
+        LEFT JOIN 
+            games_statistics ON friend_info.uid = games_statistics.uid
+        LEFT JOIN 
+            wars_statistics ON friend_info.uid = wars_statistics.uid
+    """
+    )
+    suspend fun getFriendsWithAllInfo(): List<FriendWithAllInfo>
+
+
+
+
+
+    // ListOfMessages
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addListOfMessages(listOfMessages: ListOfMessagesDbModel)
+    @Query("SELECT * FROM list_of_messages WHERE uid=:uid")
+    suspend fun getListOfMessages(uid: String): ListOfMessagesDbModel
 
 
 
     // GameStatistics
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameStatistic(gameStatisticDbModel: GameStatisticDbModel)
-    @Query("SELECT * FROM games_statistics WHERE gameName=:gameName")
-    suspend fun getGameStatistic(gameName: String): GameStatisticDbModel
-    @Query("SELECT * FROM games_statistics")
-    suspend fun getGamesStatistics(): List<GameStatisticDbModel>
+    @Query("SELECT * FROM games_statistics WHERE uid=:uid AND gameName=:gameName")
+    suspend fun getGameStatistic(uid: String, gameName: String): GameStatisticDbModel
+    @Query("SELECT * FROM games_statistics WHERE uid=:uid LIMIT 1")
+    suspend fun getListGamesStatistics(uid: String): List<GameStatisticDbModel>
+
+
+
+    // WarsStatistics
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addWarStatistic(warStatisticsDbModel: WarStatisticsDbModel?)
+    @Query("SELECT * FROM wars_statistics WHERE uid=:uid LIMIT 1")
+    suspend fun getWarStatistic(uid: String): WarStatisticsDbModel
 
 
 
@@ -49,18 +133,17 @@ interface UserDataDao {
 
 
 
-    // WarsStatistics
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addWarStatistic(warStatisticsDbModel: WarStatisticsDbModel)
-    @Query("SELECT * FROM wars_statistics")
-    suspend fun getWarStatistic(): WarStatisticsDbModel
-
-
-
     // AppCurrency
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addAppCurrency(appCurrencyDbModel: AppCurrencyDbModel)
     @Query("SELECT * FROM app_currency")
     suspend fun getAppCurrency(): AppCurrencyDbModel
+
+
+    // SocialData
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addSocialData(socialDataDbModel: SocialDataDbModel)
+    @Query("SELECT * FROM social_data WHERE uid=:uid")
+    suspend fun getSocialData(uid: String): SocialDataDbModel
 
 }

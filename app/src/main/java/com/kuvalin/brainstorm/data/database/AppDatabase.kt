@@ -5,12 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
+import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.UriTypeConverter
-import com.kuvalin.brainstorm.data.model.UserDbModel
+import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
+import com.kuvalin.brainstorm.data.model.SocialDataDbModel
+import com.kuvalin.brainstorm.data.model.converters.UriTypeConverter
+import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
-import com.kuvalin.brainstorm.domain.entity.AppCurrency
+import com.kuvalin.brainstorm.data.model.converters.ListStringConverter
 
 
 /**
@@ -30,16 +34,20 @@ import com.kuvalin.brainstorm.domain.entity.AppCurrency
 
 @Database(entities = [
     AppSettingsDbModel::class,
+    AppCurrencyDbModel::class,
+    FriendInfoDbModel::class,
     GameStatisticDbModel::class,
-    UserDbModel::class,
-    WarStatisticsDbModel::class,
-    AppCurrency::class
+    ListOfMessagesDbModel::class,
+    SocialDataDbModel::class,
+    UserInfoDbModel::class,
+    WarStatisticsDbModel::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(
-    UriTypeConverter::class
+    UriTypeConverter::class,
+    ListStringConverter::class
 )
 abstract class AppDatabase: RoomDatabase() {
 
@@ -54,6 +62,7 @@ abstract class AppDatabase: RoomDatabase() {
 
             return INSTANCE ?: synchronized(LOCK){
                 Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }

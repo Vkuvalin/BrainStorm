@@ -1,11 +1,13 @@
 package com.kuvalin.brainstorm.domain.usecase
 
-import com.kuvalin.brainstorm.domain.entity.User
+import com.kuvalin.brainstorm.domain.entity.Friend
+import com.kuvalin.brainstorm.domain.entity.UserINTERNET
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
+import javax.inject.Inject
 
 
-class AddFriendUseCase constructor(
+class AddFriendUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(user: User) = brainStormRepository.addFriend(user)
+    suspend operator fun invoke(userINTERNET: UserINTERNET) = brainStormRepository.addFriend(userINTERNET)
 }

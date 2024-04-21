@@ -1,96 +1,144 @@
 package com.kuvalin.brainstorm.data.mapper
 
+import android.net.Uri
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
-import com.kuvalin.brainstorm.data.model.FriendDbModel
+import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.UserDbModel
+import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
+import com.kuvalin.brainstorm.data.model.SocialDataDbModel
+import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.User
+import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.SocialData
+import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import javax.inject.Inject
 
 class BrainStormMapper @Inject constructor() {
 
 
-    // User
-    fun mapEntityToDbModelUser(user: User): UserDbModel {
-        return UserDbModel(
-            user.uid,
-            user.name,
-            user.avatar,
-            user.language,
-            user.listOfMessages,
-            mapEntityToDbModelGamesStatistics(user.gameStatistic),
-            mapEntityToDbModelWarStatistics(user.warStatistics)
+    // UserInfo
+    fun mapEntityToDbModelUserInfo(userInfo: UserInfo): UserInfoDbModel {
+        return UserInfoDbModel(
+            userInfo.uid,
+            userInfo.name,
+            userInfo.email,
+            userInfo.avatar,
+            userInfo.country
         )
     }
-    fun mapDbModelToEntityUser(userDbModel: UserDbModel): User {
-        return User(
-            userDbModel.uid,
-            userDbModel.name,
-            userDbModel.avatar,
-            userDbModel.language,
-            userDbModel.listOfMessages,
-            mapDbModelToEntityGamesStatistics(userDbModel.gameStatistic),
-            mapDbModelToEntityWarsStatistics(userDbModel.warStatistics)
-        )
+    fun mapDbModelToEntityUserInfo(userInfoDbModel: UserInfoDbModel?): UserInfo? {
+        if (userInfoDbModel != null) {
+            return UserInfo(
+                userInfoDbModel.uid,
+                userInfoDbModel.name,
+                userInfoDbModel.email,
+                userInfoDbModel.avatar,
+                userInfoDbModel.country
+            )
+        }else{
+            return null
+        }
     }
 
 
 
     // Friend
-    fun mapEntityToDbModelFriend(user: User): FriendDbModel{
-        return FriendDbModel(
-            user.uid,
-            user.name,
-            user.avatar,
-            user.language,
-            user.listOfMessages,
-            mapEntityToDbModelGamesStatistics(user.gameStatistic),
-            mapEntityToDbModelWarStatistics(user.warStatistics)
-        )
+    fun mapEntityToDbModelFriendInfo(
+            uid: String, name: String?, email: String?, avatar: Uri?, language: String?
+        ): FriendInfoDbModel{
+        return FriendInfoDbModel(uid, name, email, avatar, language)
     }
-    fun mapDbModelToEntityFriend(friendDbModel: FriendDbModel): Friend {
+    fun mapDbModelToEntityFriend(
+        friendInfoDbModel: FriendInfoDbModel,
+        listOfMessagesDbModel: ListOfMessagesDbModel,
+        gameStatisticDbModel: List<GameStatisticDbModel>,
+        warStatisticsDbModel: WarStatisticsDbModel,
+    ): Friend {
         return Friend(
-            friendDbModel.uid,
-            friendDbModel.name,
-            friendDbModel.avatar,
-            friendDbModel.language,
-            friendDbModel.listOfMessages,
-            mapDbModelToEntityGamesStatistics(friendDbModel.gameStatistic),
-            mapDbModelToEntityWarsStatistics(friendDbModel.warStatistics)
+            friendInfoDbModel.uid,
+            friendInfoDbModel.name,
+            friendInfoDbModel.email,
+            friendInfoDbModel.avatar,
+            friendInfoDbModel.country,
+            listOfMessagesDbModel.listOfMessages,
+            mapListDbModelToListEntityGameStatistics(gameStatisticDbModel),
+            mapDbModelToEntityWarsStatistics(warStatisticsDbModel)
         )
     }
-    fun mapListDbModelToListEntityFriend(list:List<FriendDbModel>) = list.map {
-        mapDbModelToEntityFriend(it)
+    //region Больше не нужная хрень, но пока оставлю
+    //    fun mapListDbModelToListEntityFriend(
+//        listFriendInfo: List<FriendInfoDbModel>,
+//        listOfMessagesDbModel: List<ListOfMessagesDbModel>,
+//        listGameStatisticDbModel: List<List<GameStatisticDbModel>>,
+//        listWarStatisticsDbModel: List<WarStatisticsDbModel>
+//    ): List<Friend> {
+//        val listOfFriends = mutableListOf<Friend>()
+//
+//        // Проверка на одинаковую длину списков, чтобы избежать ошибок
+//        if (listFriendInfo.size != listOfMessagesDbModel.size ||
+//            listFriendInfo.size != listGameStatisticDbModel.size ||
+//            listFriendInfo.size != listWarStatisticsDbModel.size
+//        ) {
+//            throw IllegalArgumentException("Списки моделей данных имеют разную длину")
+//        }
+//
+//        // Итерация по спискам моделей данных и создание объектов Friend
+//        for (i in listFriendInfo.indices) {
+//            val friend = mapDbModelToEntityFriend(
+//                listFriendInfo[i],
+//                listOfMessagesDbModel[i],
+//                listGameStatisticDbModel[i],
+//                listWarStatisticsDbModel[i]
+//            )
+//            listOfFriends.add(friend)
+//        }
+//
+//        return listOfFriends.toList()
+//    }
+    //endregion
+
+
+    // ListOfMessages
+    fun mapEntityToDbModelListOfMessage(listOfMessages: ListOfMessages): ListOfMessagesDbModel {
+        return ListOfMessagesDbModel(
+            listOfMessages.uid,
+            listOfMessages.listOfMessages
+        )
     }
 
 
 
     // GamesStatistics
-    fun mapEntityToDbModelGamesStatistics(gameStatistic: GameStatistic): GameStatisticDbModel{
+    fun mapEntityToDbModelGamesStatistic(gameStatistic: GameStatistic): GameStatisticDbModel{
         return GameStatisticDbModel(
+            gameStatistic.uid,
             gameStatistic.gameName,
             gameStatistic.gameIconName,
             gameStatistic.maxGameScore,
             gameStatistic.avgGameScore
         )
     }
-    fun mapDbModelToEntityGamesStatistics(gameStatisticDbModel: GameStatisticDbModel): GameStatistic {
+    fun mapDbModelToEntityGamesStatistic(gameStatisticDbModel: GameStatisticDbModel): GameStatistic {
         return GameStatistic(
+            gameStatisticDbModel.uid,
             gameStatisticDbModel.gameName,
             gameStatisticDbModel.gameIconName,
             gameStatisticDbModel.maxGameScore,
             gameStatisticDbModel.avgGameScore
         )
     }
-    fun mapListDbModelToListEntityGameStatistic(list:List<GameStatisticDbModel>) = list.map {
-        mapDbModelToEntityGamesStatistics(it)
+    fun mapListEntityToListDbModelGameStatistics(list:List<GameStatistic>) = list.map {
+        mapEntityToDbModelGamesStatistic(it)
+    }
+    fun mapListDbModelToListEntityGameStatistics(list:List<GameStatisticDbModel>) = list.map {
+        mapDbModelToEntityGamesStatistic(it)
     }
 
 
@@ -98,27 +146,40 @@ class BrainStormMapper @Inject constructor() {
 
     // AppSettings
     fun mapEntityToDbModelAppSettings(appSettings: AppSettings): AppSettingsDbModel{
-        return AppSettingsDbModel(appSettings.musicState, appSettings.musicState)
+        return AppSettingsDbModel(
+            UNDEFINED_ID,
+            appSettings.musicState,
+            appSettings.musicState
+        )
     }
     fun mapDbModelToEntityAppSettings(appSettingsDbModel: AppSettingsDbModel): AppSettings{
-        return AppSettings(appSettingsDbModel.musicState, appSettingsDbModel.vibrateState)
+        return AppSettings(
+            UNDEFINED_ID,
+            appSettingsDbModel.musicState,
+            appSettingsDbModel.vibrateState
+        )
     }
 
 
 
     // WarsStatistics
-    fun mapEntityToDbModelWarStatistics(warStatistics: WarStatistics): WarStatisticsDbModel {
-        return WarStatisticsDbModel(
-            warStatistics.winRate,
-            warStatistics.wins,
-            warStatistics.losses,
-            warStatistics.draws,
-            warStatistics.highestScore
-        )
-
+    fun mapEntityToDbModelWarStatistics(warStatistics: WarStatistics?): WarStatisticsDbModel? {
+        if (warStatistics != null) {
+            return WarStatisticsDbModel(
+                warStatistics.uid,
+                warStatistics.winRate,
+                warStatistics.wins,
+                warStatistics.losses,
+                warStatistics.draws,
+                warStatistics.highestScore
+            )
+        }else {
+            return null
+        }
     }
     fun mapDbModelToEntityWarsStatistics(warStatisticsDbModel: WarStatisticsDbModel): WarStatistics{
         return WarStatistics(
+            warStatisticsDbModel.uid,
             warStatisticsDbModel.winRate,
             warStatisticsDbModel.wins,
             warStatisticsDbModel.losses,
@@ -141,6 +202,29 @@ class BrainStormMapper @Inject constructor() {
             appCurrencyDbModel.numberOfCoins,
             appCurrencyDbModel.numberOfCoins
         )
+    }
+
+
+    // SocialData
+    fun mapEntityToDbModelSocialData(socialData: SocialData): SocialDataDbModel {
+        return SocialDataDbModel(
+            socialData.uid,
+            socialData.twitter,
+            socialData.vk,
+            socialData.facebookConnect
+        )
+    }
+    fun mapDbModelToEntitySocialData(socialDataDbModel: SocialDataDbModel?): SocialData? {
+        if (socialDataDbModel != null) {
+            return SocialData(
+                socialDataDbModel.uid,
+                socialDataDbModel.twitter,
+                socialDataDbModel.vk,
+                socialDataDbModel.facebookConnect
+            )
+        }else {
+            return null
+        }
     }
 
 
