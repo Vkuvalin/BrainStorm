@@ -2,7 +2,7 @@ package com.kuvalin.brainstorm.presentation.screens.mainmenu.profile
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -28,7 +28,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +56,6 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
-import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
@@ -80,6 +78,7 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @SuppressLint("Recycle")
@@ -92,13 +91,11 @@ fun ProfileScreenContent(
     val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
 
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.IO)
+    val databaseScope = CoroutineScope(Dispatchers.IO)
 
 
     // UserInfo
     val userUid = Firebase.auth.uid ?: "zero_user_uid"
-    Log.d("UID", "$userUid <------------------- ")
-    // Все равно нужно сохранять. Причем как-то глобально нужно проверять вход и uid в базе
     var userName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
     var userCountry by remember { mutableStateOf("") }
@@ -124,7 +121,7 @@ fun ProfileScreenContent(
     //endregion
 
     LaunchedEffect(Unit) {
-        scope.launch {
+        databaseScope.launch {
             val userInfo = viewModel.getUserInfo.invoke()
             val socialData = viewModel.getSocialData.invoke()
 
@@ -267,7 +264,7 @@ fun ProfileScreenContent(
 
 
             SaveButton(){
-                scope.launch {
+                databaseScope.launch {
                     viewModel.addUserInfo.invoke(
                         UserInfo(
                             uid = userUid,
@@ -285,6 +282,10 @@ fun ProfileScreenContent(
                             facebookConnect = facebookConnectState
                         )
                     )
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Данные сохранены.", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }

@@ -72,14 +72,14 @@ fun GamesMainScreen(
             navHostController = navigationState.navHostController,
             gameInitialScreenContent = {
                 if (!runGameScreenState) {
-                    GlobalStates.putScreenState("runGameState", false)
+                    GlobalStates.putScreenState("runGameScreenState", false)
                     GameScreenInitialContent(
                         paddingValuesParent,
                         items,
                         dynamicFontSize,
                         navigationState
                     ) {
-                        GlobalStates.putScreenState("runGameState", true)
+                        GlobalStates.putScreenState("runGameScreenState", true)
                         onCardClick()
                     }
                 }

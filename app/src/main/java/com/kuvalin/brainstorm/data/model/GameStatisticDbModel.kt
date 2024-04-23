@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 data class GameStatisticDbModel(
     val uid: String,
     val gameName: String,
-    val gameIconName: String,
     val maxGameScore: Int,
     val avgGameScore: Int
 )

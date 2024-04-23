@@ -5,9 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
+import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
@@ -15,6 +17,10 @@ import com.kuvalin.brainstorm.data.model.converters.UriTypeConverter
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.data.model.converters.ListStringConverter
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -36,13 +42,14 @@ import com.kuvalin.brainstorm.data.model.converters.ListStringConverter
     AppSettingsDbModel::class,
     AppCurrencyDbModel::class,
     FriendInfoDbModel::class,
+    GameResultDbModel::class,
     GameStatisticDbModel::class,
     ListOfMessagesDbModel::class,
     SocialDataDbModel::class,
     UserInfoDbModel::class,
-    WarStatisticsDbModel::class
+    WarStatisticsDbModel::class,
     ],
-    version = 2,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(
@@ -56,12 +63,27 @@ abstract class AppDatabase: RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
         private val LOCK = Any() // Базы данных должны быть синхронизированы
         private const val DB_NAME = "user_data.db"
-//        private val scope = CoroutineScope(Dispatchers.IO)
+        private val scope = CoroutineScope(Dispatchers.IO)
 
         fun getInstance(context: Context): AppDatabase {
 
             return INSTANCE ?: synchronized(LOCK){
                 Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
+                    .addCallback(object : Callback() { // Добавление данных при создании БД
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            super.onCreate(db)
+                            scope.launch {
+                                val dao = getInstance(context).userDataDao()
+                                dao.addAppSettings(
+                                    AppSettingsDbModel(
+                                        UNDEFINED_ID,
+                                        musicState = true,
+                                        vibrateState = true
+                                    )
+                                )
+                            }
+                        }
+                    })
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }

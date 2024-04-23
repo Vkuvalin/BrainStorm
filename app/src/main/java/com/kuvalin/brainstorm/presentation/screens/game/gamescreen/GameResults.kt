@@ -1,5 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.game.gamescreen
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +23,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,10 +39,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.kuvalin.brainstorm.domain.entity.GameResult
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
+import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +59,7 @@ import kotlin.math.roundToInt
 
 // С масштабированием в приложении снова проблемы, но переписать части сейчас не видится проблемой
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun GameResults(
     gameName: String,
@@ -64,12 +79,43 @@ fun GameResults(
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
 
+    // Отрисовка элементов
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val dynamicFontSize1 = (screenWidth / 20)
     val dynamicFontSize2 = (screenWidth / 25)
     val dynamicFontSize3 = (screenWidth / 30)
+
+    // Подсчет статистики
+    val finalAccuracy = (accuracy * 1000).roundToInt() / 10.0f
+    val finalScope = if(scope == 0) ((correct*53)-(incorrect*22)) else (scope*53)-(scope*22)
+    var highestValue by remember { mutableIntStateOf(0) }
+    var averageValue by remember { mutableIntStateOf(0) }
+
+    // Работа с базой (GameStatistic)
+    val databaseScope = CoroutineScope(Dispatchers.IO)
+    val component = getApplicationComponent()
+    val viewModel: GamesViewModel = viewModel(factory = component.getViewModelFactory())
+    val userUid = Firebase.auth.uid ?: "zero_user_uid"
+
+
+
     /* ########################################################################################## */
+
+    LaunchedEffect(Unit) {
+        viewModel.addGameResult.invoke(
+            GameResult(
+                uid = userUid,
+                gameName = gameName,
+                scope = finalScope,
+                accuracy = finalAccuracy
+            )
+        )
+
+        val gameStatistic = viewModel.getGameStatistic.invoke(uid = userUid, gameName = gameName)
+        highestValue = gameStatistic.maxGameScore
+        averageValue = gameStatistic.avgGameScore
+    }
 
 
     Column(
@@ -156,7 +202,8 @@ fun GameResults(
                 ) {
                     Text(text = "Accuracy", fontSize = 16.sp, fontWeight = FontWeight.W400)
                     Text(
-                        text = "${(accuracy * 1000).roundToInt() / 10.0f}",
+//                        text = "${(accuracy * 1000).roundToInt() / 10.0f}", // TODO убрать
+                        text = "$finalAccuracy",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.W300
                     )
@@ -210,7 +257,7 @@ fun GameResults(
                             color = Color.Black
                         )
                         Text(
-                            text = "-",
+                            text = "$highestValue",
                             fontSize = dynamicFontSize1.sp,
                             fontWeight = FontWeight.W400,
                             color = Color.Black
@@ -229,7 +276,7 @@ fun GameResults(
                             color = Color.Black
                         )
                         Text(
-                            text = "-",
+                            text = "$averageValue",
                             fontSize = dynamicFontSize1.sp,
                             fontWeight = FontWeight.W400,
                             color = Color.Black
@@ -258,7 +305,7 @@ fun GameResults(
                     modifier = Modifier.fillMaxHeight()
                 ) {
                     Text(
-                        text = "${if(scope == 0) ((correct*53)-(incorrect*22)) else (scope*53)-(scope*22)}",
+                        text = "$finalScope",
                         fontSize = dynamicFontSize1.sp,
                         fontWeight = FontWeight.W400,
                         color = Color.Black

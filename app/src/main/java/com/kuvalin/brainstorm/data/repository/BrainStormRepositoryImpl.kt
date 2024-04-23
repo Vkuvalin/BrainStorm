@@ -3,9 +3,11 @@ package com.kuvalin.brainstorm.data.repository
 import android.content.Context
 import com.kuvalin.brainstorm.data.database.UserDataDao
 import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
+import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
+import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
@@ -34,6 +36,8 @@ class BrainStormRepositoryImpl @Inject constructor(
     override suspend fun addUserInfo(userInfo: UserInfo) { // 2
         userDataDao.addUserInfo(mapper.mapEntityToDbModelUserInfo(userInfo))
     }
+
+
     override suspend fun addFriend(friend: UserINTERNET) { // 2
         userDataDao.addFriendInfo(
             mapper.mapEntityToDbModelFriendInfo(
@@ -46,16 +50,48 @@ class BrainStormRepositoryImpl @Inject constructor(
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(friend.warStatistics))
     }
 
+
+
     override suspend fun addListOfMessages(listOfMessages: ListOfMessages) {
         userDataDao.addListOfMessages(mapper.mapEntityToDbModelListOfMessage(listOfMessages))
     }
 
-    override suspend fun addGameStatistic(gameStatistic: GameStatistic) { // 2
-        userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistic(gameStatistic))
+
+    override suspend fun addGameResult(gameResult: GameResult) {
+
+        // Добавляем инфу об игре в базу
+        userDataDao.addGameResult(mapper.mapEntityToDbModelGameResult(gameResult))
+
+        // Тут же уже получаем обновленный список всех игр из game_result и пихаем его в game_statistic
+        // Все эти манипуляции нужно, чтобы избежать лишних пересчетов
+        addGameStatistic(
+            gameResult.uid,
+            gameResult.gameName,
+            userDataDao.getGameResults(gameResult.uid, gameResult.gameName)
+        )
     }
+    private suspend fun addGameStatistic(
+        userUid: String,
+        gameName: String,
+        listGameResult: List<GameResult>
+    ) {
+        val gameScope = mutableListOf<Int>()
+        listGameResult.map { gameScope.add(it.scope) }
+        val maxGameScope = gameScope.max()
+
+        userDataDao.addGameStatistic(GameStatisticDbModel(
+            uid = userUid,
+            gameName = gameName,
+            maxGameScore = maxGameScope,
+            avgGameScore = gameScope.average().toInt()
+        ))
+    }
+
+
     override suspend fun addWarStatistic(warStatistics: WarStatistics) { // 2
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(warStatistics))
     }
+
 
     override suspend fun addAppSettings(appSettings: AppSettings) { // 1
         userDataDao.addAppSettings(mapper.mapEntityToDbModelAppSettings(appSettings))
@@ -63,6 +99,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     override suspend fun addAppCurrency(appCurrency: AppCurrency) { // 1 (разумно 2?)
         userDataDao.addAppCurrency(mapper.mapEntityToDbModelAppCurrency(appCurrency))
     }
+
 
     override suspend fun addSocialData(socialData: SocialData) {
         userDataDao.addSocialData(mapper.mapEntityToDbModelSocialData(socialData))

@@ -9,12 +9,14 @@ import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.FriendWithAllInfo
+import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.UserWithAllInfo
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
+import com.kuvalin.brainstorm.domain.entity.GameResult
 
 @Dao
 interface UserDataDao {
@@ -35,7 +37,6 @@ interface UserDataDao {
             user_info.country,
             list_of_messages.listOfMessages,
             games_statistics.gameName,
-            games_statistics.gameIconName,
             games_statistics.maxGameScore,
             games_statistics.avgGameScore,
             wars_statistics.winRate,
@@ -75,7 +76,6 @@ interface UserDataDao {
             friend_info.country,
             list_of_messages.listOfMessages,
             games_statistics.gameName,
-            games_statistics.gameIconName,
             games_statistics.maxGameScore,
             games_statistics.avgGameScore,
             wars_statistics.winRate,
@@ -107,12 +107,18 @@ interface UserDataDao {
 
 
 
+    // GameResults
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addGameResult(gameResultDbModel: GameResultDbModel)
+    @Query("SELECT * FROM game_results WHERE uid=:uid AND gameName=:gameName")
+    suspend fun getGameResults(uid: String, gameName: String): List<GameResult>
+
     // GameStatistics
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameStatistic(gameStatisticDbModel: GameStatisticDbModel)
     @Query("SELECT * FROM games_statistics WHERE uid=:uid AND gameName=:gameName")
-    suspend fun getGameStatistic(uid: String, gameName: String): GameStatisticDbModel
-    @Query("SELECT * FROM games_statistics WHERE uid=:uid LIMIT 1")
+    suspend fun getGameStatistic(uid: String, gameName: String): GameStatisticDbModel // Теперь здесь будет list
+    @Query("SELECT * FROM games_statistics WHERE uid=:uid")
     suspend fun getListGamesStatistics(uid: String): List<GameStatisticDbModel>
 
 
@@ -140,10 +146,11 @@ interface UserDataDao {
     suspend fun getAppCurrency(): AppCurrencyDbModel
 
 
+
     // SocialData
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addSocialData(socialDataDbModel: SocialDataDbModel)
-    @Query("SELECT * FROM social_data WHERE uid=:uid")
+    @Query("SELECT * FROM social_data WHERE uid=:uid LIMIT 1")
     suspend fun getSocialData(uid: String): SocialDataDbModel
 
 }

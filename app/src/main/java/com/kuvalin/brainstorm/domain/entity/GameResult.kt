@@ -1,10 +1,11 @@
 package com.kuvalin.brainstorm.domain.entity
 
-
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 
-data class AppSettings(
+data class GameResult(
+    val uid: String,
     val id: Int = UNDEFINED_ID,
-    val musicState: Boolean,
-    val vibrateState: Boolean,
+    val gameName: String,
+    val scope: Int,
+    val accuracy: Float
 )

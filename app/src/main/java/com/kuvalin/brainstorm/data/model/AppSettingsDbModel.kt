@@ -9,6 +9,6 @@ import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_I
 data class AppSettingsDbModel(
     @PrimaryKey()
     val id: Int = UNDEFINED_ID,
-    val musicState: Boolean = true,
-    val vibrateState: Boolean = true,
+    val musicState: Boolean,
+    val vibrateState: Boolean,
 )

@@ -15,14 +15,6 @@ object GlobalStates {
     private val _runGameScreenState = MutableStateFlow(false)
     val runGameScreenState: StateFlow<Boolean> = _runGameScreenState
 
-    private val _runGameState = MutableStateFlow(false)
-    val runGameState: StateFlow<Boolean> = _runGameScreenState
-
-    private val _userUid = MutableStateFlow(Firebase.auth.uid.toString()) // Если рега не пройдена, возв null (смотри логи)
-    val userUid: StateFlow<String> = _userUid
-
-
-
     // Внизу
     private val _lifecycleCurrentState = MutableStateFlow(Lifecycle.State.INITIALIZED)
     val lifecycleCurrentState: StateFlow<Lifecycle.State> = _lifecycleCurrentState
@@ -69,9 +61,7 @@ object GlobalStates {
     fun putScreenState(key: String, value: Any) {
         when (key) {
             "runGameScreenState" -> _runGameScreenState.value = value as Boolean
-            "runGameState" -> _runGameState.value = value as Boolean
             "lifecycleCurrentState" -> _lifecycleCurrentState.value = value as Lifecycle.State
-            "userUid" -> _userUid.value = value as String
 //region Примеры
 //            "soundEnabled" -> _soundEnabled.value = value as Boolean
 //            "playerScore" -> _playerScore.value = value as Int

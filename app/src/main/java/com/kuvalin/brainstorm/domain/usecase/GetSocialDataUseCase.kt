@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetSocialDataUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(): SocialData? = brainStormRepository.getSocialData(Firebase.auth.uid.toString())
+    suspend operator fun invoke(): SocialData? = brainStormRepository.getSocialData(Firebase.auth.uid ?: "zero_user_uid")
 }
 
 

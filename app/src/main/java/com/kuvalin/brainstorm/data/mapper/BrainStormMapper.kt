@@ -4,6 +4,7 @@ import android.net.Uri
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
+import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
@@ -12,6 +13,7 @@ import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
+import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
@@ -114,13 +116,22 @@ class BrainStormMapper @Inject constructor() {
     }
 
 
+    // GameResult
+    fun mapEntityToDbModelGameResult(gameResult: GameResult): GameResultDbModel {
+        return GameResultDbModel(
+            gameResult.uid,
+            gameResult.id,
+            gameResult.gameName,
+            gameResult.scope,
+            gameResult.accuracy
+        )
+    }
 
     // GamesStatistics
     fun mapEntityToDbModelGamesStatistic(gameStatistic: GameStatistic): GameStatisticDbModel{
         return GameStatisticDbModel(
             gameStatistic.uid,
             gameStatistic.gameName,
-            gameStatistic.gameIconName,
             gameStatistic.maxGameScore,
             gameStatistic.avgGameScore
         )
@@ -129,7 +140,6 @@ class BrainStormMapper @Inject constructor() {
         return GameStatistic(
             gameStatisticDbModel.uid,
             gameStatisticDbModel.gameName,
-            gameStatisticDbModel.gameIconName,
             gameStatisticDbModel.maxGameScore,
             gameStatisticDbModel.avgGameScore
         )
@@ -147,14 +157,14 @@ class BrainStormMapper @Inject constructor() {
     // AppSettings
     fun mapEntityToDbModelAppSettings(appSettings: AppSettings): AppSettingsDbModel{
         return AppSettingsDbModel(
-            UNDEFINED_ID,
+            appSettings.id,
             appSettings.musicState,
-            appSettings.musicState
+            appSettings.vibrateState
         )
     }
     fun mapDbModelToEntityAppSettings(appSettingsDbModel: AppSettingsDbModel): AppSettings{
         return AppSettings(
-            UNDEFINED_ID,
+            appSettingsDbModel.id,
             appSettingsDbModel.musicState,
             appSettingsDbModel.vibrateState
         )

@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,22 +40,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.kuvalin.brainstorm.domain.entity.AppSettings
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
-import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.globalClasses.signInFirebase
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.ShareCompany
+import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
@@ -317,9 +315,23 @@ fun SettingsContent(
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenWidthDp
 
-    var musicState by remember { mutableStateOf(false) }
+    var musicState by remember { mutableStateOf(true) }
     var seState by remember { mutableStateOf(false) }
-    var vibrationState by remember { mutableStateOf(false) }
+    var vibrationState by remember { mutableStateOf(true) }
+
+    // Settings
+    val databaseScope = CoroutineScope(Dispatchers.IO)
+    val component = getApplicationComponent()
+    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
+
+    LaunchedEffect(Unit) {
+        databaseScope.launch {
+            val appSettings = viewModel.getAppSettings.invoke()
+            musicState = appSettings.musicState
+            vibrationState = appSettings.vibrateState
+        }
+    }
+
 
     Dialog(
         onDismissRequest = {
@@ -352,13 +364,35 @@ fun SettingsContent(
                 LabelText("Settings")
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("Music", musicState){ musicState = !musicState }
+                SettingItem("Music", musicState){
+                    musicState = !musicState
+                    databaseScope.launch {
+                        viewModel.addAppSettings.invoke(
+                            AppSettings(
+                                id = UNDEFINED_ID,
+                                musicState = musicState,
+                                vibrateState = vibrationState
+                            )
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("SE", seState){ seState = !seState }
+                SettingItem("SE", seState){ seState = !seState } // TODO убрать или придумать значение
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("Vibrate", vibrationState){ vibrationState = !vibrationState }
+                SettingItem("Vibrate", vibrationState){
+                    vibrationState = !vibrationState
+                    databaseScope.launch {
+                        viewModel.addAppSettings.invoke(
+                            AppSettings(
+                                id = UNDEFINED_ID,
+                                musicState = musicState,
+                                vibrateState = vibrationState
+                            )
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
@@ -552,30 +586,32 @@ fun RegistrationContent(
                             if (!authState){
                                 //region RegistrationButton
                                 RegistrationButton(){
-                                    auth.createUserWithEmailAndPassword(
-                                        userEmail,
-                                        userPassword
-                                    )
-                                        .addOnSuccessListener {
 
-                                            scope.launch {
-                                                authState = signInFirebase(context, userEmail, userPassword)
+                                    if (userEmail.isNotEmpty() && userPassword.isNotEmpty()){
+                                        auth.createUserWithEmailAndPassword(
+                                            userEmail,
+                                            userPassword
+                                        )
+                                            .addOnSuccessListener {
+
+                                                scope.launch {
+                                                    authState = signInFirebase(context, userEmail, userPassword)
 
 
-                                                // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
-                                                val user = hashMapOf(
-                                                    "first" to "Vlad3",
-                                                    "last" to "Kuvalin3",
-                                                    "born" to 1996,
-                                                    "email" to userEmail,
-                                                    "pass" to userPassword,
-                                                    "language" to "Russia"
-                                                )
+                                                    // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
+                                                    val user = hashMapOf(
+                                                        "first" to "Vlad3",
+                                                        "last" to "Kuvalin3",
+                                                        "born" to 1996,
+                                                        "email" to userEmail,
+                                                        "pass" to userPassword,
+                                                        "language" to "Russia"
+                                                    )
 
-                                                val appCurrency = hashMapOf(
-                                                    "life" to 3,
-                                                    "coins" to 250
-                                                )
+                                                    val appCurrency = hashMapOf(
+                                                        "life" to 3,
+                                                        "coins" to 250
+                                                    )
 
 //                                            db.collection("users") // Дальше бы мне пришлось чередовать .document и .collection
 //                                                .add(user)
@@ -586,32 +622,38 @@ fun RegistrationContent(
 //                                                    Log.w("DATABASE", "Error adding document", e)
 //                                                }
 
-                                                // auth.uid -> т.к. в rules я указал именно такие настройки
-                                                db.document("users/${auth.uid}/user_data/personal_data/")
-                                                    .set(user)
-                                                    .addOnSuccessListener { documentReference ->
-                                                        Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
-                                                    }
-                                                    .addOnFailureListener { e ->
-                                                        Log.w("DATABASE", "Error adding document", e)
-                                                    }
+                                                    // auth.uid -> т.к. в rules я указал именно такие настройки
+                                                    db.document("users/${auth.uid}/user_data/personal_data/")
+                                                        .set(user)
+                                                        .addOnSuccessListener { documentReference ->
+                                                            Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
+                                                        }
+                                                        .addOnFailureListener { e ->
+                                                            Log.w("DATABASE", "Error adding document", e)
+                                                        }
 
-                                                db.document("users/${auth.uid}/user_data/app_currency")
-                                                    .set(appCurrency)
-                                                    .addOnSuccessListener { documentReference ->
-                                                        Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
-                                                    }
-                                                    .addOnFailureListener { e ->
-                                                        Log.w("DATABASE", "Error adding document", e)
-                                                    }
-                                                // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+                                                    db.document("users/${auth.uid}/user_data/app_currency")
+                                                        .set(appCurrency)
+                                                        .addOnSuccessListener { documentReference ->
+                                                            Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
+                                                        }
+                                                        .addOnFailureListener { e ->
+                                                            Log.w("DATABASE", "Error adding document", e)
+                                                        }
+                                                    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+                                                }
+
+
                                             }
+                                            .addOnFailureListener{
+                                                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                                            }
+                                    } else {
+                                        Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show() // TODO сделать реакцию на пустые поля
+                                    }
 
 
-                                        }
-                                        .addOnFailureListener{
-                                            Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
-                                        }
+
                                 }
                                 //endregion
                                 //region ForgotPassButton

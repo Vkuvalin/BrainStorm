@@ -3,6 +3,7 @@ package com.kuvalin.brainstorm.domain.repository
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
+import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
@@ -22,7 +23,8 @@ interface BrainStormRepository {
 
     suspend fun addListOfMessages(listOfMessages: ListOfMessages)
 
-    suspend fun addGameStatistic(gameStatistic: GameStatistic)
+    suspend fun addGameResult(gameResult: GameResult)
+//    suspend fun addGameStatistic(gameStatistic: GameStatistic)
     suspend fun addWarStatistic(warStatistics: WarStatistics)
 
     suspend fun addAppSettings(appSettings: AppSettings)
