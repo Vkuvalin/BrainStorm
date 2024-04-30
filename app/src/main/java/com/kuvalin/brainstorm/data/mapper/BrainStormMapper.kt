@@ -19,11 +19,14 @@ import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import javax.inject.Inject
+
+
 
 class BrainStormMapper @Inject constructor() {
 
+
+    /* ####################################### DATABASE ####################################### */
 
     // UserInfo
     fun mapEntityToDbModelUserInfo(userInfo: UserInfo): UserInfoDbModel {
@@ -107,13 +110,15 @@ class BrainStormMapper @Inject constructor() {
     //endregion
 
 
+
     // ListOfMessages
     fun mapEntityToDbModelListOfMessage(listOfMessages: ListOfMessages): ListOfMessagesDbModel {
         return ListOfMessagesDbModel(
             listOfMessages.uid,
-            listOfMessages.listOfMessages
+            listOfMessages.listOfMessages ?: listOf("")
         )
     }
+
 
 
     // GameResult
@@ -150,7 +155,6 @@ class BrainStormMapper @Inject constructor() {
     fun mapListDbModelToListEntityGameStatistics(list:List<GameStatisticDbModel>) = list.map {
         mapDbModelToEntityGamesStatistic(it)
     }
-
 
 
 
@@ -215,6 +219,7 @@ class BrainStormMapper @Inject constructor() {
     }
 
 
+
     // SocialData
     fun mapEntityToDbModelSocialData(socialData: SocialData): SocialDataDbModel {
         return SocialDataDbModel(
@@ -236,6 +241,113 @@ class BrainStormMapper @Inject constructor() {
             return null
         }
     }
+    /* ########################################################################################## */
 
+
+
+
+
+    /* ######################################## FIREBASE ######################################## */
+
+    // UserInfo
+    fun mapEntityToFirebaseHashMapUserInfo(userInfo: UserInfo): HashMap<String, String> {
+        return hashMapOf(
+            "uid" to userInfo.uid,
+            "name" to (userInfo.name ?: ""),
+            "email" to (userInfo.email ?: ""),
+            "avatar" to "", // Пока не учился хранить файлы
+            "country" to (userInfo.country ?: "")
+        )
+    }
+
+    // SocialData
+    fun mapEntityToFirebaseHashMapSocialData(socialData: SocialData): HashMap<String, String> {
+        return hashMapOf(
+            "uid" to socialData.uid,
+            "twitter" to (socialData.twitter ?: ""),
+            "vk" to (socialData.vk ?: ""),
+            "facebookConnect" to (socialData.facebookConnect.toString())
+        )
+    }
+
+    // AppCurrency
+    fun mapEntityToFirebaseHashMapAppCurrency(appCurrency: AppCurrency): HashMap<String, String> {
+        return hashMapOf(
+            // id и жизни тут бессмысленно хранить, коли это будет занимать только лишнее место
+            "numberOfCoins" to appCurrency.numberOfCoins.toString()
+        )
+    }
+
+    // Friend
+    fun mapEntityToFirebaseHashMapFriendInfo(friendInfo: Friend): HashMap<String, String> {
+        return hashMapOf(
+            "uid" to friendInfo.uid,
+            "name" to (friendInfo.name ?: ""),
+            "email" to (friendInfo.email ?: ""),
+            "avatar" to "", // Пока не учился хранить файлы
+            "country" to (friendInfo.country ?: "")
+        )
+    }
+
+    // Chat
+    fun mapEntityToFirebaseHashMapChat(listOfMessages: ListOfMessages): HashMap<String, Any> {
+        val map = HashMap<String, Any>()
+        map["uid"] = listOfMessages.uid
+        map["list_of_messages"] = listOfMessages.listOfMessages ?: listOf("")
+        return map
+    }
+
+    // GameStatistics
+    fun mapDbModelToFirebaseHashMapGameStatistics(
+        gameStatisticDbModel: GameStatisticDbModel
+    ): HashMap<String, String> {
+        return hashMapOf(
+            "uid" to gameStatisticDbModel.uid,
+            "winRate" to gameStatisticDbModel.gameName,
+            "maxGameScore" to gameStatisticDbModel.maxGameScore.toString(),
+            "avgGameScore" to gameStatisticDbModel.avgGameScore.toString()
+        )
+    }
+    val dictionary = mapOf(
+        "Flick Master" to "flick_master",
+        "Addition Addiction" to "addition_addiction",
+        "Reflection" to "reflection",
+        "Path To Safety" to "path_to_safety",
+        "Rapid Sorting" to "rapid_sorting",
+        "Make10" to "make10",
+        "Break The Block" to "break_the_block",
+        "Hexa Chain" to "hexa_chain",
+        "Color Switch" to "color_switch"
+    )
+    // Преобразование строки в аналогичную форму
+    fun convertToAnalogGameName(original: String)
+    = dictionary[original] ?: throw IllegalArgumentException("Ошибка: Строка '$original' не найдена в словаре.")
+
+    // Обратное преобразование строки
+    fun convertToOriginalGameName(analog: String)
+    = dictionary.entries.find {
+        it.value == analog
+    }?.key ?: throw IllegalArgumentException("Ошибка: Строка '$analog' не найдена в словаре.")
+
+
+
+
+
+
+
+
+    // WarStatistics
+    fun mapEntityToFirebaseHashMapWarStatistics(warStatistics: WarStatistics): HashMap<String, String> {
+        return hashMapOf(
+            "uid" to warStatistics.uid,
+            "winRate" to warStatistics.winRate.toString(),
+            "wins" to warStatistics.wins.toString(),
+            "losses" to warStatistics.losses.toString(),
+            "draws" to warStatistics.draws.toString(),
+            "highestScore" to warStatistics.highestScore.toString()
+        )
+    }
+
+    /* ########################################################################################## */
 
 }

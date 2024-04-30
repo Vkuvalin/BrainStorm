@@ -1,7 +1,7 @@
 package com.kuvalin.brainstorm.data.repository
 
-import android.content.Context
 import com.kuvalin.brainstorm.data.database.UserDataDao
+import com.kuvalin.brainstorm.data.firebase.ApiService
 import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
@@ -11,49 +11,52 @@ import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
-import com.kuvalin.brainstorm.domain.entity.UserINTERNET
+import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
 import javax.inject.Inject
 
 class BrainStormRepositoryImpl @Inject constructor(
-//    private val context: Context,
     private val userDataDao: UserDataDao,
+    private val apiService: ApiService,
     private val mapper: BrainStormMapper
 ): BrainStormRepository {
 
 
+    /* ####################################### DATABASE ####################################### */
 
-    /*
-    Типы данных и виды их хранения:
-    1 - только на устройстве
-    2 - на устройстве и в firebase
-    3 - только в firebase
-    */
-
-    // ADD
-    override suspend fun addUserInfo(userInfo: UserInfo) { // 2
+    // ###################### ADD
+    override suspend fun addUserInfo(userInfo: UserInfo) {
         userDataDao.addUserInfo(mapper.mapEntityToDbModelUserInfo(userInfo))
+        apiService.sendUserInfoToFirestore(userInfo)
     }
 
 
-    override suspend fun addFriend(friend: UserINTERNET) { // 2
+    override suspend fun addFriend(friend: UserRequest) {
         userDataDao.addFriendInfo(
             mapper.mapEntityToDbModelFriendInfo(
-                friend.uid, friend.name, friend.email, friend.avatar, friend.language
+                friend.uid, friend.name, friend.email, friend.avatar, friend.country
             )
         )
         friend.gameStatistic?.map {
             userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistic(it))
         }
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(friend.warStatistics))
+
+        // Добавление в Firebase
+        apiService.sendFriendsToFirestore(getFriend(friend.uid))
     }
 
 
+    /*
+    Наверно неправильно будет во френдах хранить список сообщений, коли он нужен только в чатах;
+    Я буду просто отдельно держать и получать по uid
+    */
 
     override suspend fun addListOfMessages(listOfMessages: ListOfMessages) {
         userDataDao.addListOfMessages(mapper.mapEntityToDbModelListOfMessage(listOfMessages))
+        apiService.sendChatToFirestore(listOfMessages)
     }
 
 
@@ -69,6 +72,8 @@ class BrainStormRepositoryImpl @Inject constructor(
             gameResult.gameName,
             userDataDao.getGameResults(gameResult.uid, gameResult.gameName)
         )
+
+        //TODO apiService.addGameResult - нужно ли? Так-то я могу обработать это и по другому
     }
     private suspend fun addGameStatistic(
         userUid: String,
@@ -85,30 +90,36 @@ class BrainStormRepositoryImpl @Inject constructor(
             maxGameScore = maxGameScope,
             avgGameScore = gameScope.average().toInt()
         ))
+
+        apiService.sendGameStatisticToFirestore(userDataDao.getGameStatistic(userUid, gameName))
     }
 
 
-    override suspend fun addWarStatistic(warStatistics: WarStatistics) { // 2
+    override suspend fun addWarStatistic(warStatistics: WarStatistics) {
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(warStatistics))
+        apiService.sendWarStatisticToFirestore(warStatistics)
     }
 
 
-    override suspend fun addAppSettings(appSettings: AppSettings) { // 1
+    override suspend fun addAppSettings(appSettings: AppSettings) {
         userDataDao.addAppSettings(mapper.mapEntityToDbModelAppSettings(appSettings))
     }
-    override suspend fun addAppCurrency(appCurrency: AppCurrency) { // 1 (разумно 2?)
+    override suspend fun addAppCurrency(appCurrency: AppCurrency) {
         userDataDao.addAppCurrency(mapper.mapEntityToDbModelAppCurrency(appCurrency))
+        apiService.sendAppCurrencyToFirestore(appCurrency)
     }
 
 
     override suspend fun addSocialData(socialData: SocialData) {
         userDataDao.addSocialData(mapper.mapEntityToDbModelSocialData(socialData))
+        apiService.sendSocialDataToFirestore(socialData)
     }
+    // ######################
 
 
 
 
-    // GET
+    // ###################### GET
     override suspend fun getUserInfo(uid: String): UserInfo? {
         return mapper.mapDbModelToEntityUserInfo(userDataDao.getUserInfo(uid))
     }
@@ -133,10 +144,10 @@ class BrainStormRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic { // 2
+    override suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic {
         return mapper.mapDbModelToEntityGamesStatistic(userDataDao.getGameStatistic(uid, gameName))
     }
-    override suspend fun getListGamesStatistics(uid: String): List<GameStatistic> { // 2
+    override suspend fun getListGamesStatistics(uid: String): List<GameStatistic> {
         return mapper.mapListDbModelToListEntityGameStatistics(userDataDao.getListGamesStatistics(uid))
     }
 
@@ -159,8 +170,33 @@ class BrainStormRepositoryImpl @Inject constructor(
         return mapper.mapDbModelToEntitySocialData(userDataDao.getSocialData(uid))
     }
 
+    // Дальше сюда добавится также полностью зависимый от инета функционал GAMES для совместки
+    // ######################
 
-// Дальше сюда добавится также полностью зависимый от инета функционал GAMES для совместки
+    /* ########################################################################################## */
+
+
+
+    /* ##################################### FIREBASE - AUTH #################################### */
+
+    override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
+        return apiService.singInFirebase(email = email, password = password)
+    }
+
+    override suspend fun singUp(email: String, password: String): Pair<Boolean, String> {
+        return apiService.signUpFirebase(email = email, password = password)
+    }
+
+    override suspend fun resetPassword(email: String): Pair<Boolean, String> {
+        return apiService.resetPasswordFirebase(email = email)
+    }
+
+    override suspend fun authorizationCheck(): Boolean {
+        return apiService.authorizationCheckFirebase()
+    }
+
+    /* ########################################################################################## */
+
 }
 
 

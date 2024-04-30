@@ -117,7 +117,7 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameStatistic(gameStatisticDbModel: GameStatisticDbModel)
     @Query("SELECT * FROM games_statistics WHERE uid=:uid AND gameName=:gameName")
-    suspend fun getGameStatistic(uid: String, gameName: String): GameStatisticDbModel // Теперь здесь будет list
+    suspend fun getGameStatistic(uid: String, gameName: String): GameStatisticDbModel
     @Query("SELECT * FROM games_statistics WHERE uid=:uid")
     suspend fun getListGamesStatistics(uid: String): List<GameStatisticDbModel>
 

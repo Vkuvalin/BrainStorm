@@ -1,6 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.menu
 
-import android.util.Log
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.getApplicationComponent
@@ -53,7 +52,6 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.globalClasses.signInFirebase
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
@@ -78,21 +76,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MenuScreen(){
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-
-    // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
-
-    val db = Firebase.firestore
-
-    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-
-
 
     //Buttons
     val dynamicRowWidth = (screenWidth/1.5).toInt()
@@ -469,10 +459,15 @@ private fun SwitchButton(
 
 //endregion
 //region RegistrationContent
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun RegistrationContent(
     onClickDismiss: () -> Unit
 ){
+    // Component
+    val component = getApplicationComponent()
+    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
+
     // Для проигрывания звуков
     val context = LocalContext.current
     val scope = CoroutineScope(Dispatchers.Default)
@@ -482,9 +477,6 @@ fun RegistrationContent(
     val auth = Firebase.auth
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
-
-    // DataStore -> Firebase
-    val db = Firebase.firestore
 
     // TODO Затем добавить в GlobalStates (чтобы подхватывать в других местах)
     var authState by remember { mutableStateOf(false) }
@@ -542,7 +534,7 @@ fun RegistrationContent(
                 ) {
 
                     LabelText("Registration")
-                    Text( // TODO заменить текст на имя или что-то прикольное
+                    Text( // TODO заменить текст на имя или что-то прикольное (также многострочный текст)
                         text = if (!authState) "Зарегистрируйтесь для синхронизации с другими устройствами"
                         else "Вы авторизованы",
                         textAlign = TextAlign.Center,
@@ -558,8 +550,8 @@ fun RegistrationContent(
                     ) {
 
                         // Проверяем авторизован ли уже пользователь
-                        if (auth.currentUser != null){ // TODO Почему-то двойная рекомпозиция
-                            authState = true
+                        scope.launch { // TODO проверить на 2ю рекомпозицию
+                            authState = viewModel.authorizationCheck.invoke()
                         }
 
                         // Если авторизован, то убираем инпуты
@@ -588,68 +580,34 @@ fun RegistrationContent(
                                 RegistrationButton(){
 
                                     if (userEmail.isNotEmpty() && userPassword.isNotEmpty()){
-                                        auth.createUserWithEmailAndPassword(
-                                            userEmail,
-                                            userPassword
-                                        )
-                                            .addOnSuccessListener {
 
-                                                scope.launch {
-                                                    authState = signInFirebase(context, userEmail, userPassword)
+                                        scope.launch {
+                                            val singUpResult = viewModel.singUp.invoke(userEmail, userPassword)
 
-
-                                                    // $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
-                                                    val user = hashMapOf(
-                                                        "first" to "Vlad3",
-                                                        "last" to "Kuvalin3",
-                                                        "born" to 1996,
-                                                        "email" to userEmail,
-                                                        "pass" to userPassword,
-                                                        "language" to "Russia"
-                                                    )
-
-                                                    val appCurrency = hashMapOf(
-                                                        "life" to 3,
-                                                        "coins" to 250
-                                                    )
-
-//                                            db.collection("users") // Дальше бы мне пришлось чередовать .document и .collection
-//                                                .add(user)
-//                                                .addOnSuccessListener { documentReference ->
-//                                                    Log.d("DATABASE", "DocumentSnapshot added with ID: ${documentReference.id}")
-//                                                }
-//                                                .addOnFailureListener { e ->
-//                                                    Log.w("DATABASE", "Error adding document", e)
-//                                                }
-
-                                                    // auth.uid -> т.к. в rules я указал именно такие настройки
-                                                    db.document("users/${auth.uid}/user_data/personal_data/")
-                                                        .set(user)
-                                                        .addOnSuccessListener { documentReference ->
-                                                            Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
-                                                        }
-                                                        .addOnFailureListener { e ->
-                                                            Log.w("DATABASE", "Error adding document", e)
-                                                        }
-
-                                                    db.document("users/${auth.uid}/user_data/app_currency")
-                                                        .set(appCurrency)
-                                                        .addOnSuccessListener { documentReference ->
-                                                            Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
-                                                        }
-                                                        .addOnFailureListener { e ->
-                                                            Log.w("DATABASE", "Error adding document", e)
-                                                        }
-                                                    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+                                            if(singUpResult.first){
+                                                // Сообщение об успешной регистрации
+                                                withContext(Dispatchers.Main) {
+                                                    Toast.makeText(context, singUpResult.second, Toast.LENGTH_LONG).show()
                                                 }
 
+                                                // Дальнейший вход для избежания повторного ввода данных
+                                                val singInResult = viewModel.singIn.invoke(userEmail, userPassword)
+                                                authState = singInResult.first
 
+                                                withContext(Dispatchers.Main) {
+                                                    Toast.makeText(context, singInResult.second, Toast.LENGTH_LONG).show()
+                                                }
+
+                                            }else{
+                                                withContext(Dispatchers.Main) {
+                                                    Toast.makeText(context, singUpResult.second, Toast.LENGTH_LONG).show()
+                                                }
                                             }
-                                            .addOnFailureListener{
-                                                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
-                                            }
+                                        }
+
                                     } else {
-                                        Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show() // TODO сделать реакцию на пустые поля
+                                        // TODO сделать реакцию на пустые поля, непосредственно в самих полях (типа там красить их и тп)
+                                        Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show()
                                     }
 
 
@@ -658,13 +616,15 @@ fun RegistrationContent(
                                 //endregion
                                 //region ForgotPassButton
                                 ForgotPassButton(){
+
                                     if (userEmail != ""){
-                                        auth.sendPasswordResetEmail(userEmail)
-                                        Toast.makeText(
-                                            context,
-                                            "На указанную почту была отправлена ссылка для смены пароля",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        scope.launch {
+                                            val resetPasswordResult = viewModel.resetPassword.invoke(userEmail)
+
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(context, resetPasswordResult.second, Toast.LENGTH_LONG).show()
+                                            }
+                                        }
                                     } else {
                                         Toast.makeText(
                                             context,
@@ -672,6 +632,7 @@ fun RegistrationContent(
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
+
                                 }
                                 //endregion
                             }
@@ -680,34 +641,16 @@ fun RegistrationContent(
                             LogInLogOutButton(authState){
                                 if (!authState) {
                                     scope.launch {
-                                        authState = signInFirebase(context, userEmail, userPassword)
-                                        Log.d("AUTH", "SING IN")
+                                        val singInResult = viewModel.singIn.invoke(userEmail, userPassword)
+                                        authState = singInResult.first
 
-//                                        db.collection("users")
-//                                            .get()
-//                                            .addOnSuccessListener {result ->
-//                                                for (document in result){
-//                                                    Log.d("DATABASE", "${document.id} => ${document.data}")
-//                                                    Log.d("DATABASE", "${document.data["email"]}")
-//                                                }
-//
-//                                            }
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(context, singInResult.second, Toast.LENGTH_LONG).show()
+                                        }
 
-                                        db.document("users/${auth.uid}/user_data/app_currency/")
-                                            .addSnapshotListener { value, error ->
-                                                Log.d("DATABASE", "${value?.data?.get("coins")}")
-                                            }
-//                                            .addOnSuccessListener {result ->
-//                                                for (document in result){
-//                                                    Log.d("DATABASE", "${document.id} => ${document.data}")
-//                                                    Log.d("DATABASE", "${document.data["email"]}")
-//                                                }
-//
-//                                            }
                                     }
 
                                 }else{
-                                    Log.d("AUTH", "SING OUT")
                                     auth.signOut()
                                     authState = false
                                 }

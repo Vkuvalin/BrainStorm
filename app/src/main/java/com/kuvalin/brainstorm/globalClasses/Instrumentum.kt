@@ -25,6 +25,8 @@ import androidx.lifecycle.Lifecycle
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.kuvalin.brainstorm.data.firebase.ApiService
+import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,9 +34,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
 import okio.IOException
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
 
 // ###################### АКТИВНЫЕ ######################
 
@@ -234,24 +236,6 @@ object NoRippleTheme : RippleTheme {
 //endregion
 // ######################
 
-// ###################### Авторизация Firebase
-@SuppressLint("CoroutineCreationDuringComposition")
-suspend fun signInFirebase(context: Context, email: String, pass: String): Boolean {
-
-    return suspendCoroutine { continuation ->
-        val auth = Firebase.auth
-        auth.signInWithEmailAndPassword(email, pass)
-            .addOnSuccessListener {
-                continuation.resume(true)
-            }
-            .addOnFailureListener {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
-                continuation.resume(false)
-            }
-    }
-}
-// ######################
-
 // ######################################################
 
 
@@ -264,11 +248,41 @@ suspend fun signInFirebase(context: Context, email: String, pass: String): Boole
 //Log.d("DEBUG-1", "--------------END--------------")
 // ######################
 
+/* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+/* ########################################################################################## */
+
 // ######################################################
 
 
-/* ####################################### ПЕРЕМЕННЫЕ ####################################### */
-/* ########################################################################################## */
+
+
+
+// ##################### РАЗЛИЧНАЯ ТЕОРИЯ #####################
+
+//region Log.d, Log,w и далее
+
+/**
+ * Log.d:
+
+  * Этот метод используется для записи отладочных сообщений (debug).
+  * Он предназначен для вывода информации, которая полезна при разработке и отладке приложения.
+  * Сообщения, записываемые с помощью Log.d, обычно содержат информацию о состоянии приложения,
+  * значения переменных, потоке выполнения и так далее. Обычно эти сообщения выводятся в лог,
+  * когда приложение находится в режиме отладки.
+
+ * -
+
+ * Log.w:
+
+  * Этот метод используется для записи предупреждений (warnings).
+  * Он предназначен для сообщений об ошибках или неожиданных ситуациях, которые не приводят
+  * к критическому сбою приложения, но требуют внимания разработчика. Такие сообщения обычно
+  * указывают на потенциальные проблемы в коде или настройках приложения.
+*/
+//endregion
+
+// ############################################################
+
 
 
 
@@ -391,3 +405,7 @@ suspend fun signInFirebase(context: Context, email: String, pass: String): Boole
 //    //endregion
 //}
 //endregion
+
+
+
+class Pystoi_klacc_dlya_paboti_docymmentation() {}
