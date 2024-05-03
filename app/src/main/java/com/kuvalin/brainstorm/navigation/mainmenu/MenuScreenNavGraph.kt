@@ -7,13 +7,17 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.kuvalin.brainstorm.navigation.mainmenu.war.warScreenNavGraph
 import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 
 fun NavGraphBuilder.menuScreenNavGraph(
     currentRoute: NavBackStackEntry?,
     menuScreenContent: @Composable () -> Unit,
     mainMenuScreenContent: @Composable () -> Unit,
-    profileScreenContent: @Composable () -> Unit
+    profileScreenContent: @Composable () -> Unit,
+
+    searchForWarScreenContent: @Composable () -> Unit,
+    warScreenContent: @Composable () -> Unit
 ) {
 
     // Эта хуйня обновляется лишние разы, но в общем-то похуй
@@ -56,6 +60,13 @@ fun NavGraphBuilder.menuScreenNavGraph(
         ) {
             profileScreenContent()
         }
+
+
+        warScreenNavGraph(
+            searchForWarScreenContent = searchForWarScreenContent,
+            warScreenContent = warScreenContent
+        )
+
     }
 
 }

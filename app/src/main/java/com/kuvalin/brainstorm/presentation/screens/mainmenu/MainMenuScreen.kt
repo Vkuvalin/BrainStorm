@@ -58,7 +58,6 @@ import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CrosshairColor
@@ -68,6 +67,7 @@ import com.kuvalin.brainstorm.ui.theme.GameLevelBColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelCColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelSColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -237,8 +237,8 @@ fun MainMenuScreen(
         ) {
 
             StatisticsCards(screenWidth)
-            DrawingChart()
-            ButtonChallenge()
+            DrawingChart(workMode = 1)
+            ButtonChallenge{ navigationState.navigateToSearchForWar() }
 
         }
 
@@ -431,14 +431,20 @@ fun StatisticsCard(
 }
 //endregion
 
-// ### DrawingChart
-//region DrawingChart
+// ###################### DrawingChart
+//region DrawingChart // TODO Перенести функцию как глобальную?
 @Composable
-fun DrawingChart() {
+fun DrawingChart(
+    // Пожалуй оставлю это будущему себе, а пока сделаю на отъебись.
+    // В общем-то она больше не будет использоваться.
+    // Планировалось 3 места: главный экран, поделиться статистикой и экран игры
+    workMode: Int
+) {
 
     val modifier: Modifier = Modifier
         .clip(CircleShape)
         .size(240.dp)
+        .scale(if (workMode == 1) 1f else 0.8f)
 
 
     Box(
@@ -448,37 +454,43 @@ fun DrawingChart() {
     ) {
 
         Circle(modifier)
-        CircleBackground(modifier)
+        CircleBackground(modifier = modifier, workMode = workMode)
         Crosshair(modifier)
 
-        SkillNamePolus(text = "Speed", x = 5f, y = -110f)
-        SkillNamePolus(text = "Accuracy", x = 10f, y = 125f)
+        SkillNamePolus(text = "Speed", x = 5f, y = -110f, workMode = workMode)
+        SkillNamePolus(text = "Accuracy", x = 10f, y = 125f, workMode = workMode)
 
-        SkillName(text = "Judgement", x = 75f * 1.6f, y = -55f)
-        SkillName(text = "Calculation", x = 75f * 1.6f, y = 70f)
-        SkillName(text = "Memory", x = -80f * 1.6f, y = -55f)
-        SkillName(text = "Observation", x = -98f * 1.6f, y = 70f)
+        SkillName(text = "Judgement", x = 75f * 1.6f, y = -55f, workMode = workMode)
+        SkillName(text = "Calculation", x = 75f * 1.6f, y = 70f, workMode = workMode)
+        SkillName(text = "Memory", x = -80f * 1.6f, y = -55f, workMode = workMode)
+        SkillName(text = "Observation", x = -98f * 1.6f, y = 70f, workMode = workMode)
 
-        Neck()
-        Chin(modifier)
+        if (workMode == 1){
+            Neck()
+            Chin(modifier)
+        }
 
         Graph(
-            speed = (Random.nextInt(100, 1000) * 0.9).toInt(),
-            judgement = (Random.nextInt(100, 1000) * 0.9).toInt(),
-            calculation = (Random.nextInt(100, 1000) * 0.9).toInt(),
-            accuracy = (Random.nextInt(100, 1000) * 0.9).toInt(),
-            observation = (Random.nextInt(100, 1000) * 0.9).toInt(),
-            memory = (Random.nextInt(100, 1000) * 0.9).toInt()
+            speed = (Random.nextInt(100, 1000) * if (workMode == 1) 0.9 else 0.8).toInt(),
+            judgement = (Random.nextInt(100, 1000) * if (workMode == 1) 0.9 else 0.8).toInt(),
+            calculation = (Random.nextInt(100, 1000) * if (workMode == 1) 0.9 else 0.8).toInt(),
+            accuracy = (Random.nextInt(100, 1000) * if (workMode == 1) 0.9 else 0.8).toInt(),
+            observation = (Random.nextInt(100, 1000) * if (workMode == 1) 0.9 else 0.8).toInt(),
+            memory = (Random.nextInt(100, 1000) * if (workMode == 1) 0.9 else 0.8).toInt(),
+            workMode = 1
         )
 
-//        Graph(
-//            speed = (851 * 0.9).toInt(),
-//            judgement = (803 * 0.9).toInt(),
-//            calculation = (701 * 0.9).toInt(),
-//            accuracy = (951 * 0.9).toInt(),
-//            observation = (845 * 0.9).toInt(),
-//            memory = (998 * 0.9).toInt()
-//        )
+        if (workMode == 3){
+            Graph(
+                speed = (Random.nextInt(100, 1000) * 0.8).toInt(),
+                judgement = (Random.nextInt(100, 1000) * 0.8).toInt(),
+                calculation = (Random.nextInt(100, 1000) * 0.8).toInt(),
+                accuracy = (Random.nextInt(100, 1000) * 0.8).toInt(),
+                observation = (Random.nextInt(100, 1000) * 0.8).toInt(),
+                memory = (Random.nextInt(100, 1000) * 0.8).toInt(),
+                workMode = 3
+            )
+        }
 
 
     }
@@ -502,11 +514,10 @@ private fun Circle(modifier: Modifier) {
 
     }
 }
-
 //endregion
 //region CircleBackground
 @Composable
-private fun CircleBackground(modifier: Modifier) {
+private fun CircleBackground(modifier: Modifier, workMode: Int) {
     Canvas(
         modifier = modifier
             .zIndex(-1f)
@@ -514,7 +525,7 @@ private fun CircleBackground(modifier: Modifier) {
 
         drawCircle(
             center = Offset(center.x, center.y),
-            color = Color(0xFFE6E6E6),
+            color = if (workMode == 1) Color(0xFFE6E6E6) else Color.White,
             radius = 120.dp.toPx(),
             style = Fill
         )
@@ -577,7 +588,8 @@ fun Graph(
     calculation: Int = 0,
     accuracy: Int = 0,
     observation: Int = 0,
-    memory: Int = 0
+    memory: Int = 0,
+    workMode: Int
 ) {
 
     val degreeConstant = 1.6
@@ -615,7 +627,7 @@ fun Graph(
                 lineTo(center.x, center.y - calculateLevel(speed, policy = true).dp.toPx()) // Speed
 
             },
-            color = CrosshairColor,
+            color = if (workMode != 3) CrosshairColor else PinkAppColor,
             style = Fill,
             alpha = 0.5f
         )
@@ -637,7 +649,7 @@ private fun calculateLevel(rating: Int, policy: Boolean = false): Double {
 //region SkillNames
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun SkillName(text: String, x: Float = 0f, y: Float = 0f) {
+fun SkillName(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
 
     //region Старый вариант
     val density = LocalDensity.current.density
@@ -645,6 +657,8 @@ fun SkillName(text: String, x: Float = 0f, y: Float = 0f) {
     //endregion
 
     val textMeasurer = rememberTextMeasurer()
+    val color = if (workMode == 1) Color(0xFF3EB5B2)
+    else if (text == "Memory" || text == "Judgement") Color.White else Color.Black
 
     Canvas(
         modifier = Modifier
@@ -657,7 +671,7 @@ fun SkillName(text: String, x: Float = 0f, y: Float = 0f) {
         val textLayoutResult = textMeasurer.measure(
             text = text,
             style = TextStyle(
-                color = Color(0xFF3EB5B2),
+                color = color,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.W500
             )
@@ -672,7 +686,7 @@ fun SkillName(text: String, x: Float = 0f, y: Float = 0f) {
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f) {
+fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
 
     //region Старый вариант
     val density = LocalDensity.current.density
@@ -680,6 +694,8 @@ fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f) {
     //endregion
 
     val textMeasurer = rememberTextMeasurer()
+    val color = if (workMode == 1) Color(0xFF3EB5B2)
+    else if (text == "Speed") Color.White else Color.Black
 
     Canvas(
         modifier = Modifier
@@ -692,7 +708,7 @@ fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f) {
         val textLayoutResult = textMeasurer.measure(
             text = text,
             style = TextStyle(
-                color = Color(0xFF3EB5B2),
+                color = color,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.W500
             )
@@ -865,18 +881,22 @@ fun Chin(modifier: Modifier) {
     }
 }
 //endregion
-// ###
+// ######################
 
 //region ButtonChallenge
 @Composable
-private fun ButtonChallenge() {
+private fun ButtonChallenge(
+    onButtonClick: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .clip(RoundedCornerShape(25))
             .background(color = CyanAppColor)
             .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(25))
-            .noRippleClickable { },
+            .noRippleClickable {
+                onButtonClick()
+            },
     ) {
         Text(
             text = "Challenge",

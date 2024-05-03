@@ -37,4 +37,7 @@ interface ApiService {
 
     // Получение (перенос данных на другое уст-во делать не буду пока что)
     suspend fun getDataFromFirestore(documentPath: String): Any?
+
+    // Game
+    suspend fun findTheGame(): Boolean
 }

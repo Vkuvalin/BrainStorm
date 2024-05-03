@@ -73,6 +73,8 @@ fun GameResults(
 ){
     BackHandler { onBackButtonClick() }
 
+
+
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
 
     // Для проигрывания звуков
@@ -97,8 +99,6 @@ fun GameResults(
     val component = getApplicationComponent()
     val viewModel: GamesViewModel = viewModel(factory = component.getViewModelFactory())
     val userUid = Firebase.auth.uid ?: "zero_user_uid"
-
-
 
     /* ########################################################################################## */
 

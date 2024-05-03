@@ -26,9 +26,13 @@ val navigationItems = listOf(
 @Composable
 fun AppNavGraph (
     navHostController: NavHostController,
+
     mainMenuScreenContent: @Composable () -> Unit,
     menuScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
+
+    searchForWarScreenContent: @Composable () -> Unit,
+    warScreenContent: @Composable () -> Unit,
 
     friendsScreenContent: @Composable () -> Unit,
     achievementsScreenContent: @Composable () -> Unit,
@@ -85,7 +89,10 @@ fun AppNavGraph (
             currentRoute = currentRoute,
             mainMenuScreenContent = mainMenuScreenContent,
             menuScreenContent = menuScreenContent,
-            profileScreenContent = profileScreenContent
+            profileScreenContent = profileScreenContent,
+
+            searchForWarScreenContent = searchForWarScreenContent,
+            warScreenContent = warScreenContent
         )
         composable(
             route = Screen.Friends.route,

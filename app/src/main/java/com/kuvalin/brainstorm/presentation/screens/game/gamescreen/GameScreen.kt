@@ -123,9 +123,10 @@ fun GameScreen(
                                             loadFinish = false
                                             onBackButtonClick()
                                             navigationState.navigateTo(GamesScreen.GameInitial.route)
-                                        }
+                                        },
+                                        putActualScope = {}
                                     ){
-                                            countCorrect, countIncorrect, gameScope, internalAccuracy ->
+                                        countCorrect, countIncorrect, gameScope, internalAccuracy ->
                                         correct = countCorrect
                                         incorrect = countIncorrect
                                         accuracy = internalAccuracy
@@ -144,7 +145,8 @@ fun GameScreen(
                                             loadFinish = false
                                             onBackButtonClick()
                                             navigationState.navigateTo(GamesScreen.GameInitial.route)
-                                        }
+                                        },
+                                        putActualScope = {}
                                     )
                                     {countCorrect, countIncorrect,gameScope , internalAccuracy ->
                                         correct = countCorrect

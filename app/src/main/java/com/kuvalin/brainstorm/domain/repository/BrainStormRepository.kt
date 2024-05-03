@@ -54,13 +54,16 @@ interface BrainStormRepository {
     
     
     /* ##################################### FIREBASE - AUTH #################################### */
-    
     suspend fun singIn(email: String, password: String): Pair<Boolean, String>
     suspend fun singUp(email: String, password: String): Pair<Boolean, String>
     suspend fun resetPassword(email: String): Pair<Boolean, String>
     suspend fun authorizationCheck(): Boolean
-
     /* ########################################################################################## */
 
 
+
+
+    /* ########################################## GAME ########################################## */
+    suspend fun findTheGame(): Boolean
+    /* ########################################################################################## */
 }

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -104,6 +106,7 @@ val listOfLists: List<List<Int>> = listOf(
 fun PathToSafety(
     topBarHeight: Int, // Костыль,
     onBackButtonClick: () -> Unit,
+    putActualScope: (gameScope: Int) -> Unit, // TODO Пока костыль для экономии времени ТОЧКА-1
     putGameResult: (countCorrect: Int, countIncorrect: Int, gameScope: Int, internalAccuracy: Float) -> Unit
 ){
 
@@ -320,22 +323,22 @@ fun PathToSafety(
 
         //region Box - под мышкой. Если находится в нужной области красится в красный
         //        Box(
-//            modifier = Modifier
-//                .zIndex(5f)
-//                .size(10.dp)
-//                .drawWithContent {
-//                    val position = touchPosition
-//                    this.drawContent()
-//                    val boxSize = 10.dp.toPx() // размеры Box
-//                    val topLeftX = position.x - (boxSize / 2) // центрирование по X
-//                    val topLeftY = position.y - (boxSize / 2) // центрирование по Y
-//                    drawRect(
-//                        color = if (isInCell) Color.Red else Color.Green,
-//                        topLeft = Offset(topLeftX, topLeftY),
-//                        size = Size(boxSize, boxSize)
-//                    )
-//                }
-//        )
+        //            modifier = Modifier
+        //                .zIndex(5f)
+        //                .size(10.dp)
+        //                .drawWithContent {
+        //                    val position = touchPosition
+        //                    this.drawContent()
+        //                    val boxSize = 10.dp.toPx() // размеры Box
+        //                    val topLeftX = position.x - (boxSize / 2) // центрирование по X
+        //                    val topLeftY = position.y - (boxSize / 2) // центрирование по Y
+        //                    drawRect(
+        //                        color = if (isInCell) Color.Red else Color.Green,
+        //                        topLeft = Offset(topLeftX, topLeftY),
+        //                        size = Size(boxSize, boxSize)
+        //                    )
+        //                }
+        //        )
         //endregion
         Spacer(modifier = Modifier.weight(3f)) // Имитация LazyVerticalGrid
         //region Кнопка "Запомнил"
@@ -346,10 +349,15 @@ fun PathToSafety(
                 .offset(y = (topBarHeight).dp) // Костыль
         ){
             if (!startStage) {
+                LaunchedEffect(Unit) {
+                    if (resultsList.size != 0){
+                        putActualScope(if (resultsList.last() > 0) 53 else -22) // TODO Пока костыль для экономии времени ТОЧКА-2
+                    }
+                }
                 StringButton(color = Color(0xFFFF7700)){
-                    Log.d("DEBUG-11", "------------ $isDraggingMap -----------isDraggingMap-1")
-                    Log.d("DEBUG-11", "------------ $listCell -----------listCell-1")
-                    Log.d("DEBUG-11", "------------ $listClickableIndexes -----------listClickableIndexes-1")
+//                    Log.d("DEBUG-11", "------------ $isDraggingMap -----------isDraggingMap-1")
+//                    Log.d("DEBUG-11", "------------ $listCell -----------listCell-1")
+//                    Log.d("DEBUG-11", "------------ $listClickableIndexes -----------listClickableIndexes-1")
                     startStage = true
                 }
             }
@@ -358,10 +366,10 @@ fun PathToSafety(
     }
 
 
-    // Подсчет результатов игры
+    //region Подсчет результатов игры
     LaunchedEffect(Unit) {
-        delay(20000)
-        while (countTimer < 10){
+        delay(10000)
+        while (countTimer <= 10){
             musicScope.launch {
                 MusicPlayer(context = context).run {
                     playTimer()
@@ -390,6 +398,7 @@ fun PathToSafety(
         val scopeGame = resultsList.sum()
         putGameResult(countCorrect, countIncorrect, if (scopeGame < 0) 0 else scopeGame, (countCorrect.toFloat()/resultsList.size.toFloat()))
     }
+    //endregion
 
 }
 

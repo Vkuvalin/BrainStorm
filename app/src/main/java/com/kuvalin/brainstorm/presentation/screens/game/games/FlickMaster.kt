@@ -36,6 +36,7 @@ import kotlin.math.abs
 @Composable
 fun FlickMaster(
     onBackButtonClick: () -> Unit,
+    putActualScope: (gameScope: Int) -> Unit, // TODO Пока костыль для экономии времени ТОЧКА-1
     putGameResult: (countCorrect: Int, countIncorrect: Int, gameScope: Int, internalAccuracy: Float) -> Unit
 ){
 
@@ -86,6 +87,7 @@ fun FlickMaster(
                                 }
                             }
                             countCorrect++
+                            putActualScope(53) // TODO Пока костыль для экономии времени ТОЧКА-2
                         }
                         else {
                             musicScope.launch {
@@ -96,6 +98,7 @@ fun FlickMaster(
                                 }
                             }
                             countIncorrect++
+                            putActualScope(-22) // TODO Пока костыль для экономии времени ТОЧКА-2
                         }
 
                         // Заверщающий этап (подчищаем/обновляем)
@@ -119,7 +122,7 @@ fun FlickMaster(
 
         LaunchedEffect(Unit) {
             delay(10000)
-            while (countTimer < 10){
+            while (countTimer <= 10){
                 musicScope.launch {
                     MusicPlayer(context = context).run {
                         playTimer()

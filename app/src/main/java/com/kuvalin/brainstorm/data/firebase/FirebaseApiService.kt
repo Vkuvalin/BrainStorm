@@ -98,7 +98,7 @@ class FirebaseApiService @Inject constructor(
     */
 
     // ###################### FIRESTORE_PATH
-    private fun getFireStorePath(
+    private fun getFireStoreUserPath(
         userUid: String,
         pathName: String,
         gameName: String = "",
@@ -128,7 +128,7 @@ class FirebaseApiService @Inject constructor(
     // UserInfo
     override suspend fun sendUserInfoToFirestore(userInfo: UserInfo) {
         if (fireBase.auth.uid != null){
-            val userInfoPath = getFireStorePath(fireBase.auth.uid.toString(), "userInfo")
+            val userInfoPath = getFireStoreUserPath(fireBase.auth.uid.toString(), "userInfo")
 
             try {
                 fireBase.firestore.document(userInfoPath)
@@ -150,7 +150,7 @@ class FirebaseApiService @Inject constructor(
     // SocialData
     override suspend fun sendSocialDataToFirestore(socialData: SocialData) {
         if (fireBase.auth.uid != null){
-            val socialDataPath = getFireStorePath(fireBase.auth.uid.toString(), "socialData")
+            val socialDataPath = getFireStoreUserPath(fireBase.auth.uid.toString(), "socialData")
 
             try {
                 fireBase.firestore.document(socialDataPath)
@@ -172,7 +172,7 @@ class FirebaseApiService @Inject constructor(
     // AppCurrency
     override suspend fun sendAppCurrencyToFirestore(appCurrency: AppCurrency) {
         if (fireBase.auth.uid != null){
-            val appCurrencyPath = getFireStorePath(fireBase.auth.uid.toString(), "appCurrency")
+            val appCurrencyPath = getFireStoreUserPath(fireBase.auth.uid.toString(), "appCurrency")
 
             try {
                 fireBase.firestore.document(appCurrencyPath)
@@ -199,7 +199,7 @@ class FirebaseApiService @Inject constructor(
     override suspend fun sendFriendsToFirestore(friend: Friend) {
         if (fireBase.auth.uid != null){
             val userUid = fireBase.auth.uid.toString()
-            val friendInfoPath = getFireStorePath(
+            val friendInfoPath = getFireStoreUserPath(
                 userUid = userUid,
                 pathName = "friendsInfo",
                 uid = friend.uid
@@ -251,7 +251,7 @@ class FirebaseApiService @Inject constructor(
     // Chat
     override suspend fun sendChatToFirestore(listOfMessages: ListOfMessages) {
         if (fireBase.auth.uid != null){
-            val chatPath = getFireStorePath(
+            val chatPath = getFireStoreUserPath(
                 userUid = fireBase.auth.uid.toString(),
                 pathName = "chats",
                 uid = listOfMessages.uid
@@ -278,7 +278,7 @@ class FirebaseApiService @Inject constructor(
     // GameStatistic
     override suspend fun sendGameStatisticToFirestore(gameStatisticDbModel: GameStatisticDbModel) {
         if (fireBase.auth.uid != null){
-            val gameStatisticsPath = getFireStorePath(
+            val gameStatisticsPath = getFireStoreUserPath(
                 userUid = fireBase.auth.uid.toString(),
                 pathName = "gameStatistics",
                 uid = gameStatisticDbModel.uid,
@@ -306,7 +306,7 @@ class FirebaseApiService @Inject constructor(
     // WarStatistic
     override suspend fun sendWarStatisticToFirestore(warStatistics: WarStatistics) {
         if (fireBase.auth.uid != null){
-            val warStatisticsPath = getFireStorePath(
+            val warStatisticsPath = getFireStoreUserPath(
                 userUid = fireBase.auth.uid.toString(),
                 pathName = "warStatistics",
                 uid = warStatistics.uid
@@ -365,7 +365,44 @@ class FirebaseApiService @Inject constructor(
         2.1.5 После каждой игры будет выбрасывать на определенный экран как в браин варс:
     */
 
+    /*
+        Вторую аву и доп.инфу я буду тащить из инета. Нужно научиться сохранять файлы в firebase,
+        а затем их как-то тут раскрывать.
+
+        Avatar, name, grade, rank
+    */
+
     // ######################
+    override suspend fun findTheGame(): Boolean {
+        val result = fireBase.firestore.collection("games").get().await()
+
+        // Если нет ни одной свободной игры, то возвращаем false, чтобы создать самим
+        if (result.size() == 0) { return false }
+
+        for (document in result){
+            Log.d("DATABASE", "${document.id} => FIRST")
+            if (document.data["pink_user"] == ""){
+                Log.d("DATABASE", "${document.id} => SECOND")
+                Log.d("DATABASE", "${document.data["cyan_user"]} => CYAN USER")
+            }
+        }
+
+        return true
+
+
+//            .addOnSuccessListener {result ->
+//                if (result.size() == 0){
+//                    return@addOnSuccessListener
+//                }
+//                for (document in result){
+//                    Log.d("DATABASE", "${document.id} => ${document.data}")
+//                    Log.d("DATABASE", "${document.data["email"]}")
+//                }
+//            }
+//            .addOnFailureListener {
+//                Log.d("DATABASE", "$it")
+//            }
+    }
 
 
     /* ########################################################################################## */

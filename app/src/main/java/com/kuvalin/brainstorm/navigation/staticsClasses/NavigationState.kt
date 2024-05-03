@@ -22,13 +22,23 @@ class NavigationState(
     }
 
     // Функция перехода в меню с главного экрана (точки)
-    fun navigateToMenu() {
-        navHostController.navigate(Screen.Menu.route)
-    }
+    fun navigateToMenu() {navHostController.navigate(Screen.Menu.route)}
 
     // Функция перехода в профиль с главного экрана (аватарка)
-    fun navigateToProfile() {
-        navHostController.navigate(Screen.Profile.route)
+    fun navigateToProfile() {navHostController.navigate(Screen.Profile.route)}
+
+    // Функция перехода в поиск соперника
+    fun navigateToSearchForWar() {navHostController.navigate(Screen.SearchForWar.route)}
+
+    // Функция перехода в онлайн игру, после нахождения соперника
+    fun navigateToWar() {navHostController.navigate(Screen.War.route)}
+
+
+    // Функция перехода в онлайн игру, после нахождения соперника
+    fun navigateToHome() {
+        navHostController.navigate(Screen.Home.route) {
+            popUpTo(Screen.Home.route) { inclusive = true}
+        }
     }
 
 }

@@ -48,7 +48,6 @@ import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.navigation.mainmenu.AppNavGraph
 import com.kuvalin.brainstorm.navigation.mainmenu.NavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
@@ -62,6 +61,8 @@ import com.kuvalin.brainstorm.presentation.screens.game.GameSettingsButton
 import com.kuvalin.brainstorm.presentation.screens.game.GamesMainScreen
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.menu.MenuScreen
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.profile.ProfileScreenContent
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.SearchForWar
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.WarScreen
 import com.kuvalin.brainstorm.presentation.screens.statistics.StatisticsMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
@@ -276,9 +277,22 @@ fun MainScreen(
         //region AppNavGraph
         AppNavGraph(
             navHostController = navigationState.navHostController,
+
             mainMenuScreenContent = { MainMenuScreen(navigationState, paddingValues) },
             menuScreenContent = { MenuScreen() },
             profileScreenContent = { ProfileScreenContent(paddingValues) },
+
+            //region Почему решил сделать так?
+            /*
+            Решил не делать аналогично с GamesMainScreen, потому что там прям отдельная навигационный
+            экран с множеством особенностей, а тут всё-таки просто несколько последовательных экранов.
+
+            Да, логика своя будет, но она будет привязана к своей отдельной ViewModel.
+            В общем не вижу проблемы в данной реализации, хоть и вышеупомянутый вариант выглядит лучше.
+            */
+            //endregion
+            searchForWarScreenContent = { SearchForWar(navigationState) },
+            warScreenContent = { WarScreen(navigationState) },
 
             friendsScreenContent = { FriendsMainScreen(paddingValues) },
             achievementsScreenContent = { AchievementsScreen(paddingValues) },

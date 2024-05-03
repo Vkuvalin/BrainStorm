@@ -36,7 +36,6 @@ import androidx.compose.ui.zIndex
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
@@ -186,7 +185,7 @@ fun ShareContent(
                         }
                     }
                     //endregion
-                    Box(modifier = Modifier.scale(0.85f)){ DrawingChart() }
+                    Box(modifier = Modifier.scale(0.85f)){ DrawingChart(workMode = 1) }
                 }
 
                 Spacer(modifier = Modifier
