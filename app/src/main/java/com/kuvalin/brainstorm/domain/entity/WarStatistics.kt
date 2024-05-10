@@ -6,5 +6,5 @@ data class WarStatistics(
     val wins: Int = 0,
     val losses: Int = 0,
     val draws: Int = 0,
-    val highestScore: Int
+    val highestScore: Int = 0
 )

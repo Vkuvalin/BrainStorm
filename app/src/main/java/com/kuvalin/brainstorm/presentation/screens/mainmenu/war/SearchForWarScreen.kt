@@ -1,6 +1,7 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.war
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -34,18 +35,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
+import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.delay
+
+
+/**
+ * UserInfo тащить сюда не буду. Пусть остаются заглушки.
+*/
 
 
 @Composable
@@ -62,28 +71,24 @@ fun SearchForWar(
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
 
     val component = getApplicationComponent()
-//    val viewModel: GamesViewModel = viewModel(factory = component.getViewModelFactory())
+    val viewModel: WarViewModel = viewModel(factory = component.getViewModelFactory())
+
 
     // Аватар
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
 
 
-
     var waitOpponent by remember { mutableStateOf(true) }
-    //region waitOpponent
-    // После перевода waitOpponent в false будет переход на следующий экран
-    // Примерно вот так это будет работать. Но мне нужно будет реализовать логику, которую я где-то
-    if (!waitOpponent){
-        LaunchedEffect(Unit) {
-            delay(2000)
-            navigationState.navigateToWar()
+    LaunchedEffect(Unit) {
+        val result = viewModel.findTheGame.invoke()
+        Log.d("FIREBASE_REQUEST", "$result")
+
+        if (result.first){
+            waitOpponent = false
+            delay(3000)
+            navigationState.navigateToWar(result.second)
         }
     }
-    LaunchedEffect(Unit) {
-        delay(3000)
-        waitOpponent = !waitOpponent
-    }
-    //endregion
 
     //region Анимация scale надписи ожидания
     val infiniteWaitText = rememberInfiniteTransition(label = "")
@@ -168,9 +173,12 @@ private fun UserInfo(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp)
-                .weight(1f)
+                .weight(2f)
         ) {
-            Row(modifier = Modifier.fillMaxSize()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxSize()
+            ) {
                 //region Avatar
                 Box(
                     modifier = Modifier.weight(1f),
@@ -201,8 +209,10 @@ private fun UserInfo(
                 //endregion
                 //region Имя + Grade/Rank
                 Column(
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxHeight()
+                        .weight(2f)
                         .padding(start = 10.dp)
                 ) {
                     Text(
@@ -212,26 +222,25 @@ private fun UserInfo(
                         fontWeight = FontWeight.W400
                     )
                     Column(
-                        modifier = Modifier.fillMaxWidth(0.6f)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         //region Grade
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-
                             ) {
                             Row(
-                                modifier = Modifier.weight(2f)
+                                modifier = Modifier.weight(1f)
                             ) {
                                 Text(
                                     text = "Grade",
                                     color = Color.White,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.W400,
-                                    modifier = Modifier.padding(end = 10.dp)
+                                    modifier = Modifier.padding(end = 5.dp)
                                 )
                             }
                             Row(
-                                modifier = Modifier.weight(3f)
+                                modifier = Modifier.weight(2f)
                             ) {
                                 Text(
                                     text = grade,
@@ -247,18 +256,18 @@ private fun UserInfo(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(
-                                modifier = Modifier.weight(2f)
+                                modifier = Modifier.weight(1f)
                             ) {
                                 Text(
                                     text = "Rank",
                                     color = Color.White,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.W400,
-                                    modifier = Modifier.padding(end = 10.dp)
+                                    modifier = Modifier.padding(end = 5.dp)
                                 )
                             }
                             Row(
-                                modifier = Modifier.weight(3f)
+                                modifier = Modifier.weight(2f)
                             ) {
                                 Text(
                                     text = "$rank",
@@ -277,10 +286,11 @@ private fun UserInfo(
 
         //region Флаг
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .fillMaxHeight()
                 .weight(1f)
         ) {
             AssetImage(

@@ -71,7 +71,7 @@ fun AddFriendsButtonContent(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .background(color = Color(0xE6E6E6E6))
+                    .background(color = Color(0xFFE6E6E6))
             ) {
                 //region Крестик
                 AssetImage(

@@ -3,7 +3,9 @@ package com.kuvalin.brainstorm.data.repository
 import com.kuvalin.brainstorm.data.database.UserDataDao
 import com.kuvalin.brainstorm.data.firebase.ApiService
 import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
+import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
+import com.kuvalin.brainstorm.data.model.UserRequestDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
@@ -11,10 +13,11 @@ import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
-import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class BrainStormRepositoryImpl @Inject constructor(
@@ -33,7 +36,8 @@ class BrainStormRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun addFriend(friend: UserRequest) {
+    //region addFriend
+    override suspend fun addFriend(friend: Friend) {
         userDataDao.addFriendInfo(
             mapper.mapEntityToDbModelFriendInfo(
                 friend.uid, friend.name, friend.email, friend.avatar, friend.country
@@ -47,6 +51,7 @@ class BrainStormRepositoryImpl @Inject constructor(
         // Добавление в Firebase
         apiService.sendFriendsToFirestore(getFriend(friend.uid))
     }
+    //endregion
 
 
     /*
@@ -60,6 +65,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     }
 
 
+    //region addGameResult
     override suspend fun addGameResult(gameResult: GameResult) {
 
         // Добавляем инфу об игре в базу
@@ -73,12 +79,13 @@ class BrainStormRepositoryImpl @Inject constructor(
             userDataDao.getGameResults(gameResult.uid, gameResult.gameName)
         )
 
-        //TODO apiService.addGameResult - нужно ли? Так-то я могу обработать это и по другому
     }
+    //endregion
+    //region addGameStatistic
     private suspend fun addGameStatistic(
         userUid: String,
         gameName: String,
-        listGameResult: List<GameResult>
+        listGameResult: List<GameResultDbModel>
     ) {
         val gameScope = mutableListOf<Int>()
         listGameResult.map { gameScope.add(it.scope) }
@@ -93,11 +100,46 @@ class BrainStormRepositoryImpl @Inject constructor(
 
         apiService.sendGameStatisticToFirestore(userDataDao.getGameStatistic(userUid, gameName))
     }
+    //endregion
 
 
-    override suspend fun addWarStatistic(warStatistics: WarStatistics) {
+    //region addWarResult
+    override suspend fun addWarResult(warResult: WarResult) {
+        userDataDao.addWarResult(mapper.mapEntityToDbModelWarResult(warResult))
+
+        var countWins = 0
+        var countLoss = 0
+        var countDraws = 0
+        val warScope = mutableListOf<Int>()
+
+        userDataDao.getWarResults(warResult.uid).map {
+            when(it.result){
+                "win" -> {countWins++}
+                "loss" -> {countLoss++}
+                "draw" -> {countDraws++}
+                else -> {}
+            }
+            warScope.add(it.scope)
+        }
+
+
+        addWarStatistic( // TODO Тоже проебался с типами. Вообще потом проверить всё
+            WarStatistics(
+                uid = warResult.uid,
+                winRate = (countWins/(countWins + countLoss)).toFloat(),
+                wins = countWins,
+                losses = countLoss,
+                draws = countDraws,
+                highestScore = warScope.max()
+            )
+        )
+
+    }
+    //endregion
+
+    private suspend fun addWarStatistic(warStatistics: WarStatistics) {
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(warStatistics))
-        apiService.sendWarStatisticToFirestore(warStatistics)
+        apiService.sendWarStatisticToFirestore(warStatistics) // TODO и вот тут
     }
 
 
@@ -140,7 +182,7 @@ class BrainStormRepositoryImpl @Inject constructor(
                 it.gameStatisticDbModel,
                 it.warStatisticsDbModel
             )
-        }.toList()
+        }.toList() // Нахера?
     }
 
 
@@ -202,8 +244,24 @@ class BrainStormRepositoryImpl @Inject constructor(
 
     /* ########################################## GAME ########################################## */
 
-    override suspend fun findTheGame(): Boolean {
+    override suspend fun findTheGame(): Pair<Boolean, String> {
         return apiService.findTheGame()
+    }
+
+
+    override suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int){
+        apiService.updateUserScopeInWarGame(sessionId, gameName, scope)
+    }
+    override suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int>{
+        return apiService.getActualOpponentScopeFromWarGame(sessionId, gameName)
+    }
+
+    override suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int {
+        return apiService.getScopeFromWarGame(sessionId, gameName, type)
+    }
+
+    override suspend fun addFriendInGame(sessionId: String) {
+        apiService.addFriendInGame(sessionId)
     }
 
     /* ########################################################################################## */

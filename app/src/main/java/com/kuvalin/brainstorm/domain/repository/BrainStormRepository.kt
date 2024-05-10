@@ -9,7 +9,9 @@ import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import kotlinx.coroutines.flow.StateFlow
 
 
 interface BrainStormRepository {
@@ -20,18 +22,19 @@ interface BrainStormRepository {
     suspend fun addUserInfo(userInfo: UserInfo)
 
     // Сюда будет поставляться UserInternet + ещё пока не понятно, как именно это будет происходить
-    suspend fun addFriend(userRequest: UserRequest)
+    suspend fun addFriend(userRequest: Friend)
     // Но фундамент сформирован!
 
     suspend fun addListOfMessages(listOfMessages: ListOfMessages)
 
     suspend fun addGameResult(gameResult: GameResult)
-    suspend fun addWarStatistic(warStatistics: WarStatistics)
+    suspend fun addWarResult(warResult: WarResult)
 
     suspend fun addAppSettings(appSettings: AppSettings)
     suspend fun addAppCurrency(appCurrency: AppCurrency)
 
     suspend fun addSocialData(socialData: SocialData)
+
 
     // GET
     suspend fun getUserInfo(uid: String): UserInfo?
@@ -64,6 +67,11 @@ interface BrainStormRepository {
 
 
     /* ########################################## GAME ########################################## */
-    suspend fun findTheGame(): Boolean
+    suspend fun findTheGame(): Pair<Boolean, String>
+
+    suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int)
+    suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int>
+    suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int
+    suspend fun addFriendInGame(sessionId: String)
     /* ########################################################################################## */
 }

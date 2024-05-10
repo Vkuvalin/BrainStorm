@@ -432,7 +432,7 @@ fun StatisticsCard(
 //endregion
 
 // ###################### DrawingChart
-//region DrawingChart // TODO Перенести функцию как глобальную?
+//region DrawingChart // TODO Перенести в отдельный файл
 @Composable
 fun DrawingChart(
     // Пожалуй оставлю это будущему себе, а пока сделаю на отъебись.
@@ -457,12 +457,12 @@ fun DrawingChart(
         CircleBackground(modifier = modifier, workMode = workMode)
         Crosshair(modifier)
 
-        SkillNamePolus(text = "Speed", x = 5f, y = -110f, workMode = workMode)
+        SkillNamePolus(text = "Speed", x = 5f, y = -120f, workMode = workMode)
         SkillNamePolus(text = "Accuracy", x = 10f, y = 125f, workMode = workMode)
 
-        SkillName(text = "Judgement", x = 75f * 1.6f, y = -55f, workMode = workMode)
+        SkillName(text = "Judgement", x = 80f * 1.6f, y = -55f, workMode = workMode)
         SkillName(text = "Calculation", x = 75f * 1.6f, y = 70f, workMode = workMode)
-        SkillName(text = "Memory", x = -80f * 1.6f, y = -55f, workMode = workMode)
+        SkillName(text = "Memory", x = -85f * 1.6f, y = -60f, workMode = workMode)
         SkillName(text = "Observation", x = -98f * 1.6f, y = 70f, workMode = workMode)
 
         if (workMode == 1){
@@ -657,7 +657,7 @@ fun SkillName(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
     //endregion
 
     val textMeasurer = rememberTextMeasurer()
-    val color = if (workMode == 1) Color(0xFF3EB5B2)
+    val color = if (workMode == 1 || workMode == 4) Color(0xFF3EB5B2)
     else if (text == "Memory" || text == "Judgement") Color.White else Color.Black
 
     Canvas(
@@ -694,7 +694,7 @@ fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
     //endregion
 
     val textMeasurer = rememberTextMeasurer()
-    val color = if (workMode == 1) Color(0xFF3EB5B2)
+    val color = if (workMode == 1 || workMode == 4) Color(0xFF3EB5B2)
     else if (text == "Speed") Color.White else Color.Black
 
     Canvas(

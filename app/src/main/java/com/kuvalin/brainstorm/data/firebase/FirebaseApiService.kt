@@ -16,8 +16,12 @@ import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.random.Random
 
 class FirebaseApiService @Inject constructor(
     private val fireBase: Firebase,
@@ -110,9 +114,9 @@ class FirebaseApiService @Inject constructor(
             "appCurrency" -> {"users/${userUid}/user_data/app_currency/"}
             "friendsInfo" -> {"users/${userUid}/friend_info/${uid}"}
             "chats" -> {"users/${userUid}/chats/${uid}"}
-            "usersRequest" -> {"users/${userUid}/users_request"}
+            "usersRequest" -> {"users/${userUid}/users_request/${uid}"}
             "gameStatistics" -> {"users/${userUid}/game/game_statistics/${uid}/${gameName}"}
-            "warsStatistics" -> {"users/${userUid}/game/wars_statistics/${uid}/wars_statistics"}
+            "warStatistics" -> {"users/${userUid}/game/war_statistics/${uid}/war_statistics"}
             "gameResults" -> {"users/${userUid}/game/game_results/user_game_results/"}
             else -> ""
         }
@@ -240,7 +244,7 @@ class FirebaseApiService @Inject constructor(
             }
 
             if (friend.warStatistics != null){
-                sendWarStatisticToFirestore(friend.warStatistics)
+                sendWarStatisticToFirestore(friend.warStatistics) // TODO Бля, проебался с типами, кажись
             }
 
 
@@ -335,83 +339,271 @@ class FirebaseApiService @Inject constructor(
 
 
 
+
     // ###################### GET
-    override suspend fun getDataFromFirestore(documentPath: String): Any? {
-        return try {
-            fireBase.firestore.document(documentPath).get().await().data
-        } catch (e: Exception) {
-            null
+    private suspend fun getUserInfo(userUid: String): UserInfo? {
+
+        if (fireBase.auth.uid != null){
+            val userInfoPath = getFireStoreUserPath(userUid, "userInfo")
+
+            try {
+                val userInfo = fireBase.firestore.document(userInfoPath).get().await().data
+
+                if (!userInfo.isNullOrEmpty()){
+                    return UserInfo(
+                         uid = userInfo["uid"].toString(),
+                         name = userInfo["name"].toString(),
+                         email = userInfo["email"].toString(),
+                         avatar = null, // TODO
+                         country = userInfo["country"].toString()
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+            }
         }
+
+        return null
     }
     // ######################
+
 
 
 
 
     // ###################### GAME
-    /*
-    Логика игры будет такая:
-        1. Кто-то нажимает "начать игру"
-        2. Идет проверка игровых сессий на наличие пустого user_uid_2
-        2.1.1 Допустим мы не нашли, то создаем свою пустую сессию с рандомным номером и играми,
-        записываем себя в user_uid_1, заполняем list_games
-        (сессии после игры смысла хранить нет, поэтому можно их просто потом удалять)
-        2.1.2 Дальше идет циклическая проверка с таймером и шагом в 1 секунду, проверяя не появился ли второй игрок
-        (пусть будет длиться 1 минуту, а после сессия будет закрываться) А нахуя, если есть liveUpdate?
-        2.1.3 Второй игрок, присоединившись проставляет true в user_uid_ready
-        (также можно сделать 1-2 секундную провеку, что именно тот второй попал в игру, если нет, то продолжает поиск)
-        2.1.4 После того, как значения от двух игроков user_uid_ready == true, начинается цепочка игр
 
-        2.1.5 После каждой игры будет выбрасывать на определенный экран как в браин варс:
-    */
+    //region FindTheGame
+    override suspend fun findTheGame(): Pair<Boolean, String> {
 
-    /*
-        Вторую аву и доп.инфу я буду тащить из инета. Нужно научиться сохранять файлы в firebase,
-        а затем их как-то тут раскрывать.
+        // ###################### ПЕРЕМЕННЫЕ
+        var findFailed = false
+        var gameSessionId = ""
 
-        Avatar, name, grade, rank
-    */
+        var gameReady = false
+        var elapsedTime = 0L // Переменная для отслеживания прошедшего времени
+        val timeoutMillis = 30 * 1000 // 30 секунд в миллисекундах
 
-    // ######################
-    override suspend fun findTheGame(): Boolean {
-        val result = fireBase.firestore.collection("games").get().await()
+        var listGames = mutableListOf<String>()
+        // ######################
 
-        // Если нет ни одной свободной игры, то возвращаем false, чтобы создать самим
-        if (result.size() == 0) { return false }
 
-        for (document in result){
-            Log.d("DATABASE", "${document.id} => FIRST")
-            if (document.data["pink_user"] == ""){
-                Log.d("DATABASE", "${document.id} => SECOND")
-                Log.d("DATABASE", "${document.data["cyan_user"]} => CYAN USER")
+        // Получаем список активных игры
+        val gamesCollections = fireBase.firestore.collection("games").get().await()
+
+        // Если нет ни одной свободной игры, то будем создавать её сами
+        if (gamesCollections.documents.size == 0) { findFailed = true }
+
+        if (!findFailed) {
+            // Если активные игры есть, то ищем среди них свободную игру
+            for (document in gamesCollections){
+                if (document.data["pink_user"] == ""){
+                    gameSessionId = document.id
+                }
             }
+
+            // Если всё-таки не нашли свободную игру, то идем создавать свою
+            if (gameSessionId == "") {findFailed = true}
         }
 
-        return true
+
+        if (findFailed){
+            // Идем создавать свою игру
+
+            val newGame = hashMapOf(
+                "cyan_user" to "${fireBase.auth.uid}",
+                "pink_user" to "",
+                "list_games" to listOf("Flick Master", "Path To Safety", "Make10"), // TODO если добавятся игрушки
+                "cyan_ready" to true,
+                "pink_ready" to false
+            )
+            val newGameSessionId = "session_${Random.nextLong(100000,999999999999999999)}"
+
+            try {
+                fireBase.firestore.document("games/$newGameSessionId").set(newGame).await()
+                gameSessionId = newGameSessionId
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+                return Pair(false, "")
+            }
+
+        }else{
+            // Тут мы уже нашли свободную игру, где в pink_uid запишем свой uid и проставим "ready"
+            fireBase.firestore.document("games/$gameSessionId")
+                .update("pink_user", fireBase.auth.uid).await()
+            fireBase.firestore.document("games/$gameSessionId")
+                .update("pink_ready", true).await()
+        }
 
 
-//            .addOnSuccessListener {result ->
-//                if (result.size() == 0){
-//                    return@addOnSuccessListener
-//                }
-//                for (document in result){
-//                    Log.d("DATABASE", "${document.id} => ${document.data}")
-//                    Log.d("DATABASE", "${document.data["email"]}")
-//                }
-//            }
-//            .addOnFailureListener {
-//                Log.d("DATABASE", "$it")
-//            }
+        // Финальный этап поиска: ждем, когда оба игрока подтвердят игру.
+        val listenerRegistration = fireBase.firestore.document("games/$gameSessionId")
+            .addSnapshotListener { value, error ->
+                if (value != null) {
+                    if (value.data?.get("pink_ready") == true
+                        &&
+                        value.data?.get("cyan_ready") == true
+                    ) {
+//                        opponentUid = if (findFailed) value.data?.get("pink_user") as String
+//                        else value.data?.get("cyan_user") as String
+                        listGames = value.data?.get("list_games") as MutableList<String>
+                        gameReady = true
+                    }
+                }
+            }
+
+        // Цикл while для ожидания ответа в течение 30 секунд
+        while (elapsedTime < timeoutMillis) {
+            if (gameReady) {
+                // Если игра готова, отменяем прослушивание и возвращаем id игры
+                listenerRegistration.remove()
+
+                for (game in listGames){
+                    fireBase.firestore
+                        .document("games/$gameSessionId/game/${mapper.convertToAnalogGameName(game)}_${fireBase.auth.uid}")
+                        .set(hashMapOf("scope" to "0"))
+                        .await()
+                }
+
+                return Pair(true, gameSessionId)
+            }
+            delay(1000)
+            elapsedTime += 1000
+        }
+
+        // Если время истекло, отменяем прослушивание и возвращаем false и пустой id
+        listenerRegistration.remove()
+        return Pair(false, "")
+    }
+    //endregion
+
+    // Отправляет в firebase актуальные значения SCORE
+    override suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int){
+        fireBase.firestore
+            .document("games/$sessionId/game/${mapper.convertToAnalogGameName(gameName)}_${fireBase.auth.uid}")
+            .set(hashMapOf("scope" to "$scope"))
+            .await()
     }
 
+
+
+    // Получает из firebase актуальные значения SCOPE оппонента
+    override suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int> {
+        val session = fireBase.firestore.document("games/$sessionId/").get().await()
+        val opponentUid = (
+                if (session.data?.get("pink_user") != fireBase.auth.uid) session.data?.get("pink_user")
+                else session.data?.get("cyan_user")
+        ) as String
+
+        val mutableStateFlow = MutableStateFlow(0)
+
+        fireBase.firestore
+            .document("games/$sessionId/game/${mapper.convertToAnalogGameName(gameName)}_${opponentUid}")
+            .addSnapshotListener { value, _ ->
+                val newScope = value?.data?.get("scope").toString()
+                mutableStateFlow.value = newScope.toInt()
+            }
+        // TODO Потом понять, как перевести в обычный поток. Да и вообще глянуть, где у меня поточная инфа
+        return mutableStateFlow
+    }
+
+
+    // Нужна для получения конечных результатов игры в WarGameResults
+    override suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int {
+        // Для экономии времени введу 3-й параметр.
+
+        val userUid = fireBase.auth.uid
+        val session = fireBase.firestore.document("games/$sessionId/").get().await()
+        val opponentUid = (
+                if (session.data?.get("pink_user") != userUid) session.data?.get("pink_user")
+                else session.data?.get("cyan_user")
+        ) as String
+
+
+        return fireBase.firestore
+            .document("games/$sessionId/game/${
+                mapper.convertToAnalogGameName(gameName)
+            }_${if (type == "user") userUid else opponentUid}")
+            .get().await().data?.get("scope").toString().toInt()
+    }
+
+
+
+    //region addFriendInGame
+    override suspend fun addFriendInGame(sessionId: String) {
+
+        val userUid = fireBase.auth.uid
+        if (userUid != null){
+
+            val session = fireBase.firestore.document("games/$sessionId/").get().await()
+            val opponentUid = (
+                    if (session.data?.get("pink_user") != userUid) session.data?.get("pink_user")
+                    else session.data?.get("cyan_user")
+            ) as String
+
+            // For Friend
+            val userRequestFromFriend = hashMapOf(
+                "uid" to "$userUid",
+                "answerState" to false,
+                "friendState" to false
+            )
+
+            val userRequestFromFriendPath = getFireStoreUserPath(
+                userUid = opponentUid, pathName = "usersRequest", uid = userUid
+            )
+
+            try {
+                fireBase.firestore.document(userRequestFromFriendPath)
+                    .set(userRequestFromFriend)
+                    //region Успех/ошибка
+                    .addOnSuccessListener { documentReference ->
+                        Log.w("FIRESTORE_SEND", "DocumentSnapshot added with ID: $documentReference")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FIRESTORE_SEND", "Error adding document", e)
+                    }
+                //endregion
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+            }
+
+
+            // For User
+            val userRequestFromUser = hashMapOf(
+                "uid" to opponentUid,
+                "answerState" to false,
+                "friendState" to false
+            )
+
+            val userRequestFromUserPath = getFireStoreUserPath(
+                userUid = userUid, pathName = "usersRequest", uid = opponentUid
+            )
+
+            try {
+                fireBase.firestore.document(userRequestFromUserPath)
+                    .set(userRequestFromUser)
+                    //region Успех/ошибка
+                    .addOnSuccessListener { documentReference ->
+                        Log.w("FIRESTORE_SEND", "DocumentSnapshot added with ID: $documentReference")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FIRESTORE_SEND", "Error adding document", e)
+                    }
+                //endregion
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+            }
+
+        }
+    }
+    //endregion
+
+    // ######################
 
     /* ########################################################################################## */
 
 }
-
-
-
-
 
 
 

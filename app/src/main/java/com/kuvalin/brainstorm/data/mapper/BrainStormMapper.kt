@@ -9,6 +9,7 @@ import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
+import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
@@ -18,6 +19,7 @@ import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import javax.inject.Inject
 
@@ -175,6 +177,15 @@ class BrainStormMapper @Inject constructor() {
     }
 
 
+    // WarResult
+    fun mapEntityToDbModelWarResult(warResult: WarResult): WarResultDbModel {
+        return WarResultDbModel(
+            warResult.uid,
+            warResult.id,
+            warResult.scope,
+            warResult.result
+        )
+    }
 
     // WarsStatistics
     fun mapEntityToDbModelWarStatistics(warStatistics: WarStatistics?): WarStatisticsDbModel? {
@@ -303,11 +314,12 @@ class BrainStormMapper @Inject constructor() {
     ): HashMap<String, String> {
         return hashMapOf(
             "uid" to gameStatisticDbModel.uid,
-            "winRate" to gameStatisticDbModel.gameName,
+            "gameName" to gameStatisticDbModel.gameName,
             "maxGameScore" to gameStatisticDbModel.maxGameScore.toString(),
             "avgGameScore" to gameStatisticDbModel.avgGameScore.toString()
         )
     }
+
     val dictionary = mapOf(
         "Flick Master" to "flick_master",
         "Addition Addiction" to "addition_addiction",

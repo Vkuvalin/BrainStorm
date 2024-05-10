@@ -7,6 +7,7 @@ import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import kotlinx.coroutines.flow.StateFlow
 
 
 /**
@@ -36,8 +37,14 @@ interface ApiService {
 
 
     // Получение (перенос данных на другое уст-во делать не буду пока что)
-    suspend fun getDataFromFirestore(documentPath: String): Any?
+
 
     // Game
-    suspend fun findTheGame(): Boolean
+    suspend fun findTheGame(): Pair<Boolean, String>
+
+    suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int)
+    suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int>
+    suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int
+
+    suspend fun addFriendInGame(sessionId: String)
 }

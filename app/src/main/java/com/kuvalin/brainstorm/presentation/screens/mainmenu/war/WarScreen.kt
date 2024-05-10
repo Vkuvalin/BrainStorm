@@ -1,6 +1,8 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.war
 
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -43,15 +45,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.kuvalin.brainstorm.domain.entity.GameResult
+import com.kuvalin.brainstorm.domain.entity.WarResult
+import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
@@ -67,13 +78,24 @@ import com.kuvalin.brainstorm.presentation.screens.game.games.Make10
 import com.kuvalin.brainstorm.presentation.screens.game.games.PathToSafety
 import com.kuvalin.brainstorm.presentation.screens.game.games.RapidSorting
 import com.kuvalin.brainstorm.presentation.screens.game.games.Reflection
+import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 
-//@Preview
+/**
+ * Здесь аналогично не буду больше морочиться и подтягивать лишнюю информацию.
+ * Пусть просто остаются заглушки. Целью было разработать архитектуру и реализовать это.
+ */
+
+
 @Composable
 fun WarScreen(
     navigationState: NavigationState
@@ -84,25 +106,67 @@ fun WarScreen(
         GlobalStates.putScreenState("runGameScreenState", false)
     }
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+
+    // Получаем название игровой сессии
+    val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+    val sessionId = navBackStackEntry?.arguments?.getString("sessionId")
+
+    val component = getApplicationComponent()
+    val viewModel: WarViewModel = viewModel(factory = component.getViewModelFactory())
+
+
+
     val topBarHeight = 80 // Костыль
 
-    // Аватар
-    var uriAvatar by remember { mutableStateOf<Uri?>(null) }
+    // Аватар // TODO - потом
+    val uriAvatar by remember { mutableStateOf<Uri?>(null) }
     // Нужно будет тянуть с прошлого экрана. Вообще мне тут же в конце вообще весь User понадобится
 
     var scopeCyanPlayer by remember { mutableIntStateOf(0) }
     var scopePinkPlayer by remember { mutableIntStateOf(0) }
-    var ratio = ((scopeCyanPlayer - scopePinkPlayer).toFloat() / 2000) // 2000 = 0.5 = лучший вид
+    val ratio = ((scopeCyanPlayer - scopePinkPlayer).toFloat() / 2000) // 2000 = 0.5 = лучший вид
 
     var round by remember { mutableIntStateOf(1) }
-    var timer = remember { mutableIntStateOf(11) }
+    val timer = remember { mutableIntStateOf(11) }
 
     var gameState by remember { mutableStateOf(false) }
 
     val items = GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance }
-    val selectedGames = listOf("Path To Safety", "Flick Master", "Make10") // Эту хрень буду тащить из инета
+
+    // Эту хрень буду тащить из инета, но пока не реализовывал
+    val selectedGames = listOf("Flick Master", "Path To Safety", "Make10")
+
 
     val warScreenState = WarScreenState.warScreenState.collectAsState()
+    /* ########################################################################################## */
+
+
+    // Динамическая функция отправки актуального scope
+    fun updateUserScope(points: Int){
+        val scope = CoroutineScope(Dispatchers.IO)
+        scopeCyanPlayer += points
+        if (scopeCyanPlayer < 0){ scopeCyanPlayer = 0 }
+
+        scope.launch {
+            viewModel.updateUserScope.invoke(
+                sessionId = sessionId!!,
+                gameName = selectedGames[round-2],
+                scope = scopeCyanPlayer
+            )
+        }
+    }
+
+    // Данный поток будет на постоянке обновлять Scope оппонента.
+    if (gameState){
+        LaunchedEffect(Unit) {
+            viewModel.getActualOpponentScope
+                .invoke(sessionId = sessionId!!, gameName = selectedGames[round-2])
+                .collect { scopePinkPlayer = it }
+        }
+    }
+
+
 
     Column(
         modifier = Modifier
@@ -121,14 +185,14 @@ fun WarScreen(
             when(warScreenState.value){
                 WarScreenState.PreparingForTheGame -> {
                     LaunchedEffect(Unit) {
-                        gameState = false
                         timer.intValue = 11
+                        gameState = false
                         scopeCyanPlayer = 0
                         scopePinkPlayer = 0
                     }
                     PreparingForTheGame(timer.intValue, round, items, selectedGames)
                     Timer(timer = timer)
-                    if (timer.intValue == 0){
+                    if (timer.intValue == 0 && !gameState){
                         when(round){
                             1 -> {WarScreenState.putWarScreenState(WarScreenState.WarGameOne)}
                             2 -> {WarScreenState.putWarScreenState(WarScreenState.WarGameTwo)}
@@ -144,11 +208,16 @@ fun WarScreen(
                     }
                     if (gameState){ Timer(timer = timer) }
 
+
                     WarGameScreen(
+                        viewModel = viewModel,
                         topBarHeight = topBarHeight,
                         gameName = selectedGames[0],
                         resetTime = {timer.intValue = 11},
-                        putActualScope = {scopeCyanPlayer += it}
+                        putActualScope = {
+                            scopeCyanPlayer += it
+                            updateUserScope(it)
+                        }
                     ){
                         navigationState.navigateToHome()
                         GlobalStates.putScreenState("runGameScreenState", false)
@@ -162,10 +231,14 @@ fun WarScreen(
                     }
                     if (gameState){ Timer(timer = timer) }
                     WarGameScreen(
+                        viewModel = viewModel,
                         topBarHeight = topBarHeight,
                         gameName = selectedGames[1],
                         resetTime = {timer.intValue = 11},
-                        putActualScope = {scopeCyanPlayer += it}
+                        putActualScope = {
+                            scopeCyanPlayer += it
+                            updateUserScope(it)
+                        }
                     ){
                         navigationState.navigateToHome()
                         GlobalStates.putScreenState("runGameScreenState", false)
@@ -173,7 +246,11 @@ fun WarScreen(
                 }
                 WarScreenState.WarGameThree -> {}
                 WarScreenState.WarGameResults -> {
-                    WarGameResult {
+                    WarGameResult(
+                        selectedGames,
+                        viewModel,
+                        sessionId
+                    ) {
                         navigationState.navigateToHome()
                         GlobalStates.putScreenState("runGameScreenState", false)
                     }
@@ -529,12 +606,17 @@ private fun GameCard(
 //region WarGameScreen
 @Composable
 private fun WarGameScreen(
+    viewModel: WarViewModel,
     topBarHeight: Int,
     gameName: String,
     putActualScope: (gameScope: Int) -> Unit,
     resetTime: () -> Unit,
     onBackButtonClick: () -> Unit
 ) {
+
+    val scope = CoroutineScope(Dispatchers.IO)
+    val userUid = Firebase.auth.uid ?: "zero_user_uid"
+
     when(gameName){
         //region GamesNavigationItem.FlickMaster.sectionName
         GamesNavigationItem.FlickMaster.sectionName -> {
@@ -542,11 +624,23 @@ private fun WarGameScreen(
                 onBackButtonClick = {onBackButtonClick()},
                 putActualScope = { gameScope ->  putActualScope(gameScope) }
             ) {countCorrect, countIncorrect, gameScope, internalAccuracy ->
-//                correct = countCorrect
-//                incorrect = countIncorrect
-//                accuracy = internalAccuracy
-//                scope = gameScope
-//                endGameState = true
+                scope.launch {
+
+                    // GameResult
+                    val finalScope = if(gameScope == 0) ((countCorrect*53)-(countIncorrect*22))
+                    else (gameScope*53)-(gameScope*22)
+                    val finalAccuracy = (internalAccuracy * 1000).roundToInt() / 10.0f
+
+                    viewModel.addGameResult.invoke(
+                        GameResult(
+                            uid = userUid,
+                            gameName = gameName,
+                            scope = finalScope,
+                            accuracy = finalAccuracy
+                        )
+                    )
+                }
+                resetTime()
                 WarScreenState.putWarScreenState(WarScreenState.PreparingForTheGame)
             }
         }
@@ -561,11 +655,24 @@ private fun WarGameScreen(
                 putActualScope = { gameScope ->  putActualScope(gameScope) }
             )
             {countCorrect, countIncorrect,gameScope, internalAccuracy ->
-//                correct = countCorrect
-//                incorrect = countIncorrect
-//                accuracy = internalAccuracy
-//                scope = gameScope
-//                endGameState = true
+                scope.launch {
+                    val finalScope = if(gameScope == 0) ((countCorrect*53)-(countIncorrect*22))
+                    else (gameScope*53)-(gameScope*22)
+                    val finalAccuracy = (internalAccuracy * 1000).roundToInt() / 10.0f
+
+                    viewModel.addGameResult.invoke(
+                        GameResult(
+                            uid = userUid,
+                            gameName = gameName,
+                            scope = finalScope,
+                            accuracy = finalAccuracy
+                        )
+                    )
+
+                    // TODO Сделать addWarGameResult - аналогично со статистикой
+                    // Новые поля: win: Boolean, gameName уже не важен
+
+                }
                 resetTime()
                 WarScreenState.putWarScreenState(WarScreenState.PreparingForTheGame)
             }
@@ -582,13 +689,57 @@ private fun WarGameScreen(
 //region WarGameResult
 @Composable
 fun WarGameResult(
+    selectedGames: List<String>,
+    viewModel: WarViewModel,
+    sessionId: String?,
     onBackButtonClick: () -> Unit
 ) {
+    val scope = CoroutineScope(Dispatchers.IO)
+    val context = LocalContext.current
 
-    var uriAvatar by remember { mutableStateOf<Uri?>(null) }
+    val uriAvatar by remember { mutableStateOf<Uri?>(null) }
+    val userUid = Firebase.auth.uid ?: "zero_user_uid"
 
     val localDensity = LocalDensity.current
     var parentWidth by remember { mutableIntStateOf(0) }
+
+    var firstGameCyanScope by remember { mutableIntStateOf(0) }
+    var secondGameCyanScope by remember { mutableIntStateOf(0) }
+    var thirdGameCyanScope by remember { mutableIntStateOf(0) }
+    var totalCyan by remember { mutableIntStateOf(0) }
+
+    var firstGamePinkScope by remember { mutableIntStateOf(0) }
+    var secondGamePinkScope by remember { mutableIntStateOf(0) }
+    var thirdGamePinkScope by remember { mutableIntStateOf(0) }
+    var totalPink by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        if (sessionId != null) {
+            firstGameCyanScope = viewModel.getScopeFromWarGame.invoke(sessionId, selectedGames[0], type = "user")
+            firstGamePinkScope = viewModel.getScopeFromWarGame.invoke(sessionId, selectedGames[0], type = "")
+
+            secondGameCyanScope = viewModel.getScopeFromWarGame.invoke(sessionId, selectedGames[1], type = "user")
+            secondGamePinkScope = viewModel.getScopeFromWarGame.invoke(sessionId, selectedGames[1], type = "")
+
+            thirdGameCyanScope = viewModel.getScopeFromWarGame.invoke(sessionId, selectedGames[2], type = "user")
+            thirdGamePinkScope = viewModel.getScopeFromWarGame.invoke(sessionId, selectedGames[2], type = "")
+
+            totalCyan = firstGameCyanScope + secondGameCyanScope + thirdGameCyanScope
+            totalPink = firstGamePinkScope + secondGamePinkScope + thirdGamePinkScope
+
+
+            viewModel.addWarResult.invoke(
+                WarResult(
+                    uid = userUid,
+                    scope = totalCyan,
+                    result = if (totalCyan > totalPink) "win"
+                    else if (totalCyan == totalPink) "draw" else "loss"
+                )
+            )
+
+        }
+    }
+
 
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -617,7 +768,8 @@ fun WarGameResult(
                     }
                 ,
             ) {
-                AssetImage(fileName = "winner.png")
+                AssetImage(fileName = if (totalCyan > totalPink) "winner.png"
+                else if (totalCyan == totalPink) "winner.png" else "loser.png")
                 Avatar(
                     uriAvatar = uriAvatar,
                     color = CyanAppColor,
@@ -642,7 +794,8 @@ fun WarGameResult(
                     .weight(1f)
                 ,
             ) {
-                AssetImage(fileName = "loser.png")
+                AssetImage(fileName = if (totalCyan < totalPink) "winner.png"
+                else if (totalCyan == totalPink) "winner.png" else "loser.png")
                 Avatar(
                     uriAvatar = uriAvatar,
                     color = PinkAppColor,
@@ -670,30 +823,30 @@ fun WarGameResult(
             RoundStatistics(
                 visualType = 1,
                 roundNumber = "Round1",
-                gameName = "Flick Master",
-                cyanUserScore = 324,
-                pinkUserScore = 743
+                gameName = selectedGames[0],
+                cyanUserScore = firstGameCyanScope,
+                pinkUserScore = firstGamePinkScope
             )
 
             RoundStatistics(
                 roundNumber = "Round2",
-                gameName = "Path To Safety",
-                cyanUserScore = 454,
-                pinkUserScore = 973
+                gameName = selectedGames[1],
+                cyanUserScore = secondGameCyanScope,
+                pinkUserScore = secondGamePinkScope
             )
 
             RoundStatistics(
                 roundNumber = "Round3",
-                gameName = "Make10",
-                cyanUserScore = 734,
-                pinkUserScore = 483
+                gameName = selectedGames[2],
+                cyanUserScore = thirdGameCyanScope,
+                pinkUserScore = thirdGamePinkScope
             )
 
             RoundStatistics(
                 visualType = 2,
                 roundNumber = "Total",
-                cyanUserScore = 3443,
-                pinkUserScore = 2324 // TODO Баг с размером при большой разнице
+                cyanUserScore = totalCyan,
+                pinkUserScore = totalPink
             )
 
         }
@@ -706,7 +859,16 @@ fun WarGameResult(
             WarScreenButton(type = "Home"){
                 onBackButtonClick()
             }
-            WarScreenButton(type = "Add"){}
+            WarScreenButton(type = "Add"){
+                if (sessionId != null) {
+                    scope.launch {
+                        viewModel.addFriendInGame.invoke(sessionId)
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Запрос был отправлен", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
         }
 
     }

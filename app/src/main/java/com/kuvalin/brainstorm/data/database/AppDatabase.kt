@@ -15,6 +15,7 @@ import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.converters.UriTypeConverter
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
+import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.data.model.converters.ListStringConverter
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
@@ -47,9 +48,10 @@ import kotlinx.coroutines.launch
     ListOfMessagesDbModel::class,
     SocialDataDbModel::class,
     UserInfoDbModel::class,
+    WarResultDbModel::class,
     WarStatisticsDbModel::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(

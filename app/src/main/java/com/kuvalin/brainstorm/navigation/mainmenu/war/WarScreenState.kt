@@ -13,7 +13,7 @@ sealed class WarScreenState() {
 
     companion object {
 
-        private val _warScreenState = MutableStateFlow<WarScreenState>(WarGameResults)
+        private val _warScreenState = MutableStateFlow<WarScreenState>(PreparingForTheGame)
         val warScreenState = _warScreenState.asStateFlow()
 
         fun putWarScreenState(warScreenState: WarScreenState) {

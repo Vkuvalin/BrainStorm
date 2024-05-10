@@ -6,7 +6,7 @@ import javax.inject.Inject
 class FindTheGameUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ){
-    suspend operator fun invoke(): Boolean{
+    suspend operator fun invoke(): Pair<Boolean, String>{
         return brainStormRepository.findTheGame()
     }
 }

@@ -3,7 +3,7 @@ package com.sumin.vknewsclient.di
 import androidx.lifecycle.ViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.WarsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -25,8 +25,8 @@ interface ViewModelModule {
 
 
     @IntoMap
-    @ViewModelKey(WarsViewModel::class)
+    @ViewModelKey(WarViewModel::class)
     @Binds
-    fun bindWarsViewModel(viewModel: WarsViewModel): ViewModel
+    fun bindWarsViewModel(viewModel: WarViewModel): ViewModel
 
 }

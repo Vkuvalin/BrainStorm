@@ -14,7 +14,9 @@ import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
+import com.kuvalin.brainstorm.data.model.UserRequestDbModel
 import com.kuvalin.brainstorm.data.model.UserWithAllInfo
+import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.domain.entity.GameResult
 
@@ -96,9 +98,6 @@ interface UserDataDao {
     suspend fun getFriendsWithAllInfo(): List<FriendWithAllInfo>
 
 
-
-
-
     // ListOfMessages
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addListOfMessages(listOfMessages: ListOfMessagesDbModel)
@@ -111,7 +110,7 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameResult(gameResultDbModel: GameResultDbModel)
     @Query("SELECT * FROM game_results WHERE uid=:uid AND gameName=:gameName")
-    suspend fun getGameResults(uid: String, gameName: String): List<GameResult>
+    suspend fun getGameResults(uid: String, gameName: String): List<GameResultDbModel>
 
     // GameStatistics
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -123,10 +122,16 @@ interface UserDataDao {
 
 
 
+    // WarResults
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addWarResult(warResultDbModel: WarResultDbModel)
+    @Query("SELECT * FROM war_results WHERE uid=:uid")
+    suspend fun getWarResults(uid: String): List<WarResultDbModel>
+
     // WarsStatistics
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addWarStatistic(warStatisticsDbModel: WarStatisticsDbModel?)
-    @Query("SELECT * FROM wars_statistics WHERE uid=:uid LIMIT 1")
+    @Query("SELECT * FROM wars_statistics WHERE uid=:uid")
     suspend fun getWarStatistic(uid: String): WarStatisticsDbModel
 
 
