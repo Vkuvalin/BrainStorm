@@ -1,6 +1,7 @@
 package com.sumin.vknewsclient.di
 
 import androidx.lifecycle.ViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
@@ -28,5 +29,11 @@ interface ViewModelModule {
     @ViewModelKey(WarViewModel::class)
     @Binds
     fun bindWarsViewModel(viewModel: WarViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(FriendsViewModel::class)
+    @Binds
+    fun bindFriendsViewModel(viewModel: FriendsViewModel): ViewModel
+
 
 }

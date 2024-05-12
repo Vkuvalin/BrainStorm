@@ -82,6 +82,7 @@ fun SearchForWar(
     LaunchedEffect(Unit) {
         val result = viewModel.findTheGame.invoke()
         Log.d("FIREBASE_REQUEST", "$result")
+        // TODO Так-с, сюда все-таки нужно было вытащить uid... Зря я поленился :))
 
         if (result.first){
             waitOpponent = false

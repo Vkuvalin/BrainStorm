@@ -14,6 +14,7 @@ import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
@@ -219,7 +220,8 @@ class BrainStormRepositoryImpl @Inject constructor(
 
 
 
-    /* ##################################### FIREBASE - AUTH #################################### */
+    /* ##################################### FIREBASE ########################################### */
+    /* ####################################### AUTH ############################################# */
 
     override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
         return apiService.singInFirebase(email = email, password = password)
@@ -241,8 +243,19 @@ class BrainStormRepositoryImpl @Inject constructor(
 
 
 
+    /* ####################################### GET ############################################## */
+    override suspend fun getUserInfoFB(uid: String): UserInfo? {
+        return apiService.getUserInfoFB(uid)
+    }
 
-    /* ########################################## GAME ########################################## */
+    override suspend fun getUserRequests(): List<UserRequest>? {
+        return apiService.getUserRequests()
+    }
+    /* ########################################################################################## */
+
+
+
+    /* ####################################### GAME ############################################# */
 
     override suspend fun findTheGame(): Pair<Boolean, String> {
         return apiService.findTheGame()

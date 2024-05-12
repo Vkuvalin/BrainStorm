@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,9 +33,10 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 
 @Composable
-fun UserRequestPanel(
+fun UserMessagePanel(
     userInfo: UserInfo,
-    onPressPanel: () -> Unit
+    onPressAvatar: () -> Unit,
+    onPressRightPart: () -> Unit
 ) {
 
     val name = userInfo.name
@@ -59,15 +58,14 @@ fun UserRequestPanel(
             .fillMaxWidth()
             .height(panelHeight)
             .padding(10.dp)
-            .noRippleClickable {
-                onPressPanel()
-            }
     ) {
 
         //region Аватарка
         Box(
             modifier = Modifier
-                .weight(1f),
+                .weight(1f)
+                .noRippleClickable { onPressAvatar() }
+            ,
             contentAlignment = Alignment.Center
         ) {
 
@@ -95,11 +93,12 @@ fun UserRequestPanel(
         //endregion
         //region UserInfo
         Column(
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(2f)
+                .weight(2.5f)
                 .padding(start = 10.dp)
+                .noRippleClickable { onPressRightPart() }
         ) {
             Text(
                 text = name!!, // TODO
@@ -109,31 +108,11 @@ fun UserRequestPanel(
             )
 
             Text(
-                text = "Cat",
+                text = "Привет! Я тебя вчера приглашал поиграть! Где ты был целый день?",
+                maxLines = 1,
                 color = Color.Black,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W400
-            )
-
-            Text(
-                text = "Last login: XX min ago",
-                color = Color.Black,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.W400
-            )
-        }
-        //endregion
-        //region Флаг
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(0.5f)
-        ) {
-            AssetImage(
-                fileName = "ic_profile_russia.png",
-                modifier = Modifier.size(40.dp)
             )
         }
         //endregion

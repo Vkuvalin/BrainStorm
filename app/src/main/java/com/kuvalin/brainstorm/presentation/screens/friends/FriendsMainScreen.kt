@@ -169,15 +169,9 @@ fun FriendsMainScreen(
 
         FriendsScreenNavGraph(
             navHostController = navigationState.navHostController,
-            listFriendsScreenContent = {
-                FriendsContent(paddingValues)
-            },
-            messagesScreenContent = { Box(modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xFFE6E6E6))) {} },
-            requestsScreenContent = { Box(modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xFFE6E6E6))) {} }
+            listFriendsScreenContent = { FriendsContent(paddingValues) },
+            messagesScreenContent = { MessageContent(paddingValues) },
+            requestsScreenContent = { RequestsContent(paddingValues) }
         )
 
     }

@@ -3,6 +3,7 @@ package com.kuvalin.brainstorm.presentation.screens.friends
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 
@@ -45,21 +48,46 @@ fun FriendsContent(
         AddFriendsButtonContent(){ onClickButtonState = false }
     }
 
+    // Динамический размер текста
+    val dynamicFontSize = (screenWidth/19) // == 20.sp
+    // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
+
+
     // ListFriend (Будет прилетать из базы)
-    var listFriends = mutableListOf("Ваня", "Дима", "Катя", "Лиза")
+    val listFriends = listOf( // TODO
+        UserInfo("1111", name = "Vitaly"),
+        UserInfo("2222", name = "Liza"),
+        UserInfo("3333", name = "Karen"),
+        UserInfo("4444", name = "Evgeny")
+    )
+
+    var clickUserRequestPanel by remember { mutableStateOf(false) }
+    var dynamicUserInfo by remember { mutableStateOf(UserInfo(uid = "123")) }
+    if (clickUserRequestPanel){
+        UserInfoDialog(dynamicUserInfo, type = 2) { clickUserRequestPanel = false }
+    }
 
     /* ########################################################################################## */
 
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = paddingValues.calculateTopPadding())
             .background(color = Color(0xFFE6E6E6))
     ) {
 
-        if (listFriends.size == 0){ // Очевидно тут ошибка
-            //pass
+        if (listFriends.size != 0){
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                items(listFriends.size) {position ->
+                    UserRequestOrFriendPanel(userInfo = listFriends[position]) {
+                        dynamicUserInfo = listFriends[position]
+                        clickUserRequestPanel = true
+                    }
+                }
+            }
         }else {
             //region Кнопка добавления
             Column(
@@ -68,7 +96,7 @@ fun FriendsContent(
                     .wrapContentSize(align = Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Challenge your friends!", fontSize = 20.sp)
+                Text("Challenge your friends!", fontSize = dynamicFontSize.sp)
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
@@ -95,7 +123,6 @@ fun FriendsContent(
             }
             //endregion
         }
-
 
     }
 

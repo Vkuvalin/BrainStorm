@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
-import android.annotation.SuppressLint
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,12 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,29 +19,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.UserInfo
-import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun RequestsContent(
+fun MessageContent(
     paddingParent: PaddingValues
 ){
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
 
-    // Компонент
-    val component = getApplicationComponent()
-    val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
-
-
+    val context = LocalContext.current
 
     // Динамический размер текста
     val configuration = LocalConfiguration.current
@@ -55,30 +38,19 @@ fun RequestsContent(
 
 
     // Список пользователей
-    val listUsers by remember { mutableStateOf(mutableStateListOf<UserInfo>()) }
+    val listUsers = listOf( // TODO
+        UserInfo("2222", name = "Liza"),
+        UserInfo("3333", name = "Karen")
+    )
+
 
     // Функция дополнительной информации о юзере
     var clickUserRequestPanel by remember { mutableStateOf(false) }
     var dynamicUserInfo by remember { mutableStateOf(UserInfo(uid = "123")) }
     if (clickUserRequestPanel){
-        UserInfoDialog(dynamicUserInfo, type = 1) { clickUserRequestPanel = false }
+        UserInfoDialog(dynamicUserInfo, type = 2) { clickUserRequestPanel = false }
     }
 
-    LaunchedEffect(Unit) {
-        val listUserRequest = viewModel.getUserRequests.invoke()
-        if (listUserRequest != null) {
-            for (user in listUserRequest){
-                val userInfo = viewModel.getUserInfoFB.invoke(uid = user.uid)
-                if (userInfo != null) { // TODO переделать, чтобы не был null (имя подставлять или запрашивать)
-                    withContext(Dispatchers.Main) { listUsers.add(userInfo) }
-                    // И тогда подумать: не лучше ли тогда сразу обновлять список целиком?
-                    // Предварительно собрав его тут
-                }
-            }
-        }
-    }
-    // TODO Как только я захожу на экран, сначала должна проигрываться анимация мозга-ожидания
-    // TODO ВОТ ТУТ ВСТАВИТЬ АНИМАЦИЮ, которая будет проигрываться, пока не будет закончена загрузка
 
     /* ########################################################################################## */
 
@@ -88,18 +60,22 @@ fun RequestsContent(
             .background(color = Color(0xFFE6E6E6))
             .padding(top = paddingParent.calculateTopPadding())
     ) {
-        Log.d("REQUESTS_CONTENT", " $listUsers <------------------- listUsers222")
+
         if (listUsers.size != 0){
-            Log.d("REQUESTS_CONTENT", " $listUsers <------------------- listUsers333")
             LazyColumn(
-//            verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize(),
             ) {
                 items(listUsers.size) {position ->
-                    UserRequestOrFriendPanel(userInfo = listUsers[position]) {
-                        dynamicUserInfo = listUsers[position]
-                        clickUserRequestPanel = true
-                    }
+                    UserMessagePanel(
+                        userInfo = listUsers[position],
+                        onPressAvatar = {
+                            dynamicUserInfo = listUsers[position]
+                            clickUserRequestPanel = true
+                        },
+                        onPressRightPart = {
+                            Toast.makeText(context, "Переход в чат", Toast.LENGTH_LONG).show()
+                        }
+                    )
                 }
             }
         }else {

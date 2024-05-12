@@ -15,6 +15,7 @@ import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -341,10 +342,10 @@ class FirebaseApiService @Inject constructor(
 
 
     // ###################### GET
-    private suspend fun getUserInfo(userUid: String): UserInfo? {
+    override suspend fun getUserInfoFB(uid: String): UserInfo? {
 
         if (fireBase.auth.uid != null){
-            val userInfoPath = getFireStoreUserPath(userUid, "userInfo")
+            val userInfoPath = getFireStoreUserPath(uid, "userInfo")
 
             try {
                 val userInfo = fireBase.firestore.document(userInfoPath).get().await().data
@@ -366,6 +367,40 @@ class FirebaseApiService @Inject constructor(
 
         return null
     }
+
+    override suspend fun getUserRequests(): List<UserRequest>? {
+
+        val userUid = fireBase.auth.uid
+        val resultList = mutableListOf<UserRequest>()
+        if (userUid != null){
+            val userInfoPath = getFireStoreUserPath(userUid, "usersRequest")
+
+            try {
+                // Получаем список запросов к пользователю в друзья
+                val listUserRequests = fireBase.firestore.collection(userInfoPath).get().await()
+
+                if (listUserRequests.documents.size == 0) { return null }
+
+                // Собираем список запросов
+                for (document in listUserRequests){
+                    resultList.add(
+                        UserRequest(
+                            uid = document.data["uid"] as String,
+                            answerState = document.data["answerState"] as Boolean,
+                            friendState = document.data["friendState"] as Boolean
+                        )
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+                return null
+            }
+        }
+
+        return resultList
+    }
+
     // ######################
 
 
@@ -445,8 +480,6 @@ class FirebaseApiService @Inject constructor(
                         &&
                         value.data?.get("cyan_ready") == true
                     ) {
-//                        opponentUid = if (findFailed) value.data?.get("pink_user") as String
-//                        else value.data?.get("cyan_user") as String
                         listGames = value.data?.get("list_games") as MutableList<String>
                         gameReady = true
                     }
@@ -479,16 +512,18 @@ class FirebaseApiService @Inject constructor(
     //endregion
 
     // Отправляет в firebase актуальные значения SCORE
+    //region updateUserScopeInWarGame
     override suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int){
         fireBase.firestore
             .document("games/$sessionId/game/${mapper.convertToAnalogGameName(gameName)}_${fireBase.auth.uid}")
             .set(hashMapOf("scope" to "$scope"))
             .await()
     }
-
+    //endregion
 
 
     // Получает из firebase актуальные значения SCOPE оппонента
+    //region getActualOpponentScopeFromWarGame
     override suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int> {
         val session = fireBase.firestore.document("games/$sessionId/").get().await()
         val opponentUid = (
@@ -507,9 +542,11 @@ class FirebaseApiService @Inject constructor(
         // TODO Потом понять, как перевести в обычный поток. Да и вообще глянуть, где у меня поточная инфа
         return mutableStateFlow
     }
+    //endregion
 
 
     // Нужна для получения конечных результатов игры в WarGameResults
+    //region getScopeFromWarGame
     override suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int {
         // Для экономии времени введу 3-й параметр.
 
@@ -527,6 +564,7 @@ class FirebaseApiService @Inject constructor(
             }_${if (type == "user") userUid else opponentUid}")
             .get().await().data?.get("scope").toString().toInt()
     }
+    //endregion
 
 
 
@@ -605,110 +643,6 @@ class FirebaseApiService @Inject constructor(
 
 }
 
-
-
-
-
-
-/*
-// $$$$$$$$$$$$$$$$$$$$$$$$$ FIREBASE $$$$$$$$$$$$$$$$$$$$$$$$$
-val auth = Firebase.auth
-
-// DataStore -> Firebase
-val db = Firebase.firestore
-// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-
-
-Пример отправки данных:
-val user = hashMapOf(
-    "first" to "Vlad3",
-    "last" to "Kuvalin3",
-    "born" to 1996,
-    "email" to userEmail,
-    "pass" to userPassword,
-    "language" to "Russia"
-)
-
-val appCurrency = hashMapOf(
-    "life" to 3,
-    "coins" to 250
-)
-
-
-
-########################## Первый вариант ##########################
-
-#Вставляем
-db.collection("users") // Дальше бы мне пришлось чередовать .document и .collection
-    .add(user)
-    .addOnSuccessListener { documentReference ->
-        Log.d("DATABASE", "DocumentSnapshot added with ID: ${documentReference.id}")
-    }
-    .addOnFailureListener { e ->
-        Log.w("DATABASE", "Error adding document", e)
-    }
-
-
-#Получаем
-db.collection("users")
-    .get()
-    .addOnSuccessListener {result ->
-        for (document in result){
-            Log.d("DATABASE", "${document.id} => ${document.data}")
-            Log.d("DATABASE", "${document.data["email"]}")
-        }
-    }
-    .addOnFailureListener {
-        Log.d("DATABASE", "$it")
-    }
-####################################################################
-
-
-
-
-########################## Второй вариант ##########################
-
-#Вставляем
-// auth.uid -> т.к. в rules я указал именно такие настройки
-db.document("users/${auth.uid}/user_data/personal_data/") // TODO Я ща просто большие пути всюду ебану
-    .set(user)
-    .addOnSuccessListener { documentReference ->
-        Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
-    }
-    .addOnFailureListener { e ->
-        Log.w("DATABASE", "Error adding document", e)
-    }
-
-db.document("users/${auth.uid}/user_data/app_currency") // TODO Я ща просто большие пути всюду ебану
-    .set(appCurrency)
-    .addOnSuccessListener { documentReference ->
-        Log.d("DATABASE", "DocumentSnapshot added with ID: $documentReference")
-    }
-    .addOnFailureListener { e ->
-        Log.w("DATABASE", "Error adding document", e)
-    }
-
-
-#Получаем
-TODO-коммент ПОЛУЧЕНИЕ ДАННЫХ (живое)
-    /*
-    Это live-update его просто прописать разок и обновляться
-    оно уже будет самостоятельно напрямую в базу.
-    */
-
-db.document("users/${auth.uid}/user_data/app_currency/")
-    .addSnapshotListener { value, error ->
-        Log.d("DATABASE", "${value?.data?.get("coins")}")
-        Log.d("DATABASE", "${value?.data}")
-    }
-
-
-
-####################################################################
-
-
-*/
 
 
 

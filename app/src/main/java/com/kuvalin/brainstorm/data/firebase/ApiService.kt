@@ -6,6 +6,7 @@ import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import kotlinx.coroutines.flow.StateFlow
 
@@ -37,6 +38,8 @@ interface ApiService {
 
 
     // Получение (перенос данных на другое уст-во делать не буду пока что)
+    suspend fun getUserInfoFB(uid: String): UserInfo?
+    suspend fun getUserRequests(): List<UserRequest>?
 
 
     // Game

@@ -54,19 +54,25 @@ interface BrainStormRepository {
 
     /* ########################################################################################## */
 
-    
-    
-    /* ##################################### FIREBASE - AUTH #################################### */
+
+
+
+    /* ##################################### FIREBASE ########################################### */
+    /* ####################################### AUTH ############################################# */
     suspend fun singIn(email: String, password: String): Pair<Boolean, String>
     suspend fun singUp(email: String, password: String): Pair<Boolean, String>
     suspend fun resetPassword(email: String): Pair<Boolean, String>
     suspend fun authorizationCheck(): Boolean
     /* ########################################################################################## */
 
+    /* ####################################### GET ############################################## */
+    suspend fun getUserInfoFB(uid: String): UserInfo?
+    suspend fun getUserRequests(): List<UserRequest>?
+    /* ########################################################################################## */
 
 
 
-    /* ########################################## GAME ########################################## */
+    /* ####################################### GAME ############################################# */
     suspend fun findTheGame(): Pair<Boolean, String>
 
     suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int)

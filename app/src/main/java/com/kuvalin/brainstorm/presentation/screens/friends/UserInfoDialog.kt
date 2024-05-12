@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -34,7 +36,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -49,6 +50,7 @@ import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelAColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelSColor
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -59,12 +61,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserInfoDialog(
     userInfo: UserInfo,
-    type: Int, // 1 для request, 2 для friends
+    type: Int, // 1 для request, 2 для friends // TODO подумать потом, как это лучше оформить
     onClickDismiss: () -> Unit
 ) {
 
     // Аватарка
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
+    val name = userInfo.name
 
 
     // Проигрывание музыки
@@ -76,6 +79,13 @@ fun UserInfoDialog(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val panelHeight = screenWidth.dp/4
+
+
+    // Функция добавления/удаления в друзья
+    var clickAddDeleteUserButton by remember { mutableStateOf(false) }
+    if (clickAddDeleteUserButton){
+        AddDeleteUser(type) { clickAddDeleteUserButton = false }
+    }
 
 
     Dialog(
@@ -121,7 +131,7 @@ fun UserInfoDialog(
                 ) {
                     //region Name
                     Text(
-                        text = "Regita KW Super",
+                        text = name!!, // TODO
                         color = Color.Black,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.W400,
@@ -227,7 +237,9 @@ fun UserInfoDialog(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier
                             .weight(1f)
                             .padding(5.dp)){
-                            AddDeleteUserButton(type) {}
+                            AddDeleteUserButton(type) {
+                                clickAddDeleteUserButton = true
+                            }
                         }
                         Box(contentAlignment = Alignment.Center, modifier = Modifier
                             .weight(2f)
@@ -267,7 +279,7 @@ private fun AddDeleteUserButton(
                 color = CyanAppColor,
                 shape = RoundedCornerShape(14)
             )
-            .noRippleClickable { onPressButton() }
+            .noRippleClickable { }
     ){
         Icon(
             bitmap = GetAssetBitmap(fileName = "tab_friends.png"),
@@ -276,7 +288,7 @@ private fun AddDeleteUserButton(
             modifier = Modifier
                 .padding(10.dp)
                 .background(CyanAppColor)
-                .noRippleClickable {}
+                .noRippleClickable { onPressButton() }
         )
 
         Icon(
@@ -355,3 +367,125 @@ private fun GoChat(
 }
 //endregion
 
+
+@Composable
+fun AddDeleteUser(
+    type: Int = 1, // 1 == Add 2 == Delete
+    onClickDismiss: () -> Unit
+){
+    // Динамический размер текста
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val dynamicFontSize = (screenWidth/19) // == 20.sp
+
+    // Проигрывание звуков
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
+    Dialog(
+        onDismissRequest = { onClickDismiss() },
+        content = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+            ) {
+
+                //region Крестик
+                AssetImage(
+                    fileName = "ic_cancel.png",
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(width = 2.dp, color = Color.White, shape = CircleShape)
+                        .background(color = Color.White)
+                        .align(alignment = Alignment.End)
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
+                )
+                //endregion
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(3))
+                        .background(color = Color(0xFFE6E6E6))
+                        .padding(30.dp)
+                ) {
+                    //region Name
+                    Text(
+                        text = if (type == 1) "Do you want to add a user?" else "Delete a friend?",
+                        color = Color.Black,
+                        fontSize = dynamicFontSize.sp,
+                        fontWeight = FontWeight.W400,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    //endregion
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(vertical = 5.dp)
+                    ) {
+                        YesNoButton(type = "yes"){
+                            if (type == 1){
+                                // Добавляем
+                            }else {
+                                // Удаляем
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(30.dp))
+                        YesNoButton(type = "no"){
+                            if (type == 1){
+                                // Не добавляем
+                            }else {
+                                // Не удаляем, а просто закрываем
+                                onClickDismiss()
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    )
+}
+
+//region YesNoButton
+@Composable
+private fun YesNoButton(
+    type: String, // TODO
+    onPressButton: () -> Unit
+) {
+
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .clip(RoundedCornerShape(14))
+            .background(color = if (type == "yes") CyanAppColor else PinkAppColor)
+            .border(
+                width = 1.dp,
+                color = if (type == "yes") CyanAppColor else PinkAppColor,
+                shape = RoundedCornerShape(14)
+            )
+            .noRippleClickable { onPressButton() }
+    ){
+        Text(
+            text = if (type == "yes") " Yes " else " No ",
+            fontSize = 14.sp,
+            color = Color.White,
+            fontWeight = FontWeight.W400,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(10.dp)
+        )
+    }
+
+}
+//endregion
