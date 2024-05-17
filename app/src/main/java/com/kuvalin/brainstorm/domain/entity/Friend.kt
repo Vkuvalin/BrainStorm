@@ -8,7 +8,7 @@ data class Friend(
     val email: String? = null,
     val avatar: Uri? = null,
     val country: String? = null,
-    val listOfMessages: List<String>? = null,
+    val listOfMessages: ListOfMessages? = null,
     val gameStatistic: List<GameStatistic>? = null,
     val warStatistics: WarStatistics? = null
 )

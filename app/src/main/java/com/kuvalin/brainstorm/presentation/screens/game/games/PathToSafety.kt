@@ -418,10 +418,6 @@ private fun GameCell(
     onLayoutChanged: (LayoutCoordinates) -> Unit
 ){
 
-    // Про баг с клеткой, что светится, если экран тронуть.
-    // Кажись, это просто остаточная хуйня какая-то. Лечится костылем, кажись.
-    // Что-то вроде повторного запрета или проставления белого цвета
-
     if (currentCell == position && movingState) {
         if (position !in listCell){
             listCell.add(position)
@@ -430,7 +426,9 @@ private fun GameCell(
 
         if (listCell.size > 1 && position == listCell[listCell.size - 2]){
             listCell.removeAt(listCell.size - 1)
-            listClickableIndexes.removeAt(listCell.size - 1)
+            if (index != 1) {
+                listClickableIndexes.removeAt(listCell.size - 1)
+            }
         }
     }
     draggingMap[position] = position in listCell

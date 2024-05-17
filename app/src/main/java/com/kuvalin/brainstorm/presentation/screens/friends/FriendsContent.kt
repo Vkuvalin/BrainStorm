@@ -1,5 +1,7 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +17,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,9 +32,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun FriendsContent(
@@ -38,6 +48,10 @@ fun FriendsContent(
 ){
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+
+    // Компонент
+    val component = getApplicationComponent()
+    val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
 
     //Button
     val configuration = LocalConfiguration.current
@@ -53,18 +67,38 @@ fun FriendsContent(
     // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
 
 
-    // ListFriend (Будет прилетать из базы)
-    val listFriends = listOf( // TODO
-        UserInfo("1111", name = "Vitaly"),
-        UserInfo("2222", name = "Liza"),
-        UserInfo("3333", name = "Karen"),
-        UserInfo("4444", name = "Evgeny")
-    )
+    // Список друзей
+    val listFriendsUserInfo by remember { mutableStateOf(mutableStateListOf<UserInfo>()) }
+    val listFriends by remember { mutableStateOf(mutableStateListOf<Friend>()) } // ПОКА ТОЧНО НЕ ЗНАЮ
 
     var clickUserRequestPanel by remember { mutableStateOf(false) }
     var dynamicUserInfo by remember { mutableStateOf(UserInfo(uid = "123")) }
     if (clickUserRequestPanel){
         UserInfoDialog(dynamicUserInfo, type = 2) { clickUserRequestPanel = false }
+    }
+
+
+    LaunchedEffect(Unit) {
+        val friendsList = viewModel.getFriendsList.invoke()
+
+        Log.d("FRIEND_CONTENT", "$friendsList <----- friendsList")
+        if (friendsList != null) {
+            for (friend in friendsList){
+                Log.d("FRIEND_CONTENT", "$friend <-----  friend")
+                withContext(Dispatchers.Main) {
+                    listFriendsUserInfo.add(
+                        UserInfo(
+                            uid = friend.uid,
+                            name = friend.name,
+                            email = friend.email,
+                            avatar = friend.avatar,
+                            country = friend.country,
+                        )
+                    )
+                }
+                listFriends.add(friend)
+            }
+        }
     }
 
     /* ########################################################################################## */
@@ -82,8 +116,8 @@ fun FriendsContent(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 items(listFriends.size) {position ->
-                    UserRequestOrFriendPanel(userInfo = listFriends[position]) {
-                        dynamicUserInfo = listFriends[position]
+                    UserRequestOrFriendPanel(userInfo = listFriendsUserInfo[position]) {
+                        dynamicUserInfo = listFriendsUserInfo[position]
                         clickUserRequestPanel = true
                     }
                 }

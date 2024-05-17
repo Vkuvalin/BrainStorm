@@ -40,13 +40,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
+import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelAColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelSColor
@@ -84,7 +87,7 @@ fun UserInfoDialog(
     // Функция добавления/удаления в друзья
     var clickAddDeleteUserButton by remember { mutableStateOf(false) }
     if (clickAddDeleteUserButton){
-        AddDeleteUser(type) { clickAddDeleteUserButton = false }
+        AddDeleteUser(userInfo, type) { clickAddDeleteUserButton = false }
     }
 
 
@@ -237,9 +240,7 @@ fun UserInfoDialog(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier
                             .weight(1f)
                             .padding(5.dp)){
-                            AddDeleteUserButton(type) {
-                                clickAddDeleteUserButton = true
-                            }
+                            AddDeleteUserButton(type) { clickAddDeleteUserButton = true }
                         }
                         Box(contentAlignment = Alignment.Center, modifier = Modifier
                             .weight(2f)
@@ -368,11 +369,17 @@ private fun GoChat(
 //endregion
 
 
+//region AddDeleteUser
 @Composable
 fun AddDeleteUser(
+    userInfo: UserInfo,
     type: Int = 1, // 1 == Add 2 == Delete
     onClickDismiss: () -> Unit
 ){
+
+    val scope = CoroutineScope(Dispatchers.IO)
+
+
     // Динамический размер текста
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -380,7 +387,13 @@ fun AddDeleteUser(
 
     // Проигрывание звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
+    val musicScope = CoroutineScope(Dispatchers.Default)
+
+
+    // Компонент
+    val component = getApplicationComponent()
+    val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
+
 
     Dialog(
         onDismissRequest = { onClickDismiss() },
@@ -402,7 +415,7 @@ fun AddDeleteUser(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
+                            musicScope.launch {
                                 MusicPlayer(context = context).run {
                                     playChoiceClick()
                                     delay(3000)
@@ -437,17 +450,26 @@ fun AddDeleteUser(
                     ) {
                         YesNoButton(type = "yes"){
                             if (type == 1){
-                                // Добавляем
+                                // Принимаем запрос дружбы
+                                scope.launch {
+                                    viewModel.addFriend(userInfo)
+                                    viewModel.updateUserRequestFB.invoke(userInfo.uid,true)
+                                    onClickDismiss()
+                                }
                             }else {
-                                // Удаляем
+                                // Удаляем друга
                             }
                         }
                         Spacer(modifier = Modifier.width(30.dp))
                         YesNoButton(type = "no"){
                             if (type == 1){
-                                // Не добавляем
+                                scope.launch {
+                                    // Отказываемся от дружбы
+                                    viewModel.updateUserRequestFB.invoke(userInfo.uid,false)
+                                    onClickDismiss()
+                                }
                             }else {
-                                // Не удаляем, а просто закрываем
+                                // Не удаляем друга, а просто закрываем
                                 onClickDismiss()
                             }
                         }
@@ -457,6 +479,7 @@ fun AddDeleteUser(
         },
     )
 }
+//endregion
 
 //region YesNoButton
 @Composable

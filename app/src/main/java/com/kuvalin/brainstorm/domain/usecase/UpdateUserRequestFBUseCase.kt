@@ -1,11 +1,12 @@
 package com.kuvalin.brainstorm.domain.usecase
 
-import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
 import javax.inject.Inject
 
-class GetUserRequestsUseCase @Inject constructor(
+class UpdateUserRequestFBUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(): List<UserRequest>? = brainStormRepository.getUserRequestsFB()
+    suspend operator fun invoke(uidFriend: String, friendState: Boolean) {
+        brainStormRepository.updateUserRequestFB(uidFriend, friendState)
+    }
 }

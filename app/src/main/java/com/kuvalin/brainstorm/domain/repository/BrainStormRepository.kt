@@ -19,28 +19,26 @@ interface BrainStormRepository {
     /* ####################################### DATABASE ####################################### */
     
     // ADD
-    suspend fun addUserInfo(userInfo: UserInfo)
+    suspend fun addUserInfo(userInfo: UserInfo, initialState: Boolean = false)
 
-    // Сюда будет поставляться UserInternet + ещё пока не понятно, как именно это будет происходить
-    suspend fun addFriend(userRequest: Friend)
-    // Но фундамент сформирован!
+    suspend fun addFriend(friend: Friend, initialState: Boolean = false)
 
-    suspend fun addListOfMessages(listOfMessages: ListOfMessages)
+    suspend fun addListOfMessages(listOfMessages: ListOfMessages, initialState: Boolean = false)
 
     suspend fun addGameResult(gameResult: GameResult)
     suspend fun addWarResult(warResult: WarResult)
 
     suspend fun addAppSettings(appSettings: AppSettings)
-    suspend fun addAppCurrency(appCurrency: AppCurrency)
+    suspend fun addAppCurrency(appCurrency: AppCurrency, initialState: Boolean = false)
 
-    suspend fun addSocialData(socialData: SocialData)
+    suspend fun addSocialData(socialData: SocialData, initialState: Boolean = false)
 
 
     // GET
     suspend fun getUserInfo(uid: String): UserInfo?
 
-    suspend fun getFriend(uid: String): Friend // Точно ли будет нужно?
-    suspend fun getFriendList(): List<Friend> // Ведь я могу отсюда доставить всех
+    suspend fun getFriend(uid: String): Friend
+    suspend fun getFriendList(): List<Friend>?
 
     suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic
     suspend fun getListGamesStatistics(uid: String): List<GameStatistic>
@@ -67,7 +65,19 @@ interface BrainStormRepository {
 
     /* ####################################### GET ############################################## */
     suspend fun getUserInfoFB(uid: String): UserInfo?
-    suspend fun getUserRequests(): List<UserRequest>?
+    suspend fun getGameStatisticFB(uid: String): List<GameStatistic>?
+    suspend fun getWarStatisticsFB(uid: String): WarStatistics?
+
+    suspend fun getUserRequestsFB(): List<UserRequest>?
+    /* ########################################################################################## */
+
+
+    /* ###################################### SEND ############################################## */
+    suspend fun updateUserRequestFB(uidFriend: String, friendState: Boolean)
+    /* ########################################################################################## */
+
+    /* ##################################### DELETE ############################################# */
+    suspend fun deleteUserRequestFB(uidFriend: String)
     /* ########################################################################################## */
 
 

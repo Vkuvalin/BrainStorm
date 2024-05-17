@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 data class ListOfMessagesDbModel(
     @PrimaryKey
     val uid: String,
-    val listOfMessages: List<String>
+    val listOfMessages: List<String>?
 )

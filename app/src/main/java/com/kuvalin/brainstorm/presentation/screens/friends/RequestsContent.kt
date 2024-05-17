@@ -46,7 +46,6 @@ fun RequestsContent(
     val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
 
 
-
     // Динамический размер текста
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -64,18 +63,34 @@ fun RequestsContent(
         UserInfoDialog(dynamicUserInfo, type = 1) { clickUserRequestPanel = false }
     }
 
+
     LaunchedEffect(Unit) {
+
         val listUserRequest = viewModel.getUserRequests.invoke()
         if (listUserRequest != null) {
+
             for (user in listUserRequest){
-                val userInfo = viewModel.getUserInfoFB.invoke(uid = user.uid)
-                if (userInfo != null) { // TODO переделать, чтобы не был null (имя подставлять или запрашивать)
-                    withContext(Dispatchers.Main) { listUsers.add(userInfo) }
-                    // И тогда подумать: не лучше ли тогда сразу обновлять список целиком?
-                    // Предварительно собрав его тут
+                if (user.answerState && !user.friendState) {
+                    viewModel.deleteUserRequestFB.invoke(user.uid)
+                } else if (user.answerState && user.friendState) { // TODO По факту данное должно происходить во FriendMainScreen (но пусть пока тут остается)
+                    val userInfo = viewModel.getUserInfoFB.invoke(uid = user.uid)
+                    if (userInfo != null) {
+                        viewModel.addFriend(userInfo)
+                    }
+                }else {
+                    val userInfo = viewModel.getUserInfoFB.invoke(uid = user.uid)
+                    if (userInfo != null) { // TODO переделать, чтобы не был null (имя подставлять или запрашивать)
+                        withContext(Dispatchers.Main) { listUsers.add(userInfo) }
+                        // И тогда подумать: не лучше ли тогда сразу обновлять список целиком?
+                        // Предварительно собрав его тут
+
+                        // ОПРЕДЕЛЕННО ЛУЧШЕ TODO
+                    }
                 }
             }
+
         }
+
     }
     // TODO Как только я захожу на экран, сначала должна проигрываться анимация мозга-ожидания
     // TODO ВОТ ТУТ ВСТАВИТЬ АНИМАЦИЮ, которая будет проигрываться, пока не будет закончена загрузка

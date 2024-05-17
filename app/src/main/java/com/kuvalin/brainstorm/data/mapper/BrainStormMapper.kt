@@ -41,8 +41,8 @@ class BrainStormMapper @Inject constructor() {
         )
     }
     fun mapDbModelToEntityUserInfo(userInfoDbModel: UserInfoDbModel?): UserInfo? {
-        if (userInfoDbModel != null) {
-            return UserInfo(
+        return if (userInfoDbModel != null) {
+            UserInfo(
                 userInfoDbModel.uid,
                 userInfoDbModel.name,
                 userInfoDbModel.email,
@@ -50,7 +50,7 @@ class BrainStormMapper @Inject constructor() {
                 userInfoDbModel.country
             )
         }else{
-            return null
+            null
         }
     }
 
@@ -74,7 +74,7 @@ class BrainStormMapper @Inject constructor() {
             friendInfoDbModel.email,
             friendInfoDbModel.avatar,
             friendInfoDbModel.country,
-            listOfMessagesDbModel.listOfMessages,
+            mapDbModelToEntityListOfMessage(listOfMessagesDbModel),
             mapListDbModelToListEntityGameStatistics(gameStatisticDbModel),
             mapDbModelToEntityWarsStatistics(warStatisticsDbModel)
         )
@@ -114,10 +114,20 @@ class BrainStormMapper @Inject constructor() {
 
 
     // ListOfMessages
-    fun mapEntityToDbModelListOfMessage(listOfMessages: ListOfMessages): ListOfMessagesDbModel {
-        return ListOfMessagesDbModel(
-            listOfMessages.uid,
-            listOfMessages.listOfMessages ?: listOf("")
+    fun mapEntityToDbModelListOfMessage(listOfMessages: ListOfMessages?): ListOfMessagesDbModel? {
+        return if (listOfMessages != null) {
+            ListOfMessagesDbModel(
+                listOfMessages.uid,
+                listOfMessages.listOfMessages
+            )
+        }else {
+            null
+        }
+    }
+    fun mapDbModelToEntityListOfMessage(listOfMessagesDbModel: ListOfMessagesDbModel): ListOfMessages {
+        return ListOfMessages(
+            uid = listOfMessagesDbModel.uid,
+            listOfMessages = listOfMessagesDbModel.listOfMessages
         )
     }
 
@@ -309,7 +319,7 @@ class BrainStormMapper @Inject constructor() {
     }
 
     // GameStatistics
-    fun mapDbModelToFirebaseHashMapGameStatistics(
+    fun mapDbModelToFirebaseHashMapGameStatistic(
         gameStatisticDbModel: GameStatisticDbModel
     ): HashMap<String, String> {
         return hashMapOf(

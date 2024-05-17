@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import dagger.Binds
 import dagger.Module
@@ -30,10 +31,17 @@ interface ViewModelModule {
     @Binds
     fun bindWarsViewModel(viewModel: WarViewModel): ViewModel
 
+
     @IntoMap
     @ViewModelKey(FriendsViewModel::class)
     @Binds
     fun bindFriendsViewModel(viewModel: FriendsViewModel): ViewModel
+
+
+    @IntoMap
+    @ViewModelKey(StatisticsViewModel::class)
+    @Binds
+    fun bindStatisticsViewModel(viewModel: StatisticsViewModel): ViewModel
 
 
 }

@@ -8,5 +8,5 @@ import javax.inject.Inject
 class GetFriendsListUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(): List<Friend> = brainStormRepository.getFriendList()
+    suspend operator fun invoke(): List<Friend>? = brainStormRepository.getFriendList()
 }

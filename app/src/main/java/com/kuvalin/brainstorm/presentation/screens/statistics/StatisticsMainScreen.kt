@@ -42,9 +42,9 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.navigation.statistics.StatisticsScreenNavGraph
-import com.kuvalin.brainstorm.navigation.statistics.StatisticsNavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
+import com.kuvalin.brainstorm.navigation.statistics.StatisticsNavigationItem
+import com.kuvalin.brainstorm.navigation.statistics.StatisticsScreenNavGraph
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -173,13 +173,13 @@ fun StatisticsMainScreen(
         StatisticsScreenNavGraph(
             navHostController = navigationState.navHostController,
             warsStatisticsScreenContent = {
-                Box(modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)) {}
+                WarsContent(paddingValues)
             },
             friendsStatisticsScreenContent = {
-                Box(modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)) {}
+                FriendsStatisticsContent(paddingValues)
             },
             gamesStatisticsScreenContent = {
-                Box(modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)) {}
+                GamesStatisticsContent(paddingValues)
             }
         )
 

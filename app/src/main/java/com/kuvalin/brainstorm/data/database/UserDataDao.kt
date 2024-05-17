@@ -29,30 +29,31 @@ interface UserDataDao {
     @Query("SELECT * FROM user_info WHERE uid=:uid")
     suspend fun getUserInfo(uid: String): UserInfoDbModel
 
+
+//    games_statistics.gameName,
+//    games_statistics.maxGameScore,
+//    games_statistics.avgGameScore,
+//    LEFT JOIN
+//    games_statistics ON user_info.uid = games_statistics.uid
     @Transaction
     @Query(
         """
-        SELECT user_info.uid,
+        SELECT DISTINCT user_info.uid,
             user_info.name,
             user_info.email,
             user_info.avatar,
             user_info.country,
             list_of_messages.listOfMessages,
-            games_statistics.gameName,
-            games_statistics.maxGameScore,
-            games_statistics.avgGameScore,
             wars_statistics.winRate,
             wars_statistics.wins,
             wars_statistics.losses,
             wars_statistics.draws,
             wars_statistics.highestScore
-        FROM 
+        FROM
             user_info
-        LEFT JOIN 
+        LEFT JOIN
             list_of_messages ON user_info.uid = list_of_messages.uid
-        LEFT JOIN 
-            games_statistics ON user_info.uid = games_statistics.uid
-        LEFT JOIN 
+        LEFT JOIN
             wars_statistics ON user_info.uid = wars_statistics.uid
     """
     )
@@ -68,6 +69,13 @@ interface UserDataDao {
 //    @Query("SELECT * FROM friend_info")
 //    suspend fun getListFriendInfo(): List<FriendInfoDbModel>
 
+
+//    games_statistics.gameName,
+//    games_statistics.maxGameScore,
+//    games_statistics.avgGameScore,
+//    LEFT JOIN
+//    games_statistics ON friend_info.uid = games_statistics.uid
+
     @Transaction
     @Query(
         """
@@ -77,9 +85,6 @@ interface UserDataDao {
             friend_info.email,
             friend_info.country,
             list_of_messages.listOfMessages,
-            games_statistics.gameName,
-            games_statistics.maxGameScore,
-            games_statistics.avgGameScore,
             wars_statistics.winRate,
             wars_statistics.wins,
             wars_statistics.losses,
@@ -90,8 +95,6 @@ interface UserDataDao {
         LEFT JOIN 
             list_of_messages ON friend_info.uid = list_of_messages.uid
         LEFT JOIN 
-            games_statistics ON friend_info.uid = games_statistics.uid
-        LEFT JOIN 
             wars_statistics ON friend_info.uid = wars_statistics.uid
     """
     )
@@ -100,7 +103,7 @@ interface UserDataDao {
 
     // ListOfMessages
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addListOfMessages(listOfMessages: ListOfMessagesDbModel)
+    suspend fun addListOfMessages(listOfMessagesDbModel: ListOfMessagesDbModel?)
     @Query("SELECT * FROM list_of_messages WHERE uid=:uid")
     suspend fun getListOfMessages(uid: String): ListOfMessagesDbModel
 

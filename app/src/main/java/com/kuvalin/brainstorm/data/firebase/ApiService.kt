@@ -3,6 +3,7 @@ package com.kuvalin.brainstorm.data.firebase
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.Friend
+import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
@@ -26,8 +27,10 @@ interface ApiService {
     suspend fun signUpFirebase(email: String, password: String): Pair<Boolean, String>
     suspend fun resetPasswordFirebase(email: String): Pair<Boolean, String>
     suspend fun authorizationCheckFirebase(): Boolean
+    suspend fun getUserUid(): String
 
     // Firestore
+    // send
     suspend fun sendUserInfoToFirestore(userInfo: UserInfo)
     suspend fun sendFriendsToFirestore(friend: Friend)
     suspend fun sendChatToFirestore(listOfMessages: ListOfMessages)
@@ -35,11 +38,22 @@ interface ApiService {
     suspend fun sendWarStatisticToFirestore(warStatistics: WarStatistics)
     suspend fun sendAppCurrencyToFirestore(appCurrency: AppCurrency)
     suspend fun sendSocialDataToFirestore(socialData: SocialData)
+    suspend fun updateUserRequest(uidFriend: String, friendState: Boolean)
 
-
-    // Получение (перенос данных на другое уст-во делать не буду пока что)
+    // get
     suspend fun getUserInfoFB(uid: String): UserInfo?
+    suspend fun getFriendsFB(uid: String): List<Friend>?
+    suspend fun getGameStatisticFB(uid: String): List<GameStatistic>?
+    suspend fun getWarStatisticsFB(uid: String): WarStatistics?
+    suspend fun getAppCurrencyFB(uid: String): AppCurrency?
+    suspend fun getSocialDataFB(uid: String): SocialData?
     suspend fun getUserRequests(): List<UserRequest>?
+
+
+
+    // Удаление
+    suspend fun deleteUserRequest(uidFriend: String)
+
 
 
     // Game
@@ -50,4 +64,6 @@ interface ApiService {
     suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int
 
     suspend fun addFriendInGame(sessionId: String)
+
+
 }
