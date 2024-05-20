@@ -72,7 +72,10 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
 
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = paddingParent.calculateTopPadding())
+            .background(color = Color(0xFFE6E6E6))
     ){
 
         if (friendsList.size != 0){
@@ -81,7 +84,6 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = paddingParent.calculateTopPadding())
                     .background(color = Color(0xFFE6E6E6))
                     .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp))
                 ,

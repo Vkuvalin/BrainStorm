@@ -58,18 +58,19 @@ class BrainStormMapper @Inject constructor() {
 
     // Friend
     fun mapEntityToDbModelFriendInfo(
-            uid: String, name: String?, email: String?, avatar: Uri?, language: String?
+            uid: String, ownerUid: String, name: String?, email: String?, avatar: Uri?, language: String?
         ): FriendInfoDbModel{
-        return FriendInfoDbModel(uid, name, email, avatar, language)
+        return FriendInfoDbModel(uid, ownerUid, name, email, avatar, language)
     }
     fun mapDbModelToEntityFriend(
         friendInfoDbModel: FriendInfoDbModel,
         listOfMessagesDbModel: ListOfMessagesDbModel,
         gameStatisticDbModel: List<GameStatisticDbModel>,
-        warStatisticsDbModel: WarStatisticsDbModel,
+        warStatisticsDbModel: WarStatisticsDbModel?,
     ): Friend {
         return Friend(
             friendInfoDbModel.uid,
+            friendInfoDbModel.ownerUid,
             friendInfoDbModel.name,
             friendInfoDbModel.email,
             friendInfoDbModel.avatar,
@@ -118,16 +119,18 @@ class BrainStormMapper @Inject constructor() {
         return if (listOfMessages != null) {
             ListOfMessagesDbModel(
                 listOfMessages.uid,
-                listOfMessages.listOfMessages
+                listOfMessages.listOfMessages,
+                listOfMessages.chatId
             )
         }else {
             null
         }
     }
-    fun mapDbModelToEntityListOfMessage(listOfMessagesDbModel: ListOfMessagesDbModel): ListOfMessages {
+    private fun mapDbModelToEntityListOfMessage(listOfMessagesDbModel: ListOfMessagesDbModel): ListOfMessages {
         return ListOfMessages(
             uid = listOfMessagesDbModel.uid,
-            listOfMessages = listOfMessagesDbModel.listOfMessages
+            listOfMessages = listOfMessagesDbModel.listOfMessages,
+            chatId = listOfMessagesDbModel.chatId
         )
     }
 
@@ -199,8 +202,8 @@ class BrainStormMapper @Inject constructor() {
 
     // WarsStatistics
     fun mapEntityToDbModelWarStatistics(warStatistics: WarStatistics?): WarStatisticsDbModel? {
-        if (warStatistics != null) {
-            return WarStatisticsDbModel(
+        return if (warStatistics != null) {
+            WarStatisticsDbModel(
                 warStatistics.uid,
                 warStatistics.winRate,
                 warStatistics.wins,
@@ -209,18 +212,23 @@ class BrainStormMapper @Inject constructor() {
                 warStatistics.highestScore
             )
         }else {
-            return null
+            null
         }
     }
-    fun mapDbModelToEntityWarsStatistics(warStatisticsDbModel: WarStatisticsDbModel): WarStatistics{
-        return WarStatistics(
-            warStatisticsDbModel.uid,
-            warStatisticsDbModel.winRate,
-            warStatisticsDbModel.wins,
-            warStatisticsDbModel.losses,
-            warStatisticsDbModel.draws,
-            warStatisticsDbModel.highestScore
-        )
+    fun mapDbModelToEntityWarsStatistics(warStatisticsDbModel: WarStatisticsDbModel?): WarStatistics?{
+        return if (warStatisticsDbModel != null) {
+            WarStatistics(
+                warStatisticsDbModel.uid,
+                warStatisticsDbModel.winRate,
+                warStatisticsDbModel.wins,
+                warStatisticsDbModel.losses,
+                warStatisticsDbModel.draws,
+                warStatisticsDbModel.highestScore
+            )
+        }else {
+            null
+        }
+
     }
 
 
@@ -303,9 +311,10 @@ class BrainStormMapper @Inject constructor() {
     fun mapEntityToFirebaseHashMapFriendInfo(friendInfo: Friend): HashMap<String, String> {
         return hashMapOf(
             "uid" to friendInfo.uid,
+            "ownerUid" to (friendInfo.ownerUid),
             "name" to (friendInfo.name ?: ""),
             "email" to (friendInfo.email ?: ""),
-            "avatar" to "", // Пока не учился хранить файлы
+            "avatar" to "", // TODO Пока не учился хранить файлы
             "country" to (friendInfo.country ?: "")
         )
     }
@@ -315,6 +324,7 @@ class BrainStormMapper @Inject constructor() {
         val map = HashMap<String, Any>()
         map["uid"] = listOfMessages.uid
         map["list_of_messages"] = listOfMessages.listOfMessages ?: listOf("")
+        map["chat_id"] = listOfMessages.chatId
         return map
     }
 

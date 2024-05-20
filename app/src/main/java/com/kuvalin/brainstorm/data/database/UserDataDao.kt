@@ -80,6 +80,7 @@ interface UserDataDao {
     @Query(
         """
         SELECT friend_info.uid,
+            friend_info.ownerUid,
             friend_info.name,
             friend_info.avatar,
             friend_info.email,
@@ -96,9 +97,11 @@ interface UserDataDao {
             list_of_messages ON friend_info.uid = list_of_messages.uid
         LEFT JOIN 
             wars_statistics ON friend_info.uid = wars_statistics.uid
+        WHERE friend_info.ownerUid=:uid
     """
+        // TODO owner.uid - нужно для того, чтобы хранить локальные данные корректно, коли друзья не подвязаны отдельно к определенному uid
     )
-    suspend fun getFriendsWithAllInfo(): List<FriendWithAllInfo>
+    suspend fun getFriendsWithAllInfo(uid: String): List<FriendWithAllInfo>
 
 
     // ListOfMessages
@@ -135,7 +138,7 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addWarStatistic(warStatisticsDbModel: WarStatisticsDbModel?)
     @Query("SELECT * FROM wars_statistics WHERE uid=:uid")
-    suspend fun getWarStatistic(uid: String): WarStatisticsDbModel
+    suspend fun getWarStatistic(uid: String): WarStatisticsDbModel?
 
 
 

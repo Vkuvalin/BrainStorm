@@ -64,6 +64,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserInfoDialog(
     userInfo: UserInfo,
+    sender: Boolean? = null,
+    chatId: String = "",
     type: Int, // 1 для request, 2 для friends // TODO подумать потом, как это лучше оформить
     onClickDismiss: () -> Unit
 ) {
@@ -87,7 +89,7 @@ fun UserInfoDialog(
     // Функция добавления/удаления в друзья
     var clickAddDeleteUserButton by remember { mutableStateOf(false) }
     if (clickAddDeleteUserButton){
-        AddDeleteUser(userInfo, type) { clickAddDeleteUserButton = false }
+        AddDeleteUser(userInfo, type, sender, chatId) { clickAddDeleteUserButton = false }
     }
 
 
@@ -240,7 +242,7 @@ fun UserInfoDialog(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier
                             .weight(1f)
                             .padding(5.dp)){
-                            AddDeleteUserButton(type) { clickAddDeleteUserButton = true }
+                            AddDeleteUserButton(type, sender) { clickAddDeleteUserButton = true }
                         }
                         Box(contentAlignment = Alignment.Center, modifier = Modifier
                             .weight(2f)
@@ -268,6 +270,7 @@ fun UserInfoDialog(
 @Composable
 private fun AddDeleteUserButton(
     type: Int,
+    sender: Boolean? = null,
     onPressButton: () -> Unit
 ) {
 
@@ -294,7 +297,12 @@ private fun AddDeleteUserButton(
 
         Icon(
             // Если юзера ещё нет, будет add_friend.png
-            bitmap = GetAssetBitmap(fileName = if (type == 1) "add_friend.png" else "ic_cancel.png"),
+            bitmap = GetAssetBitmap(
+                fileName =
+                if (sender == true) "ic_cancel.png"
+                else if (type == 1) "add_friend.png"
+                else "ic_cancel.png"
+            ),
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier
@@ -374,6 +382,8 @@ private fun GoChat(
 fun AddDeleteUser(
     userInfo: UserInfo,
     type: Int = 1, // 1 == Add 2 == Delete
+    sender: Boolean? = null,
+    chatId: String = "",
     onClickDismiss: () -> Unit
 ){
 
@@ -434,9 +444,11 @@ fun AddDeleteUser(
                         .background(color = Color(0xFFE6E6E6))
                         .padding(30.dp)
                 ) {
-                    //region Name
+
+                    //region Description
                     Text(
-                        text = if (type == 1) "Do you want to add a user?" else "Delete a friend?",
+                        text = if (sender == true) "Cancel request?"
+                        else if (type == 1) "Do you want to add a user?" else "Delete a friend?",
                         color = Color.Black,
                         fontSize = dynamicFontSize.sp,
                         fontWeight = FontWeight.W400,
@@ -448,11 +460,19 @@ fun AddDeleteUser(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.padding(vertical = 5.dp)
                     ) {
+
                         YesNoButton(type = "yes"){
-                            if (type == 1){
+                            if (sender == true){
+                                // Отказываемся от дружбы
+                                scope.launch {
+                                    viewModel.updateUserRequestFB.invoke(userInfo.uid,false)
+                                    onClickDismiss()
+                                }
+
+                            }else if (type == 1){
                                 // Принимаем запрос дружбы
                                 scope.launch {
-                                    viewModel.addFriend(userInfo)
+                                    viewModel.addFriend(userInfo, chatId)
                                     viewModel.updateUserRequestFB.invoke(userInfo.uid,true)
                                     onClickDismiss()
                                 }
@@ -462,17 +482,17 @@ fun AddDeleteUser(
                         }
                         Spacer(modifier = Modifier.width(30.dp))
                         YesNoButton(type = "no"){
-                            if (type == 1){
-                                scope.launch {
+                            if (sender == true || type != 1){
+                                onClickDismiss()
+                            }else {
+                                 scope.launch {
                                     // Отказываемся от дружбы
                                     viewModel.updateUserRequestFB.invoke(userInfo.uid,false)
                                     onClickDismiss()
                                 }
-                            }else {
-                                // Не удаляем друга, а просто закрываем
-                                onClickDismiss()
                             }
                         }
+
                     }
                 }
             }

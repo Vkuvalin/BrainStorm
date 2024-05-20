@@ -54,13 +54,18 @@ fun RequestsContent(
 
 
     // Список пользователей
-    val listUsers by remember { mutableStateOf(mutableStateListOf<UserInfo>()) }
+    val listUsers by remember { mutableStateOf(mutableStateListOf<Triple<UserInfo, Boolean, String>>()) }
 
     // Функция дополнительной информации о юзере
     var clickUserRequestPanel by remember { mutableStateOf(false) }
-    var dynamicUserInfo by remember { mutableStateOf(UserInfo(uid = "123")) }
+    var dynamicUserInfo by remember { mutableStateOf(Triple(UserInfo(uid = "123"), false, "")) }
     if (clickUserRequestPanel){
-        UserInfoDialog(dynamicUserInfo, type = 1) { clickUserRequestPanel = false }
+        UserInfoDialog(
+            userInfo = dynamicUserInfo.first,
+            sender = dynamicUserInfo.second,
+            chatId = dynamicUserInfo.third,
+            type = 1
+        ) { clickUserRequestPanel = false }
     }
 
 
@@ -75,12 +80,14 @@ fun RequestsContent(
                 } else if (user.answerState && user.friendState) { // TODO По факту данное должно происходить во FriendMainScreen (но пусть пока тут остается)
                     val userInfo = viewModel.getUserInfoFB.invoke(uid = user.uid)
                     if (userInfo != null) {
-                        viewModel.addFriend(userInfo)
+                        viewModel.addFriend(userInfo, user.chatId)
                     }
                 }else {
                     val userInfo = viewModel.getUserInfoFB.invoke(uid = user.uid)
                     if (userInfo != null) { // TODO переделать, чтобы не был null (имя подставлять или запрашивать)
-                        withContext(Dispatchers.Main) { listUsers.add(userInfo) }
+
+                        // TODO Думаю, можно было бы найти лучшее решение с передачей чата, но глобально вроде не критично
+                        withContext(Dispatchers.Main) { listUsers.add(Triple(userInfo, user.sender, user.chatId)) }
                         // И тогда подумать: не лучше ли тогда сразу обновлять список целиком?
                         // Предварительно собрав его тут
 
@@ -103,15 +110,14 @@ fun RequestsContent(
             .background(color = Color(0xFFE6E6E6))
             .padding(top = paddingParent.calculateTopPadding())
     ) {
-        Log.d("REQUESTS_CONTENT", " $listUsers <------------------- listUsers222")
+
         if (listUsers.size != 0){
-            Log.d("REQUESTS_CONTENT", " $listUsers <------------------- listUsers333")
             LazyColumn(
 //            verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize(),
             ) {
                 items(listUsers.size) {position ->
-                    UserRequestOrFriendPanel(userInfo = listUsers[position]) {
+                    UserRequestOrFriendPanel(userInfo = listUsers[position].first) {
                         dynamicUserInfo = listUsers[position]
                         clickUserRequestPanel = true
                     }

@@ -10,6 +10,7 @@ import androidx.room.Relation
 data class FriendInfoDbModel(
     @PrimaryKey
     val uid: String,
+    val ownerUid: String, // TODO я не стал переделывать связи, чтобы оптимизировать запрос в базу
     val name: String? = null,
     val email: String? = null,
     val avatar: Uri? = null,
@@ -30,6 +31,23 @@ data class FriendWithAllInfo(
     @Relation( parentColumn = "uid", entityColumn = "uid")
     val warStatisticsDbModel: WarStatisticsDbModel
 )
+
+
+/* До ownerUid
+data class FriendWithAllInfo(
+    @Embedded
+    val friendInfoDbModel: FriendInfoDbModel,
+
+    @Relation( parentColumn = "uid", entityColumn = "uid")
+    val listOfMessagesDbModel: ListOfMessagesDbModel,
+
+//    @Relation( parentColumn = "uid", entityColumn = "uid")
+//    val gameStatisticDbModel: List<GameStatisticDbModel>,
+
+    @Relation( parentColumn = "uid", entityColumn = "uid")
+    val warStatisticsDbModel: WarStatisticsDbModel
+)
+*/
 
 
 //region Пример одиночных связанных запросов

@@ -72,7 +72,7 @@ fun FriendsContent(
     val listFriends by remember { mutableStateOf(mutableStateListOf<Friend>()) } // ПОКА ТОЧНО НЕ ЗНАЮ
 
     var clickUserRequestPanel by remember { mutableStateOf(false) }
-    var dynamicUserInfo by remember { mutableStateOf(UserInfo(uid = "123")) }
+    var dynamicUserInfo by remember { mutableStateOf(UserInfo(uid = "123")) } // TODO
     if (clickUserRequestPanel){
         UserInfoDialog(dynamicUserInfo, type = 2) { clickUserRequestPanel = false }
     }

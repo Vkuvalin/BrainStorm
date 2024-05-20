@@ -38,12 +38,12 @@ interface BrainStormRepository {
     suspend fun getUserInfo(uid: String): UserInfo?
 
     suspend fun getFriend(uid: String): Friend
-    suspend fun getFriendList(): List<Friend>?
+    suspend fun getFriendList(uid: String): List<Friend>?
 
     suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic
     suspend fun getListGamesStatistics(uid: String): List<GameStatistic>
 
-    suspend fun getWarStatistic(uid: String): WarStatistics
+    suspend fun getWarStatistic(uid: String): WarStatistics?
 
     suspend fun getAppSettings(): AppSettings
     suspend fun getAppCurrency(): AppCurrency

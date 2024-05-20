@@ -244,7 +244,7 @@ fun ShareStatisticsCard(
                 .border(width = 1.dp, color = Color.White, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            AssetImage(fileName = pathImage)
+            AssetImage(fileName = pathImage, modifier = Modifier.padding(3.dp))
         }
 
         Column(

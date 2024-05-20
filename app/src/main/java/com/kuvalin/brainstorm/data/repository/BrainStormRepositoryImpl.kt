@@ -45,7 +45,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     override suspend fun addFriend(friend: Friend, initialState: Boolean) {
         userDataDao.addFriendInfo(
             mapper.mapEntityToDbModelFriendInfo(
-                friend.uid, friend.name, friend.email, friend.avatar, friend.country
+                friend.uid, friend.ownerUid, friend.name, friend.email, friend.avatar, friend.country
             )
         )
         friend.gameStatistic?.map {
@@ -193,9 +193,9 @@ class BrainStormRepositoryImpl @Inject constructor(
             userDataDao.getWarStatistic(uid)
         )
     }
-    override suspend fun getFriendList(): List<Friend>? {
+    override suspend fun getFriendList(uid: String): List<Friend>? {
 
-        return  userDataDao.getFriendsWithAllInfo().map {
+        return  userDataDao.getFriendsWithAllInfo(uid).map {
             mapper.mapDbModelToEntityFriend(
                 it.friendInfoDbModel,
                 it.listOfMessagesDbModel,
@@ -220,7 +220,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getWarStatistic(uid: String): WarStatistics {
+    override suspend fun getWarStatistic(uid: String): WarStatistics? {
         return mapper.mapDbModelToEntityWarsStatistics(userDataDao.getWarStatistic(uid))
     }
 
@@ -243,6 +243,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     /* ##################################### FIREBASE ########################################### */
     /* ####################################### AUTH ############################################# */
 
+    //region singIn
     override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
 
         val singInResult = apiService.singInFirebase(email = email, password = password)
@@ -276,6 +277,7 @@ class BrainStormRepositoryImpl @Inject constructor(
 
         return singInResult
     }
+    //endregion
 
 
     override suspend fun singUp(email: String, password: String): Pair<Boolean, String> {

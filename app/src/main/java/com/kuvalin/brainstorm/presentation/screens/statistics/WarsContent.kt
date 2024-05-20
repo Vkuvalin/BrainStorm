@@ -61,13 +61,14 @@ fun WarsContent(
 
 
     LaunchedEffect(Unit) {
-        val warStatistics = viewModel.getWarStatistic.invoke(userUid)
-        wins = warStatistics.wins
-        losses = warStatistics.losses
-        draws = warStatistics.draws
+        viewModel.getWarStatistic.invoke(userUid)?.let {warStatistics ->
+            wins = warStatistics.wins
+            losses = warStatistics.losses
+            draws = warStatistics.draws
 
-        winRate = (wins/(wins+losses).toFloat())
-        highestScore = warStatistics.highestScore
+            winRate = (wins/(wins+losses).toFloat())
+            highestScore = warStatistics.highestScore
+        }
     }
 
 

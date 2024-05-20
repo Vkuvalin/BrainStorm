@@ -180,7 +180,6 @@ fun WarScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-
             //region WarScreenState
             when(warScreenState.value){
                 WarScreenState.PreparingForTheGame -> {
@@ -257,7 +256,6 @@ fun WarScreen(
                 }
             }
             //endregion
-
         }
 
     }
@@ -609,7 +607,7 @@ private fun WarGameScreen(
     viewModel: WarViewModel,
     topBarHeight: Int,
     gameName: String,
-    putActualScope: (gameScope: Int) -> Unit,
+    putActualScope: (gameScope: Int) -> Unit, // TODO Где-то в процессе двойная рекомпозиция
     resetTime: () -> Unit,
     onBackButtonClick: () -> Unit
 ) {
@@ -654,7 +652,7 @@ private fun WarGameScreen(
                 onBackButtonClick = { onBackButtonClick() },
                 putActualScope = { gameScope ->  putActualScope(gameScope) }
             )
-            {countCorrect, countIncorrect,gameScope, internalAccuracy ->
+            {countCorrect, countIncorrect, gameScope, internalAccuracy ->
                 scope.launch {
                     val finalScope = if(gameScope == 0) ((countCorrect*53)-(countIncorrect*22))
                     else (gameScope*53)-(gameScope*22)
@@ -1008,46 +1006,6 @@ private fun WarScreenButton(
     }
 }
 //endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

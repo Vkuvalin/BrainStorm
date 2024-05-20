@@ -1,6 +1,8 @@
 package com.kuvalin.brainstorm.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.ListOfMessages
 import com.kuvalin.brainstorm.domain.entity.UserInfo
@@ -40,16 +42,17 @@ class FriendsViewModel @Inject constructor(
     val updateUserRequestFB = updateUserRequestFBUseCase
     val deleteUserRequestFB = deleteUserRequestFBUseCase
 
-    suspend fun addFriend(userInfo: UserInfo) {
+    suspend fun addFriend(userInfo: UserInfo, chatId: String) {
 
         addFriend.invoke(
             Friend(
                 uid = userInfo.uid,
+                ownerUid = Firebase.auth.uid ?: "123", //TODO
                 name = userInfo.name,
                 email = userInfo.email,
                 avatar = null, // TODO
                 country = userInfo.country,
-                listOfMessages = ListOfMessages(userInfo.uid, null),
+                listOfMessages = ListOfMessages(userInfo.uid, null, chatId),
                 gameStatistic = getGameStatisticsFB.invoke(userInfo.uid),
                 warStatistics = getWarStatisticFB.invoke(userInfo.uid)
             )

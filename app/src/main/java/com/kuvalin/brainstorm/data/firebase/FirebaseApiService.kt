@@ -83,6 +83,7 @@ class FirebaseApiService @Inject constructor(
     }
     //endregion
 
+    //region resetPasswordFirebase
     override suspend fun resetPasswordFirebase(email: String): Pair<Boolean, String> {
         return try {
             fireBase.auth.sendPasswordResetEmail(email).await()
@@ -93,6 +94,7 @@ class FirebaseApiService @Inject constructor(
             Pair(false, "Возникла непредвиденная ошибка...")
         }
     }
+    //endregion
 
     override suspend fun authorizationCheckFirebase(): Boolean {
         return fireBase.auth.currentUser != null
@@ -109,21 +111,8 @@ class FirebaseApiService @Inject constructor(
 
     /* ####################################### FIRESTORE ######################################## */
 
-    /**
-     * Дальнейшие действия *
-
-        Я по путям, описанным в тетради, делаю методы заливки данных, которые будут дублировать
-     все обновления. Инфу свою я буду черпать из памяти телефона.
-
-    * Инфа в инете будет служить 2 целям:
-        - бекапу данных, на случай потери или переходу на новое устр-во;
-        - перекачка данных для друзей и других юзеров;
-
-     * Есть доп записи в UserRequest дописать метод, который будет передовать user_uid, актуальный
-
-    */
-
     // ###################### FIRESTORE_PATH
+    //region getFireStorePath
     private fun getFireStorePath(
         userUid: String,
         pathName: String,
@@ -144,15 +133,15 @@ class FirebaseApiService @Inject constructor(
             else -> ""
         }
     }
+    //endregion
     // ######################
-
-
 
 
 
     // ###################### SEND
 
     // UserInfo
+    //region sendUserInfoToFirestore
     override suspend fun sendUserInfoToFirestore(userInfo: UserInfo) {
         if (fireBase.auth.uid != null){
             val userInfoPath = getFireStorePath(fireBase.auth.uid.toString(), "userInfo")
@@ -173,8 +162,10 @@ class FirebaseApiService @Inject constructor(
             }
         }
     }
+    //endregion
 
     // SocialData
+    //region sendSocialDataToFirestore
     override suspend fun sendSocialDataToFirestore(socialData: SocialData) {
         if (fireBase.auth.uid != null){
             val socialDataPath = getFireStorePath(fireBase.auth.uid.toString(), "socialData")
@@ -195,8 +186,10 @@ class FirebaseApiService @Inject constructor(
             }
         }
     }
+    //endregion
 
     // AppCurrency
+    //region sendAppCurrencyToFirestore
     override suspend fun sendAppCurrencyToFirestore(appCurrency: AppCurrency) {
         if (fireBase.auth.uid != null){
             val appCurrencyPath = getFireStorePath(fireBase.auth.uid.toString(), "appCurrency")
@@ -217,12 +210,14 @@ class FirebaseApiService @Inject constructor(
             }
         }
     }
+    //endregion
 
 
     // ListFriends
     /**
      * Здесь я буду, как и в базе, разбивать данные на разные таблички, собирая их при получении.
      */
+    //region sendFriendsToFirestore
     override suspend fun sendFriendsToFirestore(friend: Friend) {
         if (fireBase.auth.uid != null){
             val userUid = fireBase.auth.uid.toString()
@@ -273,9 +268,11 @@ class FirebaseApiService @Inject constructor(
 
         }
     }
+    //endregion
 
 
     // Chat
+    //region sendChatToFirestore
     override suspend fun sendChatToFirestore(listOfMessages: ListOfMessages) {
         if (fireBase.auth.uid != null){
             val chatPath = getFireStorePath(
@@ -300,9 +297,11 @@ class FirebaseApiService @Inject constructor(
             }
         }
     }
+    //endregion
 
 
     // GameStatistic
+    //region sendGameStatisticToFirestore
     override suspend fun sendGameStatisticToFirestore(gameStatisticDbModel: GameStatisticDbModel) {
         if (fireBase.auth.uid != null){
             val gameStatisticPath = getFireStorePath(
@@ -328,10 +327,13 @@ class FirebaseApiService @Inject constructor(
             }
         }
     }
+    //endregion
 
 
     // WarStatistic
+    //region sendWarStatisticToFirestore
     override suspend fun sendWarStatisticToFirestore(warStatistics: WarStatistics) {
+
         if (fireBase.auth.uid != null){
             val warStatisticsPath = getFireStorePath(
                 userUid = fireBase.auth.uid.toString(),
@@ -355,8 +357,8 @@ class FirebaseApiService @Inject constructor(
             }
         }
 
-
     }
+    //endregion
 
 
     // Посылает решение о принятии дружбы другому пользователю
@@ -368,20 +370,13 @@ class FirebaseApiService @Inject constructor(
         val userUid = fireBase.auth.uid
         if (userUid != null) {
 
-            // For Friend (посылаем наш ответ юзеру)
-            val userRequestFromFriend = hashMapOf(
-                "uid" to "$userUid",
-                "answerState" to true,
-                "friendState" to friendState
-            )
-
             val userRequestFromFriendPath = getFireStorePath(
                 userUid = uidFriend, pathName = "usersRequest", uid = userUid
             )
 
             try {
                 fireBase.firestore.document(userRequestFromFriendPath)
-                    .set(userRequestFromFriend)
+                    .update("answerState", true, "friendState", friendState)
                     //region Успех/ошибка
                     .addOnSuccessListener { documentReference ->
                         scope.launch { deleteUserRequest(uidFriend) }
@@ -452,15 +447,17 @@ class FirebaseApiService @Inject constructor(
                     val friendUid = friendInfo.data["uid"].toString()
                     val gameStatistic = getGameStatisticFB(friendUid)
                     val warStatistics = getWarStatisticsFB(friendUid)
+                    val listOfMessages = getListOfMessagesFB(friendUid)
 
                     resultList.add(
                         Friend(
                             uid = friendUid,
+                            ownerUid = friendInfo.data["ownerUid"].toString(),
                             name = friendInfo.data["name"].toString(),
                             email = friendInfo.data["email"].toString(),
                             avatar = null, // TODO
                             country = friendInfo.data["country"].toString(),
-                            listOfMessages = ListOfMessages(friendUid, null), // TODO
+                            listOfMessages = ListOfMessages(friendUid, listOfMessages.listOfMessages, listOfMessages.chatId), // TODO
                             gameStatistic = gameStatistic,
                             warStatistics = warStatistics
                         )
@@ -565,6 +562,8 @@ class FirebaseApiService @Inject constructor(
                     resultList.add(
                         UserRequest(
                             uid = document.data["uid"] as String,
+                            sender = document.data["sender"] as Boolean,
+                            chatId = document.data["chatId"] as String,
                             answerState = document.data["answerState"] as Boolean,
                             friendState = document.data["friendState"] as Boolean
                         )
@@ -578,6 +577,37 @@ class FirebaseApiService @Inject constructor(
         }
 
         return resultList
+    }
+    //endregion
+
+    //region getListOfMessagesFB
+    override suspend fun getListOfMessagesFB(uid: String): ListOfMessages {
+
+        // TODO Так-с, тут как-то я хреново оформил
+
+        var result = ListOfMessages(uid,null, "") // По идеи хрень эта не должна возвращаться
+        val userUid = fireBase.auth.uid
+        if (userUid != null) {
+
+            try {
+                val listOfMessagesPath = getFireStorePath(userUid.toString(), "chats", uid)
+                val listOfMessages = fireBase.firestore.document(listOfMessagesPath).get().await().data
+
+                if (!listOfMessages.isNullOrEmpty()){
+                    result = ListOfMessages(
+                        uid = listOfMessages["uid"].toString(),
+                        listOfMessages = listOfMessages["listOfMessages"] as List<String>,
+                        chatId = listOfMessages["chatId"].toString()
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+            }
+
+        }
+
+        return result // Но какой тогда смысл делать так. Не хочу ща думать.
     }
     //endregion
 
@@ -800,8 +830,9 @@ class FirebaseApiService @Inject constructor(
         fireBase.firestore
             .document("games/$sessionId/game/${mapper.convertToAnalogGameName(gameName)}_${opponentUid}")
             .addSnapshotListener { value, _ ->
-                val newScope = value?.data?.get("scope").toString()
-                mutableStateFlow.value = newScope.toInt()
+                value?.data?.get("scope")?.toString()?.toIntOrNull()?.let {newScope ->
+                    mutableStateFlow.value = newScope
+                }
             }
         // TODO Потом понять, как перевести в обычный поток. Да и вообще глянуть, где у меня поточная инфа
         return mutableStateFlow
@@ -842,10 +873,14 @@ class FirebaseApiService @Inject constructor(
                     if (session.data?.get("pink_user") != userUid) session.data?.get("pink_user")
                     else session.data?.get("cyan_user")
             ) as String
+            val chatId = "${userUid.substring(0, userUid.length/2)}${opponentUid.substring(opponentUid.length/2)}"
+
 
             // For Friend
             val userRequestFromFriend = hashMapOf(
                 "uid" to "$userUid",
+                "sender" to false,
+                "chatId" to chatId,
                 "answerState" to false,
                 "friendState" to false
             )
@@ -873,6 +908,8 @@ class FirebaseApiService @Inject constructor(
             // For User
             val userRequestFromUser = hashMapOf(
                 "uid" to opponentUid,
+                "sender" to true,
+                "chatId" to chatId,
                 "answerState" to false,
                 "friendState" to false
             )
