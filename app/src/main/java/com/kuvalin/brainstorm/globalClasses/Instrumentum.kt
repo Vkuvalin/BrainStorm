@@ -5,13 +5,15 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -21,22 +23,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.Lifecycle
-import com.google.firebase.auth.auth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.kuvalin.brainstorm.data.firebase.ApiService
-import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.MutableSharedFlow
 import okio.IOException
-import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 // ###################### АКТИВНЫЕ ######################
 
@@ -234,9 +225,17 @@ object NoRippleTheme : RippleTheme {
     override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f,0.0f,0.0f,0.0f)
 }
 //endregion
+//region НА КО НЕЦ ТО     СУУУ КААА
+class NoRippleInteractionSource : MutableInteractionSource {
+    override val interactions = MutableSharedFlow<Interaction>()
+    override suspend fun emit(interaction: Interaction) {}
+    override fun tryEmit(interaction: Interaction) = true
+}
+//endregion
 // ######################
 
 // ######################################################
+
 
 
 
@@ -245,15 +244,17 @@ object NoRippleTheme : RippleTheme {
 
 // ###################### DEBUG
 //Log.d("DEBUG-1", "--------------START--------------")
+// Ждем прогрузки анимации
+//val animLoadState = GlobalStates.animLoadState.collectAsState().value
+//GlobalStates.AnimLoadState(500)
 //Log.d("DEBUG-1", "--------------END--------------")
+//Log.d("DEBUG-1", "-------------- RECOMPOSITION --------------")
 // ######################
 
 /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
 /* ########################################################################################## */
 
 // ######################################################
-
-
 
 
 

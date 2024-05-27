@@ -45,6 +45,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.globalClasses.NoRippleInteractionSource
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
@@ -91,6 +92,11 @@ fun MainScreen(
     // TopAppBar
     val appbarHeight = 50
     val runGameScreenState = GlobalStates.runGameScreenState.collectAsState().value
+    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+
+    // Стейт нажатия по навиге
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
 
     // Icon
     val sizeIcon = 35
@@ -112,6 +118,7 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor),
 
         topBar = {
+
             if (!runGameScreenState){
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -127,9 +134,8 @@ fun MainScreen(
                     ) {
                         TopAppBarContent(
                             navigationState = navigationState,
-                            onClickRefreshButton = {
-                                onClickRefreshButton()
-                            }
+                            onClickNavigationButton = { clickNavigation = true },
+                            onClickRefreshButton = { onClickRefreshButton() }
                         )
                     }
                     //endregion
@@ -158,11 +164,48 @@ fun MainScreen(
 
                             //region NavigationBarItem
                             NavigationBarItem(
+                                interactionSource = remember { NoRippleInteractionSource() },
+                                modifier = Modifier.fillMaxWidth(),
                                 selected = selected,
-                                onClick = {},
+                                onClick = {
+
+                                    // TODO - ОБЪЕДИНИТЬ (Вообще, как лучше в даном случае быть?)
+                                    if (!selected && animLoadState) {
+                                        clickNavigation = true
+
+                                        if (item.screen.route == Screen.Home.route) {
+                                            musicScope.launch {
+                                                MusicPlayer(context = context).run {
+                                                    playChangeNavigation()
+                                                    delay(3000)
+                                                    release()
+                                                }
+                                            }
+                                            navigationState.navHostController.navigate(
+                                                Screen.Home.route
+                                            ){
+                                                popUpTo(Screen.Home.route) {
+                                                    inclusive = true
+                                                }
+                                            }
+                                        } else {
+                                            musicScope.launch {
+                                                MusicPlayer(context = context).run {
+                                                    playChangeNavigation()
+                                                    delay(3000)
+                                                    release()
+                                                }
+                                            }
+                                            navigationState.navigateTo(item.screen.route)
+                                        }
+                                    }
+                                    // TODO - ОБЪЕДИНИТЬ
+
+
+                                },
                                 icon = {
                                     Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                        horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
 
                                         Icon(
@@ -171,7 +214,11 @@ fun MainScreen(
                                             tint = if (selected) Color(0xFF312D2D) else Color.Gray,
                                             modifier = Modifier
                                                 .noRippleClickable {
-                                                    if (!selected) {
+
+                                                    // TODO - ОБЪЕДИНИТЬ (Вообще, как лучше в даном случае быть?)
+                                                    if (!selected && animLoadState) {
+                                                        clickNavigation = true
+
                                                         if (item.screen.route == Screen.Home.route) {
                                                             musicScope.launch {
                                                                 MusicPlayer(context = context).run {
@@ -198,6 +245,8 @@ fun MainScreen(
                                                             navigationState.navigateTo(item.screen.route)
                                                         }
                                                     }
+                                                    // TODO - ОБЪЕДИНИТЬ
+
                                                 }
                                                 .zIndex(-1f)
                                                 .size(sizeIcon.dp)
@@ -231,19 +280,19 @@ fun MainScreen(
 
                             if (index < items.size - 1) {
                                 //region Иные реализации
-//                                Spacer(
-//                                    modifier = Modifier
-//                                        .fillMaxHeight()
-////                                        .height(20.dp)
-//                                        .width(2.dp)
-//                                        .background(Color.Black)
-//                                )
-//                                Divider(
-//                                    color = Color.Blue,
-//                                    modifier = Modifier
-//                                        .fillMaxHeight()
-//                                        .width(2.dp)
-//                                )
+    //                                Spacer(
+    //                                    modifier = Modifier
+    //                                        .fillMaxHeight()
+    ////                                        .height(20.dp)
+    //                                        .width(2.dp)
+    //                                        .background(Color.Black)
+    //                                )
+    //                                Divider(
+    //                                    color = Color.Blue,
+    //                                    modifier = Modifier
+    //                                        .fillMaxHeight()
+    //                                        .width(2.dp)
+    //                                )
                                 //endregion
                                 Column (
                                     modifier = Modifier.zIndex(1f)
@@ -269,6 +318,7 @@ fun MainScreen(
 
                 }
             }
+
         }
 
     ) { paddingValues ->
@@ -297,9 +347,7 @@ fun MainScreen(
             friendsScreenContent = { FriendsMainScreen(paddingValues) },
             achievementsScreenContent = { AchievementsScreen(paddingValues) },
             statisticScreenContent = { StatisticsMainScreen(paddingValues) },
-            gamesScreenContent = { GamesMainScreen(paddingValues){
-                GlobalStates.putScreenState("runGameScreenState", !runGameScreenState)
-            } }
+            gamesScreenContent = { GamesMainScreen(paddingValues) }
         )
         //endregion
 
@@ -313,7 +361,8 @@ fun MainScreen(
 @Composable
 private fun TopAppBarContent(
     navigationState: NavigationState,
-    onClickRefreshButton: () -> Unit
+    onClickNavigationButton: () -> Unit,
+    onClickRefreshButton: () -> Unit,
 ) {
 
     // Для проигрывания звуков
@@ -372,6 +421,7 @@ private fun TopAppBarContent(
                                 release()
                             }
                         }
+                        onClickNavigationButton()
                     }
             )
 
@@ -512,6 +562,7 @@ private fun TopAppBarContent(
                             release()
                         }
                     }
+                    onClickNavigationButton()
                 }
         )
         //endregion
@@ -532,6 +583,7 @@ private fun TopAppBarContent(
                             release()
                         }
                     }
+                    onClickNavigationButton()
                 }
         )
         //endregion

@@ -110,7 +110,13 @@ fun PathToSafety(
     putGameResult: (countCorrect: Int, countIncorrect: Int, gameScope: Int, internalAccuracy: Float) -> Unit
 ){
 
-    BackHandler { onBackButtonClick() }
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+
+    BackHandler {
+        clickNavigation = true
+        onBackButtonClick()
+    }
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     val coroutineScope = rememberCoroutineScope()

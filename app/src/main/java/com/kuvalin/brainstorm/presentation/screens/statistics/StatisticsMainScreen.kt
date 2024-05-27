@@ -28,7 +28,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +45,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
 import com.kuvalin.brainstorm.navigation.statistics.StatisticsNavigationItem
@@ -67,6 +72,14 @@ fun StatisticsMainScreen(
     // Для проигрывания звуков
     val context = LocalContext.current
     val scope = CoroutineScope(Dispatchers.Default)
+
+
+    // Ждем прогрузки анимации
+    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+
+    // Стейт нажатия по навиге
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(210){ clickNavigation = false } }
     /* ########################################################################################## */
 
     Scaffold(
@@ -119,10 +132,11 @@ fun StatisticsMainScreen(
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier
                                             .noRippleClickable { if (!selected) {
-                                                scope.launch {
-                                                    MusicPlayer(context).playChoiceClick()
+                                                if (animLoadState) {
+                                                    clickNavigation = true
+                                                    scope.launch { MusicPlayer(context).playChoiceClick() }
+                                                    navigationState.navigateTo(item.screen.route)
                                                 }
-                                                navigationState.navigateTo(item.screen.route)
                                             }}
                                             .requiredWidth(maxWidth + 22.dp)
                                             .requiredHeight(maxHeight + 20.dp)

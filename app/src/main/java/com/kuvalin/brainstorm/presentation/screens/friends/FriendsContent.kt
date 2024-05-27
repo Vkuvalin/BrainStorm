@@ -1,7 +1,5 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +36,7 @@ import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +52,7 @@ fun FriendsContent(
     // Компонент
     val component = getApplicationComponent()
     val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
+
 
     //Button
     val configuration = LocalConfiguration.current
@@ -78,13 +79,13 @@ fun FriendsContent(
     }
 
 
+
+    // TODO Убрать подобное во viewModel и вытащить на уровень выше (и вообще что-то тут не очень написал)
     LaunchedEffect(Unit) {
         val friendsList = viewModel.getFriendsList.invoke()
 
-        Log.d("FRIEND_CONTENT", "$friendsList <----- friendsList")
         if (friendsList != null) {
             for (friend in friendsList){
-                Log.d("FRIEND_CONTENT", "$friend <-----  friend")
                 withContext(Dispatchers.Main) {
                     listFriendsUserInfo.add(
                         UserInfo(
@@ -100,6 +101,7 @@ fun FriendsContent(
             }
         }
     }
+
 
     /* ########################################################################################## */
 
@@ -142,7 +144,9 @@ fun FriendsContent(
                             color = PinkAppColor,
                             shape = RoundedCornerShape(14)
                         )
-                        .noRippleClickable { onClickButtonState = true }
+                        .noRippleClickable {
+                            onClickButtonState = true
+                        }
                 ){
                     Text(
                         text = "Add Friends",

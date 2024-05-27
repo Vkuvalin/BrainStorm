@@ -69,6 +69,7 @@ import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.navigation.mainmenu.war.WarScreenState
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
+import com.kuvalin.brainstorm.navigation.staticsClasses.animationStates.AnimationTopBarState
 import com.kuvalin.brainstorm.presentation.screens.game.games.AdditionAddiction
 import com.kuvalin.brainstorm.presentation.screens.game.games.BreakTheBlock
 import com.kuvalin.brainstorm.presentation.screens.game.games.ColorSwitch
@@ -101,9 +102,15 @@ fun WarScreen(
     navigationState: NavigationState
 ){
 
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+
     BackHandler {
+        // TODO - слись в одну функцию
+        WarScreenState.putWarScreenState(WarScreenState.PreparingForTheGame)
         navigationState.navigateToHome()
         GlobalStates.putScreenState("runGameScreenState", false)
+        clickNavigation = true
     }
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
@@ -218,6 +225,8 @@ fun WarScreen(
                             updateUserScope(it)
                         }
                     ){
+                        // TODO - слись в одну функцию
+                        WarScreenState.putWarScreenState(WarScreenState.PreparingForTheGame)
                         navigationState.navigateToHome()
                         GlobalStates.putScreenState("runGameScreenState", false)
                     }
@@ -239,6 +248,8 @@ fun WarScreen(
                             updateUserScope(it)
                         }
                     ){
+                        // TODO - слись в одну функцию
+                        WarScreenState.putWarScreenState(WarScreenState.PreparingForTheGame)
                         navigationState.navigateToHome()
                         GlobalStates.putScreenState("runGameScreenState", false)
                     }
@@ -250,6 +261,8 @@ fun WarScreen(
                         viewModel,
                         sessionId
                     ) {
+                        // TODO - слись в одну функцию
+                        WarScreenState.putWarScreenState(WarScreenState.PreparingForTheGame)
                         navigationState.navigateToHome()
                         GlobalStates.putScreenState("runGameScreenState", false)
                     }

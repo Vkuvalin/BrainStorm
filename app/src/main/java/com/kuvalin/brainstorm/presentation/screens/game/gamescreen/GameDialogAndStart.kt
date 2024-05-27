@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,14 +29,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import kotlinx.coroutines.CoroutineScope
@@ -54,16 +58,20 @@ fun GameDialogAndStart(
     onStartButtonClick: () -> Unit
 ) {
 
-    // Анимация появления диалога
+    // Анимация появления диалога (если меняю, то также изменить в GamesScreenNavGraph)
     var visibleState by remember { mutableStateOf(false) }
     val alpha by animateFloatAsState(
-        targetValue = if (visibleState) 1f else 0.5f,
-        animationSpec = tween(durationMillis = 500), label = ""
-    ) // Если меняю, то также изменить в GamesScreenNavGraph
+        targetValue = if (visibleState) 1f else 0.1f,
+        animationSpec = tween(durationMillis = 550), label = ""
+    )
+    val alphaBackground by animateFloatAsState(
+        targetValue = if (visibleState) 0.6f else 0.1f,
+        animationSpec = tween(durationMillis = 400), label = ""
+    )
     visibleState = true
 
-    // Ждем прогрузки анимации (самый быстрый способ = экономим время)
-    var animLoadState by remember { mutableStateOf(false) }
+    // Ждем прогрузки анимации (скорость анимации также GamesScreenNavGraph)
+    val animLoadState = GlobalStates.animLoadState.collectAsState().value
 
 
     // Проигрывание музыки
@@ -76,19 +84,14 @@ fun GameDialogAndStart(
     val screenWidth = configuration.screenWidthDp
     // А я хуй его знает, почему именно ширина так хорошо подходит :)
 
-    scope.launch {
-        delay(1300)
-        animLoadState = true
-    }
-
+    GlobalStates.AnimLoadState(410){} // TODO Проверить на рекомпозиции
 
     Dialog(
         onDismissRequest = {
-            if (animLoadState) {
-                onDismissRequest()
-            }
+            if (animLoadState) { onDismissRequest() }
         },
         content = {
+            (LocalView.current.parent as DialogWindowProvider)?.window?.setDimAmount(alphaBackground) // TODO ВАЖНАЯ штука!
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.alpha(alpha)

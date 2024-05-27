@@ -16,6 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,10 +47,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun GamesMainScreen(
-    paddingValuesParent: PaddingValues,
-    onCardClick: () -> Unit // Малец неудачное название (Множественное нажатие?)
+    paddingValuesParent: PaddingValues
 ) {
-
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     val configuration = LocalConfiguration.current
@@ -63,36 +65,35 @@ fun GamesMainScreen(
     val items = GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance }
     /* ########################################################################################## */
 
+    /* #################################### ВСПОМОГАТЕЛЬНЫЕ ##################################### */
+    val gameOut: () -> Unit = {
+        GlobalStates.putScreenState("runGameScreenState", false)
+    }
+    /* ########################################################################################## */
+
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = BackgroundAppColor)
     ) {
         GamesScreenNavGraph(
             navHostController = navigationState.navHostController,
             gameInitialScreenContent = {
                 if (!runGameScreenState) {
-                    GlobalStates.putScreenState("runGameScreenState", false)
-                    GameScreenInitialContent(
-                        paddingValuesParent,
-                        items,
-                        dynamicFontSize,
-                        navigationState
-                    ) {
-                        GlobalStates.putScreenState("runGameScreenState", true)
-                        onCardClick()
-                    }
+                    gameOut()
+                    GameScreenInitialContent(paddingValuesParent, items, dynamicFontSize, navigationState)
                 }
             },
-            flickMasterScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            additionAddictionScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            reflectionScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            pathToSafetyScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            rapidSortingScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            make10ScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            breakTheBlockScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            hexaChainScreenContent = { GameScreen(navigationState) { onCardClick() } },
-            colorSwitchScreenContent = { GameScreen(navigationState) { onCardClick() } }
+            flickMasterScreenContent = { GameScreen(navigationState) { gameOut() } },
+            additionAddictionScreenContent = { GameScreen(navigationState) { gameOut() } },
+            reflectionScreenContent = { GameScreen(navigationState) { gameOut() } },
+            pathToSafetyScreenContent = { GameScreen(navigationState) { gameOut() } },
+            rapidSortingScreenContent = { GameScreen(navigationState) { gameOut() } },
+            make10ScreenContent = { GameScreen(navigationState) { gameOut() } },
+            breakTheBlockScreenContent = { GameScreen(navigationState) { gameOut() } },
+            hexaChainScreenContent = { GameScreen(navigationState) { gameOut() } },
+            colorSwitchScreenContent = { GameScreen(navigationState) { gameOut() } }
         )
     }
 
@@ -105,12 +106,15 @@ private fun GameScreenInitialContent(
     paddingValuesParent: PaddingValues,
     items: List<GamesNavigationItem>,
     dynamicFontSize: Int,
-    navigationState: NavigationState,
-    onCardClick: () -> Unit
+    navigationState: NavigationState
 ) {
     // Для проигрывания звуков
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
+
+    // Ждем прогрузки анимации
+    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+    GlobalStates.AnimLoadState(400){}
 
     Box(
         modifier = Modifier
@@ -135,15 +139,20 @@ private fun GameScreenInitialContent(
                     sectionName = items[position].sectionName,
                     miniatureGameImage = items[position].miniatureGameImage
                 ) {
-                    onCardClick()
-                    musicScope.launch {
-                        MusicPlayer(context = context).run {
-                            playChoiceClick()
-                            delay(3000)
-                            release()
+                    if (animLoadState) {
+                        GlobalStates.putScreenState("runGameScreenState", true)
+                        musicScope.launch {
+                            MusicPlayer(context = context).run {
+                                playChoiceClick()
+                                delay(3000)
+                                release()
+                            }
+                        }
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(75)
+                            navigationState.navigateTo(items[position].screen.route)
                         }
                     }
-                    navigationState.navigateTo(items[position].screen.route)
                 }
             }
         }
@@ -177,9 +186,4 @@ fun GameCard(
     }
 }
 //endregion
-
-
-/* #################################### ВСПОМОГАТЕЛЬНЫЕ ##################################### */
-/* ########################################################################################## */
-
 

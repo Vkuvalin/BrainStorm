@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -91,7 +94,7 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
             ) {
 
                 items(friendsList.size) { position ->
-                    RoundCircleFriendsStatisticIndicator(friendsList[position])
+                    RoundCircleFriendsStatisticIndicator(friendsList[position], dynamicFontSize)
                 }
 
             }
@@ -113,6 +116,7 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
 @Composable
 private fun RoundCircleFriendsStatisticIndicator(
     friend: Friend,
+    dynamicFontSize: Int
 ) {
 
     val wins = friend.warStatistics?.wins ?: 0
@@ -131,23 +135,33 @@ private fun RoundCircleFriendsStatisticIndicator(
         ) { clickState = false}
     }
 
-    Box(
-        modifier = Modifier,
-        contentAlignment = Alignment.Center
-    ){
-        CircularProgressIndicator(
-            progress = winRate,
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-                .background(color = Color(0xFFE85B9D))
-                .noRippleClickable { clickState = true }
-            ,
-            strokeWidth = 20.dp,
-            color = Color(0xFF00BAB9),
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier,
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                progress = winRate,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(color = Color(0xFFE85B9D))
+                    .noRippleClickable { clickState = true }
+                ,
+                strokeWidth = 20.dp,
+                color = Color(0xFF00BAB9),
+            )
+            Avatar(uriAvatar){ clickState = true }
+        }
+        Text(
+            text = "${friend.name}",
+            fontSize = dynamicFontSize.sp,
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
         )
-        Avatar(uriAvatar){ clickState = true }
     }
+
 
 }
 //endregion

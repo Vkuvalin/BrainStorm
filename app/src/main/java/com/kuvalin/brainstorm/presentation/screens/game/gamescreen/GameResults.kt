@@ -46,6 +46,7 @@ import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
@@ -71,7 +72,13 @@ fun GameResults(
     onRetryButtonClick: () -> Unit,
     onBackButtonClick: () -> Unit
 ){
-    BackHandler { onBackButtonClick() }
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+
+    BackHandler {
+        clickNavigation = true
+        onBackButtonClick()
+    }
 
 
 

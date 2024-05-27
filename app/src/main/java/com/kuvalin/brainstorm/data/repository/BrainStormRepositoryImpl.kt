@@ -1,5 +1,6 @@
 package com.kuvalin.brainstorm.data.repository
 
+import android.util.Log
 import com.kuvalin.brainstorm.data.database.UserDataDao
 import com.kuvalin.brainstorm.data.firebase.ApiService
 import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
@@ -10,7 +11,8 @@ import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
+import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.UserRequest
@@ -19,6 +21,7 @@ import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,7 +55,8 @@ class BrainStormRepositoryImpl @Inject constructor(
             userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistic(it))
         }
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(friend.warStatistics))
-        userDataDao.addListOfMessages(mapper.mapEntityToDbModelListOfMessage(friend.listOfMessages))
+        Log.d("TEST_TEST", "${friend.chatInfo}   <---- addFriend -> friend.chatInfo")
+        userDataDao.addChatInfo(mapper.mapEntityToDbModelListOfMessage(friend.chatInfo))
 
         if (!initialState){
             // Добавление в Firebase
@@ -67,10 +71,10 @@ class BrainStormRepositoryImpl @Inject constructor(
     Я буду просто отдельно держать и получать по uid
     */
 
-    override suspend fun addListOfMessages(listOfMessages: ListOfMessages, initialState: Boolean) {
-        userDataDao.addListOfMessages(mapper.mapEntityToDbModelListOfMessage(listOfMessages))
+    override suspend fun addChatInfo(chatInfo: ChatInfo, initialState: Boolean) {
+        userDataDao.addChatInfo(mapper.mapEntityToDbModelListOfMessage(chatInfo))
         if (!initialState){
-            apiService.sendChatToFirestore(listOfMessages)
+            apiService.sendChatInfoToFirestore(chatInfo)
         }
     }
 
@@ -188,7 +192,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     override suspend fun getFriend(uid: String): Friend {
         return mapper.mapDbModelToEntityFriend(
             userDataDao.getFriendInfo(uid),
-            userDataDao.getListOfMessages(uid),
+            userDataDao.getChatInfo(uid),
             userDataDao.getListGamesStatistics(uid),
             userDataDao.getWarStatistic(uid)
         )
@@ -198,7 +202,7 @@ class BrainStormRepositoryImpl @Inject constructor(
         return  userDataDao.getFriendsWithAllInfo(uid).map {
             mapper.mapDbModelToEntityFriend(
                 it.friendInfoDbModel,
-                it.listOfMessagesDbModel,
+                it.chatInfoDbModel,
                 gameStatisticDbModel = userDataDao.getListGamesStatistics(it.friendInfoDbModel.uid),
                 it.warStatisticsDbModel
             )
@@ -246,7 +250,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     //region singIn
     override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
 
-        val singInResult = apiService.singInFirebase(email = email, password = password)
+        val singInResult = apiService.singInFirebase(email = email, password = password) // TODO initialState хуйню какую-то сделал
 
         CoroutineScope(Dispatchers.Default).launch {
             if (singInResult.first){
@@ -269,6 +273,7 @@ class BrainStormRepositoryImpl @Inject constructor(
                 apiService.getWarStatisticsFB(userUid)?.let { addWarStatistic(it, initialState = true) }
                 apiService.getFriendsFB(userUid)?.let {listFriends ->
                     listFriends.map {friend ->
+                        Log.d("TEST_TEST", "$friend   <---- singIn -> friend")
                         addFriend(friend, initialState = true)
                     }
                 }
@@ -292,6 +297,10 @@ class BrainStormRepositoryImpl @Inject constructor(
         return apiService.authorizationCheckFirebase()
     }
 
+    override suspend fun getUserUid(): String {
+        return apiService.getUserUid()
+    }
+
     /* ########################################################################################## */
 
 
@@ -312,10 +321,20 @@ class BrainStormRepositoryImpl @Inject constructor(
     override suspend fun getUserRequestsFB(): List<UserRequest>? {
         return apiService.getUserRequests()
     }
+
+
+    override suspend fun getListMessages(chatId: String): StateFlow<List<Message>> {
+        return apiService.getListMessages(chatId)
+    }
+
     /* ########################################################################################## */
 
 
     /* ###################################### SEND ############################################## */
+    override suspend fun sendMessageToFirestore(message: Message, chatId: String) {
+        apiService.sendMessageToFirestore(message, chatId)
+    }
+
     override suspend fun updateUserRequestFB(uidFriend: String, friendState: Boolean) {
         apiService.updateUserRequest(uidFriend, friendState)
     }

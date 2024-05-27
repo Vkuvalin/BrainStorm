@@ -44,6 +44,7 @@ import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
+import com.kuvalin.brainstorm.navigation.staticsClasses.animationStates.AnimationTopBarState
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -62,10 +63,14 @@ fun SearchForWar(
     navigationState: NavigationState
 ){
 
-    LaunchedEffect(Unit) { GlobalStates.putScreenState("runGameScreenState", true) }
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+
+    LaunchedEffect(Unit) { GlobalStates.putScreenState("runGameScreenState", true)}
     BackHandler {
         navigationState.navigateToHome()
         GlobalStates.putScreenState("runGameScreenState", false)
+        clickNavigation = true
     }
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */

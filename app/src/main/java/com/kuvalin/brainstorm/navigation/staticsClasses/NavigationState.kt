@@ -11,7 +11,6 @@ class NavigationState(
     val navHostController: NavHostController
 ){
 
-
     fun navigateTo(route: String) {
         navHostController.navigate(route)
         {
@@ -36,6 +35,7 @@ class NavigationState(
     }
 
 
+    // TODO чего блять? Ахуеть странное тут происходит
     // Функция перехода в онлайн игру, после нахождения соперника
     fun navigateToHome() {
         navHostController.navigate(Screen.Home.route) {

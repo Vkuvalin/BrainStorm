@@ -4,11 +4,13 @@ import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
+import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 
@@ -33,7 +35,8 @@ interface ApiService {
     // send
     suspend fun sendUserInfoToFirestore(userInfo: UserInfo)
     suspend fun sendFriendsToFirestore(friend: Friend)
-    suspend fun sendChatToFirestore(listOfMessages: ListOfMessages)
+    suspend fun sendChatInfoToFirestore(chatInfo: ChatInfo)
+    suspend fun sendMessageToFirestore(message: Message, chatId: String)
     suspend fun sendGameStatisticToFirestore(gameStatisticDbModel: GameStatisticDbModel)
     suspend fun sendWarStatisticToFirestore(warStatistics: WarStatistics)
     suspend fun sendAppCurrencyToFirestore(appCurrency: AppCurrency)
@@ -45,11 +48,11 @@ interface ApiService {
     suspend fun getFriendsFB(uid: String): List<Friend>?
     suspend fun getGameStatisticFB(uid: String): List<GameStatistic>?
     suspend fun getWarStatisticsFB(uid: String): WarStatistics?
-    suspend fun getListOfMessagesFB(uid: String): ListOfMessages?
+    suspend fun getChatInfoFB(uid: String): ChatInfo?
     suspend fun getAppCurrencyFB(uid: String): AppCurrency?
     suspend fun getSocialDataFB(uid: String): SocialData?
     suspend fun getUserRequests(): List<UserRequest>?
-
+    suspend fun getListMessages(chatId: String): StateFlow<List<Message>>
 
 
     // Удаление

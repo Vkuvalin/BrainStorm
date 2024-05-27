@@ -24,6 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,13 @@ fun FlickMaster(
     putGameResult: (countCorrect: Int, countIncorrect: Int, gameScope: Int, internalAccuracy: Float) -> Unit
 ){
 
-    BackHandler { onBackButtonClick() }
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+
+    BackHandler {
+        clickNavigation = true
+        onBackButtonClick()
+    }
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     // Настройки отображения стрелки
@@ -85,10 +92,10 @@ fun FlickMaster(
                                     delay(3000)
                                     release()
                                 }
-                                // Происходила двойная рекомпозиция, поэтому решил сюда кинуть попробовать
-                                putActualScope(53) // TODO Пока костыль для экономии времени ТОЧКА-2
                             }
                             countCorrect++
+                            putActualScope(53) // TODO Пока костыль для экономии времени ТОЧКА-2
+                            // Происходит почему-то двойная рекомпозиция TODO - искать
                         }
                         else {
                             musicScope.launch {
@@ -97,10 +104,9 @@ fun FlickMaster(
                                     delay(3000)
                                     release()
                                 }
-                                // Происходила двойная рекомпозиция, поэтому решил сюда кинуть попробовать
-                                putActualScope(-22) // TODO Пока костыль для экономии времени ТОЧКА-2
                             }
                             countIncorrect++
+                            putActualScope(-22) // TODO Пока костыль для экономии времени ТОЧКА-2
                         }
 
                         // Заверщающий этап (подчищаем/обновляем)

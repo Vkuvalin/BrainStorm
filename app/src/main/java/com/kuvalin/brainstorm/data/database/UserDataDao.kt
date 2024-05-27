@@ -11,14 +11,12 @@ import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.FriendWithAllInfo
 import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
+import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
-import com.kuvalin.brainstorm.data.model.UserRequestDbModel
 import com.kuvalin.brainstorm.data.model.UserWithAllInfo
 import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
-import com.kuvalin.brainstorm.domain.entity.GameResult
 
 @Dao
 interface UserDataDao {
@@ -43,7 +41,6 @@ interface UserDataDao {
             user_info.email,
             user_info.avatar,
             user_info.country,
-            list_of_messages.listOfMessages,
             wars_statistics.winRate,
             wars_statistics.wins,
             wars_statistics.losses,
@@ -51,8 +48,6 @@ interface UserDataDao {
             wars_statistics.highestScore
         FROM
             user_info
-        LEFT JOIN
-            list_of_messages ON user_info.uid = list_of_messages.uid
         LEFT JOIN
             wars_statistics ON user_info.uid = wars_statistics.uid
     """
@@ -85,7 +80,8 @@ interface UserDataDao {
             friend_info.avatar,
             friend_info.email,
             friend_info.country,
-            list_of_messages.listOfMessages,
+            chat_info.uid,
+            chat_info.chatId,
             wars_statistics.winRate,
             wars_statistics.wins,
             wars_statistics.losses,
@@ -94,7 +90,7 @@ interface UserDataDao {
         FROM 
             friend_info
         LEFT JOIN 
-            list_of_messages ON friend_info.uid = list_of_messages.uid
+            chat_info ON friend_info.uid = chat_info.uid
         LEFT JOIN 
             wars_statistics ON friend_info.uid = wars_statistics.uid
         WHERE friend_info.ownerUid=:uid
@@ -104,11 +100,11 @@ interface UserDataDao {
     suspend fun getFriendsWithAllInfo(uid: String): List<FriendWithAllInfo>
 
 
-    // ListOfMessages
+    // ChatInfo
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addListOfMessages(listOfMessagesDbModel: ListOfMessagesDbModel?)
-    @Query("SELECT * FROM list_of_messages WHERE uid=:uid")
-    suspend fun getListOfMessages(uid: String): ListOfMessagesDbModel
+    suspend fun addChatInfo(chatInfoDbModel: ChatInfoDbModel?)
+    @Query("SELECT * FROM chat_info WHERE uid=:uid")
+    suspend fun getChatInfo(uid: String): ChatInfoDbModel
 
 
 

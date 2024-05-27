@@ -2,18 +2,25 @@ package com.kuvalin.brainstorm.globalClasses.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object GlobalStates {
+
+    // Стейт для скрытия TopBar1 и TopBar2 (+ TopBar3 в чатах) (сейчас видится не лучшим решением, но допустимым)
     private val _runGameScreenState = MutableStateFlow(false)
     val runGameScreenState: StateFlow<Boolean> = _runGameScreenState
+
+
+    // Стейт для блокировки переходов до проигрывания инимации
+    private val _animLoadState = MutableStateFlow(true)
+    val animLoadState: StateFlow<Boolean> = _animLoadState
 
     // Внизу
     private val _lifecycleCurrentState = MutableStateFlow(Lifecycle.State.INITIALIZED)
@@ -61,6 +68,7 @@ object GlobalStates {
     fun putScreenState(key: String, value: Any) {
         when (key) {
             "runGameScreenState" -> _runGameScreenState.value = value as Boolean
+            "animLoadState" -> _animLoadState.value = value as Boolean
             "lifecycleCurrentState" -> _lifecycleCurrentState.value = value as Lifecycle.State
 //region Примеры
 //            "soundEnabled" -> _soundEnabled.value = value as Boolean
@@ -77,10 +85,26 @@ object GlobalStates {
 //            "currentSelection" -> _currentSelection.value = value
 //endregion
             else -> throw IllegalArgumentException("Unknown key: $key")
+        // TODO Обработка ошибок должны быть безопасной
         }
     }
 
+
+    //region AnimLoadState
+    @Composable
+    fun AnimLoadState(duration: Long, loadEnd: () -> Unit) {
+        LaunchedEffect(Unit) {
+            putScreenState("animLoadState", false)
+            delay(duration)
+            putScreenState("animLoadState", true)
+            loadEnd()
+        }
+    }
+    //endregion
+
+
     // Отслеживает состояния прилы. Также в MainActivity есть пример observer
+    //region ObserverLifecycleCurrentState
     @Composable
     fun ObserverLifecycleCurrentState() {
         val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -103,9 +127,11 @@ object GlobalStates {
             }
         }
     }
+    //endregion
+
 }
 
 
-// Следим за Lifecycle  (Пока не нужно) Это не отсюда. Вставить в нужном месте
+// Следим за Lifecycle  (Пока не нужно. Это не отсюда. Вставить в нужном месте.)
 // GlobalStates.ObserverLifecycleCurrentState() // Эту хуйню по сути всегда в инитАпп нужно сувать
 // val currentLifecycleState = GlobalStates.lifecycleCurrentState.collectAsState().value

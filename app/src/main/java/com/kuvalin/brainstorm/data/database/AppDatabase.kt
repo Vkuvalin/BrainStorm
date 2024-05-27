@@ -11,7 +11,7 @@ import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
+import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.converters.UriTypeConverter
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
     FriendInfoDbModel::class,
     GameResultDbModel::class,
     GameStatisticDbModel::class,
-    ListOfMessagesDbModel::class,
+    ChatInfoDbModel::class,
     SocialDataDbModel::class,
     UserInfoDbModel::class,
     WarResultDbModel::class,

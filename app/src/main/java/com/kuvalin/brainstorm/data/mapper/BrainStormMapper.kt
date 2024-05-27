@@ -1,12 +1,13 @@
 package com.kuvalin.brainstorm.data.mapper
 
 import android.net.Uri
+import android.util.Log
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.ListOfMessagesDbModel
+import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.WarResultDbModel
@@ -16,7 +17,7 @@ import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarResult
@@ -64,7 +65,7 @@ class BrainStormMapper @Inject constructor() {
     }
     fun mapDbModelToEntityFriend(
         friendInfoDbModel: FriendInfoDbModel,
-        listOfMessagesDbModel: ListOfMessagesDbModel,
+        chatInfoDbModel: ChatInfoDbModel,
         gameStatisticDbModel: List<GameStatisticDbModel>,
         warStatisticsDbModel: WarStatisticsDbModel?,
     ): Friend {
@@ -75,62 +76,30 @@ class BrainStormMapper @Inject constructor() {
             friendInfoDbModel.email,
             friendInfoDbModel.avatar,
             friendInfoDbModel.country,
-            mapDbModelToEntityListOfMessage(listOfMessagesDbModel),
+            mapDbModelToEntityChatInfo(chatInfoDbModel),
             mapListDbModelToListEntityGameStatistics(gameStatisticDbModel),
             mapDbModelToEntityWarsStatistics(warStatisticsDbModel)
         )
     }
-    //region Больше не нужная хрень, но пока оставлю
-    //    fun mapListDbModelToListEntityFriend(
-//        listFriendInfo: List<FriendInfoDbModel>,
-//        listOfMessagesDbModel: List<ListOfMessagesDbModel>,
-//        listGameStatisticDbModel: List<List<GameStatisticDbModel>>,
-//        listWarStatisticsDbModel: List<WarStatisticsDbModel>
-//    ): List<Friend> {
-//        val listOfFriends = mutableListOf<Friend>()
-//
-//        // Проверка на одинаковую длину списков, чтобы избежать ошибок
-//        if (listFriendInfo.size != listOfMessagesDbModel.size ||
-//            listFriendInfo.size != listGameStatisticDbModel.size ||
-//            listFriendInfo.size != listWarStatisticsDbModel.size
-//        ) {
-//            throw IllegalArgumentException("Списки моделей данных имеют разную длину")
-//        }
-//
-//        // Итерация по спискам моделей данных и создание объектов Friend
-//        for (i in listFriendInfo.indices) {
-//            val friend = mapDbModelToEntityFriend(
-//                listFriendInfo[i],
-//                listOfMessagesDbModel[i],
-//                listGameStatisticDbModel[i],
-//                listWarStatisticsDbModel[i]
-//            )
-//            listOfFriends.add(friend)
-//        }
-//
-//        return listOfFriends.toList()
-//    }
-    //endregion
 
 
 
-    // ListOfMessages
-    fun mapEntityToDbModelListOfMessage(listOfMessages: ListOfMessages?): ListOfMessagesDbModel? {
-        return if (listOfMessages != null) {
-            ListOfMessagesDbModel(
-                listOfMessages.uid,
-                listOfMessages.listOfMessages,
-                listOfMessages.chatId
+    // ChatInfo
+    fun mapEntityToDbModelListOfMessage(chatInfo: ChatInfo?): ChatInfoDbModel? {
+        Log.d("TEST_TEST", "$chatInfo   <---- mapEntityToDbModelListOfMessage -> chatInfo")
+        return if (chatInfo != null) {
+            ChatInfoDbModel(
+                chatInfo.uid,
+                chatInfo.chatId
             )
         }else {
             null
         }
     }
-    private fun mapDbModelToEntityListOfMessage(listOfMessagesDbModel: ListOfMessagesDbModel): ListOfMessages {
-        return ListOfMessages(
-            uid = listOfMessagesDbModel.uid,
-            listOfMessages = listOfMessagesDbModel.listOfMessages,
-            chatId = listOfMessagesDbModel.chatId
+    private fun mapDbModelToEntityChatInfo(chatInfoDbModel: ChatInfoDbModel): ChatInfo {
+        return ChatInfo(
+            uid = chatInfoDbModel.uid,
+            chatId = chatInfoDbModel.chatId
         )
     }
 
@@ -320,11 +289,10 @@ class BrainStormMapper @Inject constructor() {
     }
 
     // Chat
-    fun mapEntityToFirebaseHashMapChat(listOfMessages: ListOfMessages): HashMap<String, Any> {
+    fun mapEntityToFirebaseHashMapChat(chatInfo: ChatInfo): HashMap<String, Any> {
         val map = HashMap<String, Any>()
-        map["uid"] = listOfMessages.uid
-        map["list_of_messages"] = listOfMessages.listOfMessages ?: listOf("")
-        map["chat_id"] = listOfMessages.chatId
+        map["uid"] = chatInfo.uid
+        map["chat_id"] = chatInfo.chatId
         return map
     }
 

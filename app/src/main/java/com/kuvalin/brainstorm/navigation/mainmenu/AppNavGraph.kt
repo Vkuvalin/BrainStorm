@@ -14,7 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 
-val navigationItems = listOf(
+val navigationItems = listOf( // TODO а почему тут так? Косанул что ли
     Screen.MainMenu.route,
     NavigationItem.Friends.screen.route,
     NavigationItem.Achievements.screen.route,
@@ -45,11 +45,6 @@ fun AppNavGraph (
     var animatedContentTransitionDirection by remember { mutableStateOf(AnimatedContentTransitionScope.SlideDirection.Left) }
     var oldNavDestination by remember { mutableStateOf(Screen.MainMenu.route) }
 
-//    var rrrrrr by remember { mutableStateOf(false) }
-//    rrrrrr = GlobalStates.runGameScreenState.collectAsState().value
-//    val noEnterTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = { fadeIn(tween(durationMillis = 2000)) }
-//    val noExitTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = { fadeOut(tween(durationMillis = 2000)) }
-
 
     LaunchedEffect(Unit) {
         navHostController.addOnDestinationChangedListener { _, destination, _ ->
@@ -67,16 +62,8 @@ fun AppNavGraph (
                 AnimatedContentTransitionScope.SlideDirection.Left
             }
             oldNavDestination = newNavDestination!!
-//            rrrrrr = false
         }
     }
-
-//    LaunchedEffect(rrrrrr) {
-//        if (oldNavDestination == Screen.Games.route && rrrrrr){
-//            animatedContentTransitionDirection = AnimatedContentTransitionScope.SlideDirection.Start
-//        }
-//    }
-
     //endregion
 
 
@@ -131,7 +118,6 @@ fun AppNavGraph (
             popExitTransition = {slideOutOfContainer(towards = AnimatedContentTransitionScope.SlideDirection.End,animationSpec = tween(300))}
         ) {
             gamesScreenContent()
-//            rrrrrr = true // Как памятник 5ти часам в воздух брошенным оставляю (может пригодиться)
         }
 
     }

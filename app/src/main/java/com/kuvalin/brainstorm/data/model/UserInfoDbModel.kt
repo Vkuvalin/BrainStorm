@@ -24,11 +24,5 @@ data class UserWithAllInfo(
     val userInfoDbModel: UserInfoDbModel,
 
     @Relation( parentColumn = "uid", entityColumn = "uid")
-    val listOfMessagesDbModel: ListOfMessagesDbModel,
-
-    @Relation( parentColumn = "uid", entityColumn = "uid")
-    val gameStatisticDbModel: List<GameStatisticDbModel>,
-
-    @Relation( parentColumn = "uid", entityColumn = "uid")
     val warStatisticsDbModel: WarStatisticsDbModel
 )

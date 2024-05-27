@@ -3,6 +3,8 @@ package com.kuvalin.brainstorm.navigation.games
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.kuvalin.brainstorm.navigation.staticsClasses.GamesScreen
+import kotlinx.coroutines.delay
 
 @Composable
 fun GamesScreenNavGraph(
@@ -34,10 +37,10 @@ fun GamesScreenNavGraph(
 
 
         val noEnterTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-            fadeIn(tween(durationMillis = 1500))
+            fadeIn(tween(durationMillis = 400, easing = FastOutLinearInEasing))
         }
         val noExitTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-            fadeOut(tween(durationMillis = 1500))
+            fadeOut(tween(durationMillis = 400, easing = FastOutLinearInEasing))
         }
 
 

@@ -56,6 +56,7 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
@@ -86,6 +87,8 @@ import kotlinx.coroutines.withContext
 fun ProfileScreenContent(
     paddingValues: PaddingValues
 ) {
+
+    GlobalStates.AnimLoadState(310){}
 
     val component = getApplicationComponent()
     val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())

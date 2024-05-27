@@ -1,20 +1,21 @@
 package com.kuvalin.brainstorm.data.firebase
 
-import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.data.mapper.BrainStormMapper
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.UserRequest
@@ -34,12 +35,6 @@ class FirebaseApiService @Inject constructor(
     private val fireBase: Firebase,
     private val mapper: BrainStormMapper
 ) : ApiService {
-
-    /* TODO
-    1. Обработка успехов и ошибок: не выводится id документа.
-    Сделать просто в общем формате тогда запись или понять, почему не выводится.
-    */
-
 
 
     /* ######################################### AUTH ########################################### */
@@ -101,7 +96,7 @@ class FirebaseApiService @Inject constructor(
     }
 
     override suspend fun getUserUid(): String {
-        return fireBase.auth.uid.toString()
+        return fireBase.auth.uid.toString() // TODO ОБработать случай, когда ещё нет реги
     }
 
     /* ########################################################################################## */
@@ -117,14 +112,16 @@ class FirebaseApiService @Inject constructor(
         userUid: String,
         pathName: String,
         gameName: String = "",
-        uid: String = "" // Уникальное значение-идентификатор для коллекций
+        uid: String = "", // Уникальное значение-идентификатор для коллекций
+        chatId: String = ""
     ): String{
         return when(pathName){
             "userInfo" -> { "users/${userUid}/user_data/user_info/"}
             "socialData" -> {"users/${userUid}/user_data/social_data/"}
             "appCurrency" -> {"users/${userUid}/user_data/app_currency/"}
             "friendsInfo" -> {"users/${userUid}/friend_info/${uid}"}
-            "chats" -> {"users/${userUid}/chats/${uid}"}
+            "userChats" -> {"users/${userUid}/chats/${uid}"}
+            "chatFromFriend" -> {"chats/${chatId}/messages/"}
             "usersRequest" -> {"users/${userUid}/users_request/${uid}"}
             "gameStatistic" -> {"users/${userUid}/game/game_statistics/${uid}/${gameName}"}
             "gameStatistics" -> {"users/${userUid}/game/game_statistics/${uid}/"}
@@ -250,8 +247,8 @@ class FirebaseApiService @Inject constructor(
              */
 
 
-            friend.listOfMessages?.let {
-                sendChatToFirestore(it)
+            friend.chatInfo?.let {
+                sendChatInfoToFirestore(it)
             }
 
             if (friend.gameStatistic != null){
@@ -272,18 +269,46 @@ class FirebaseApiService @Inject constructor(
 
 
     // Chat
-    //region sendChatToFirestore
-    override suspend fun sendChatToFirestore(listOfMessages: ListOfMessages) {
+    //region sendChatInfoToFirestore
+    override suspend fun sendChatInfoToFirestore(chatInfo: ChatInfo) {
         if (fireBase.auth.uid != null){
             val chatPath = getFireStorePath(
                 userUid = fireBase.auth.uid.toString(),
-                pathName = "chats",
-                uid = listOfMessages.uid
+                pathName = "userChats",
+                uid = chatInfo.uid
             )
 
             try {
                 fireBase.firestore.document(chatPath)
-                    .set(mapper.mapEntityToFirebaseHashMapChat(listOfMessages))
+                    .set(mapper.mapEntityToFirebaseHashMapChat(chatInfo))
+                    //region Успех/ошибка
+                    .addOnSuccessListener { documentReference ->
+                        Log.w("FIRESTORE_SEND", "DocumentSnapshot added with ID: $documentReference")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FIRESTORE_SEND", "Error adding document", e)
+                    }
+                //endregion
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+            }
+        }
+    }
+    //endregionп
+    //region sendChatInfoToFirestore
+    override suspend fun sendMessageToFirestore(message: Message, chatId: String) {
+
+        val userUid = fireBase.auth.uid
+        if (userUid != null){
+            val chatPath = getFireStorePath(
+                userUid = userUid, // не используется
+                pathName = "chatFromFriend",
+                chatId = chatId
+            )
+
+            try {
+                fireBase.firestore.collection(chatPath)
+                    .add(message)
                     //region Успех/ошибка
                     .addOnSuccessListener { documentReference ->
                         Log.w("FIRESTORE_SEND", "DocumentSnapshot added with ID: $documentReference")
@@ -298,6 +323,7 @@ class FirebaseApiService @Inject constructor(
         }
     }
     //endregion
+
 
 
     // GameStatistic
@@ -445,9 +471,14 @@ class FirebaseApiService @Inject constructor(
                 for (friendInfo in listFriendInfo){
 
                     val friendUid = friendInfo.data["uid"].toString()
+
+                    Log.d("TEST_TEST", "$friendUid   <---- getFriendsFB -> friendUid")
+
                     val gameStatistic = getGameStatisticFB(friendUid)
                     val warStatistics = getWarStatisticsFB(friendUid)
-                    val listOfMessages = getListOfMessagesFB(friendUid)
+                    val chatInfo = getChatInfoFB(friendUid)
+
+                    Log.d("TEST_TEST", "$chatInfo   <---- getFriendsFB -> chatInfo")
 
                     resultList.add(
                         Friend(
@@ -457,7 +488,7 @@ class FirebaseApiService @Inject constructor(
                             email = friendInfo.data["email"].toString(),
                             avatar = null, // TODO
                             country = friendInfo.data["country"].toString(),
-                            listOfMessages = ListOfMessages(friendUid, listOfMessages.listOfMessages, listOfMessages.chatId), // TODO
+                            chatInfo = chatInfo,
                             gameStatistic = gameStatistic,
                             warStatistics = warStatistics
                         )
@@ -580,34 +611,36 @@ class FirebaseApiService @Inject constructor(
     }
     //endregion
 
-    //region getListOfMessagesFB
-    override suspend fun getListOfMessagesFB(uid: String): ListOfMessages {
+    //region getChatInfoFB
+    override suspend fun getChatInfoFB(uid: String): ChatInfo? {
 
         // TODO Так-с, тут как-то я хреново оформил
+        // СДЕЛАТЬ НУЛАБЕЛЬНЫМ И возвращать null с последующей ошибкой
+        // Да и вообще как, блять, лучше это делать?!
 
-        var result = ListOfMessages(uid,null, "") // По идеи хрень эта не должна возвращаться
         val userUid = fireBase.auth.uid
         if (userUid != null) {
 
             try {
-                val listOfMessagesPath = getFireStorePath(userUid.toString(), "chats", uid)
-                val listOfMessages = fireBase.firestore.document(listOfMessagesPath).get().await().data
+                val chatInfoPath = getFireStorePath(userUid = userUid, pathName = "userChats", uid =  uid)
+                val chatInfo = fireBase.firestore.document(chatInfoPath).get().await().data
 
-                if (!listOfMessages.isNullOrEmpty()){
-                    result = ListOfMessages(
-                        uid = listOfMessages["uid"].toString(),
-                        listOfMessages = listOfMessages["listOfMessages"] as List<String>,
-                        chatId = listOfMessages["chatId"].toString()
+                Log.d("TEST_TEST", "$chatInfo   <---- getChatInfoFB")
+
+                return if (!chatInfo.isNullOrEmpty()){
+                    ChatInfo(
+                        uid = chatInfo["uid"].toString(),
+                        chatId = chatInfo["chat_id"].toString()
                     )
-                }
+                }else { null }
 
             } catch (e: Exception) {
                 Log.w("FIRESTORE_SEND", "Error adding document", e)
+                return null
             }
 
-        }
+        } else { return null }
 
-        return result // Но какой тогда смысл делать так. Не хочу ща думать.
     }
     //endregion
 
@@ -663,6 +696,53 @@ class FirebaseApiService @Inject constructor(
         }
 
         return null
+    }
+    //endregion
+
+
+    //region getListMessages
+    override suspend fun getListMessages(chatId: String): StateFlow<List<Message>> {
+
+        val userUid = fireBase.auth.uid
+        val messagesFlow = MutableStateFlow(emptyList<Message>())
+
+        if (userUid != null){
+            val chatPath = getFireStorePath(
+                userUid = userUid, // не используется
+                pathName = "chatFromFriend",
+                chatId = chatId
+            )
+
+            try {
+                // Получаем список запросов к пользователю в друзья
+                fireBase.firestore.collection(chatPath)
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            // Обработка ошибки
+                            return@addSnapshotListener
+                        }
+
+                        val messages = mutableListOf<Message>()
+                        snapshot?.documents?.forEach { message ->
+                            messages.add(
+                                Message(
+                                    senderUid = message.data?.get("senderUid") as String,
+                                    text = message.data!!["text"] as String,
+                                    timestamp = message.data!!["timestamp"] as Long
+                                )
+                            )
+                        }
+
+                        messagesFlow.value = messages
+                    }
+
+            } catch (e: Exception) {
+                Log.w("FIRESTORE_SEND", "Error adding document", e)
+            }
+        }
+
+        return messagesFlow
     }
     //endregion
     // ######################

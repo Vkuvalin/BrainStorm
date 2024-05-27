@@ -1,12 +1,14 @@
 package com.kuvalin.brainstorm.presentation.screens.game.gamescreen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,8 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.GamesScreen
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
@@ -32,8 +36,7 @@ import com.kuvalin.brainstorm.presentation.screens.game.games.Make10
 import com.kuvalin.brainstorm.presentation.screens.game.games.PathToSafety
 import com.kuvalin.brainstorm.presentation.screens.game.games.RapidSorting
 import com.kuvalin.brainstorm.presentation.screens.game.games.Reflection
-
-
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 
 @SuppressLint("UnusedContentLambdaTargetStateParameter")
@@ -43,6 +46,8 @@ fun GameScreen(
     onBackButtonClick: () -> Unit
 ){
 
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     lateinit var gameName: String
@@ -82,19 +87,20 @@ fun GameScreen(
 
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
     ) {
         GameTopBar(
             topBarHeight = 50, // Костыль
             onBackButtonClick = {
                 loadFinish = false
                 endGameState = false
+                clickNavigation = true
                 onBackButtonClick()
                 navigationState.navHostController.popBackStack()
             }
         )
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
         ) {
 
             if (loadFinish){

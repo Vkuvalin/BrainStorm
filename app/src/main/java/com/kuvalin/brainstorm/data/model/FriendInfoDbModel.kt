@@ -22,53 +22,9 @@ data class FriendWithAllInfo(
     @Embedded
     val friendInfoDbModel: FriendInfoDbModel,
 
-    @Relation( parentColumn = "uid", entityColumn = "uid")
-    val listOfMessagesDbModel: ListOfMessagesDbModel,
-
-//    @Relation( parentColumn = "uid", entityColumn = "uid")
-//    val gameStatisticDbModel: List<GameStatisticDbModel>,
+    @Relation(parentColumn = "uid", entityColumn = "uid")
+    val chatInfoDbModel: ChatInfoDbModel,
 
     @Relation( parentColumn = "uid", entityColumn = "uid")
     val warStatisticsDbModel: WarStatisticsDbModel
 )
-
-
-/* До ownerUid
-data class FriendWithAllInfo(
-    @Embedded
-    val friendInfoDbModel: FriendInfoDbModel,
-
-    @Relation( parentColumn = "uid", entityColumn = "uid")
-    val listOfMessagesDbModel: ListOfMessagesDbModel,
-
-//    @Relation( parentColumn = "uid", entityColumn = "uid")
-//    val gameStatisticDbModel: List<GameStatisticDbModel>,
-
-    @Relation( parentColumn = "uid", entityColumn = "uid")
-    val warStatisticsDbModel: WarStatisticsDbModel
-)
-*/
-
-
-//region Пример одиночных связанных запросов
-//data class FriendWithListOfMessages(
-//    @Embedded
-//    val friendInfoDbModel: FriendInfoDbModel,
-//    @Relation( parentColumn = "uid", entityColumn = "uid")
-//    val listOfMessagesDbModel: ListOfMessagesDbModel
-//)
-//
-//data class FriendWithListGameStatisticDbModel(
-//    @Embedded
-//    val friendInfoDbModel: FriendInfoDbModel,
-//    @Relation( parentColumn = "uid", entityColumn = "uid")
-//    val gameStatisticDbModel: List<GameStatisticDbModel>
-//)
-//
-//data class FriendWithWarStatisticsDbModel(
-//    @Embedded
-//    val friendInfoDbModel: FriendInfoDbModel,
-//    @Relation( parentColumn = "uid", entityColumn = "uid")
-//    val warStatisticsDbModel: WarStatisticsDbModel
-//)
-//endregion

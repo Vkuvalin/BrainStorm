@@ -5,12 +5,14 @@ import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ListOfMessages
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
+import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 
@@ -23,7 +25,7 @@ interface BrainStormRepository {
 
     suspend fun addFriend(friend: Friend, initialState: Boolean = false)
 
-    suspend fun addListOfMessages(listOfMessages: ListOfMessages, initialState: Boolean = false)
+    suspend fun addChatInfo(chatInfo: ChatInfo, initialState: Boolean = false)
 
     suspend fun addGameResult(gameResult: GameResult)
     suspend fun addWarResult(warResult: WarResult)
@@ -61,6 +63,7 @@ interface BrainStormRepository {
     suspend fun singUp(email: String, password: String): Pair<Boolean, String>
     suspend fun resetPassword(email: String): Pair<Boolean, String>
     suspend fun authorizationCheck(): Boolean
+    suspend fun getUserUid(): String
     /* ########################################################################################## */
 
     /* ####################################### GET ############################################## */
@@ -69,10 +72,12 @@ interface BrainStormRepository {
     suspend fun getWarStatisticsFB(uid: String): WarStatistics?
 
     suspend fun getUserRequestsFB(): List<UserRequest>?
+    suspend fun getListMessages(chatId: String): StateFlow<List<Message>>
     /* ########################################################################################## */
 
 
     /* ###################################### SEND ############################################## */
+    suspend fun sendMessageToFirestore(message: Message, chatId: String)
     suspend fun updateUserRequestFB(uidFriend: String, friendState: Boolean)
     /* ########################################################################################## */
 

@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.domain.entity
 
-data class ListOfMessages(
+data class ChatInfo(
     val uid: String,
-    val listOfMessages: List<String>?,
     val chatId: String
 )
