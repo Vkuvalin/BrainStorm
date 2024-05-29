@@ -3,24 +3,36 @@ package com.kuvalin.brainstorm.presentation.screens.statistics
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,11 +41,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.domain.entity.Friend
@@ -41,8 +62,14 @@ import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.friends.UserInfoDialog
 import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("MutableCollectionMutableState")
@@ -129,10 +156,7 @@ private fun RoundCircleFriendsStatisticIndicator(
 
     var clickState by remember { mutableStateOf(false) }
     if (clickState){
-        UserInfoDialog(
-            userInfo = UserInfo(friend.uid, friend.name, friend.email, friend.avatar, friend.country),
-            type = 2
-        ) { clickState = false}
+        FriendStatDialog(friend) { clickState = false}
     }
 
     Column(
@@ -206,7 +230,127 @@ private fun Avatar(
 
 
 
+@Composable
+fun FriendStatDialog(
+    friend: Friend,
+    onClickDismiss: () -> Unit
+){
 
+    // Проигрывание музыки
+    val context = LocalContext.current
+    val scope = CoroutineScope(Dispatchers.Default)
+
+    // Получаем нужные размеры экрана
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    val localDensity = LocalDensity.current
+    var parentWidth by remember { mutableIntStateOf(0) }
+
+
+
+    Dialog(
+        onDismissRequest = {
+            onClickDismiss()
+        },
+        content = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        parentWidth = with(localDensity) {
+                            coordinates.size.width.toDp().value.toInt()
+                        }
+                    }
+            ) {
+
+                //region Крестик
+                AssetImage(
+                    fileName = "ic_cancel.png",
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(width = 2.dp, color = Color.White, shape = CircleShape)
+                        .background(color = Color.White)
+                        .align(alignment = Alignment.End)
+                        .noRippleClickable {
+                            scope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChoiceClick()
+                                    delay(3000)
+                                    release()
+                                }
+                            }
+                            onClickDismiss()
+                        }
+                )
+                //endregion
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .height((screenWidth * 1.2).dp) // TODO TODO TODO TODO TODO TODO TODO TODO
+                        .clip(RoundedCornerShape(3))
+                        .background(color = Color(0xFFE6E6E6))
+//                        .verticalScroll(rememberScrollState())
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+
+                        Column {
+                            LabelText(text = "${friend.name}'s statistics", 26.sp, CyanAppColor)
+                            LazyColumn(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(3))
+                                    .background(color = Color(0xFFE6E6E6))
+                            ) {
+                                item { LabelText(text = "Wars", 20.sp, Color.DarkGray) }
+                                item{ WarsContent(PaddingValues(), friend.uid, parentWidth)}
+                                item { Spacer(modifier = Modifier.height(10.dp)) }
+                                item { Spacer(modifier = Modifier.height(2.dp).fillMaxWidth(0.8f).background(Color.LightGray)) }
+                                item { Spacer(modifier = Modifier.height(10.dp)) }
+                                item { LabelText(text = "Games", 20.sp, Color.DarkGray) }
+                                item {
+                                    Box(modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height((screenWidth * 0.9).dp) // Ограничение высоты
+                                    ) {
+                                        GamesStatisticsContent(PaddingValues(), friend.uid, parentWidth, "friends")
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        },
+    )
+}
+
+
+
+//region LabelText
+@Composable
+private fun LabelText(text: String, fontSize: TextUnit, color: Color) {
+    Text(
+        text = text,
+        color = color,
+        fontSize = fontSize,
+        fontWeight = FontWeight.W400,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(Alignment.Top)
+            .padding(vertical = 8.dp)
+    )
+}
+//endregion
 
 
 

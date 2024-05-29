@@ -21,9 +21,11 @@ import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class BrainStormRepositoryImpl @Inject constructor(
@@ -250,12 +252,19 @@ class BrainStormRepositoryImpl @Inject constructor(
     //region singIn
     override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
 
-        val singInResult = apiService.singInFirebase(email = email, password = password) // TODO initialState хуйню какую-то сделал
+        val singInResult = apiService.singInFirebase(email = email, password = password)
 
+        // TODO initialState его нужно как-то будет проверять, чтобы не подгружать каждый раз (хотя?)
         CoroutineScope(Dispatchers.Default).launch {
             if (singInResult.first){
                 val userUid = apiService.getUserUid()
                 apiService.getUserInfoFB(userUid)?.let { addUserInfo(it, initialState = true) }
+                    ?: UserInfo(uid = userUid, name = email.split("@")[0], email = email).also {userInfo ->
+                        apiService.sendUserInfoToFirestore(userInfo)
+                        addUserInfo(userInfo, initialState = true)
+                    }
+
+
                 apiService.getSocialDataFB(userUid)?.let { addSocialData(it, initialState = true) }
                 apiService.getAppCurrencyFB(userUid)?.let { addAppCurrency(it, initialState = true) }
                 apiService.getGameStatisticFB(userUid)?.let { listGameStatistics ->
@@ -273,7 +282,6 @@ class BrainStormRepositoryImpl @Inject constructor(
                 apiService.getWarStatisticsFB(userUid)?.let { addWarStatistic(it, initialState = true) }
                 apiService.getFriendsFB(userUid)?.let {listFriends ->
                     listFriends.map {friend ->
-                        Log.d("TEST_TEST", "$friend   <---- singIn -> friend")
                         addFriend(friend, initialState = true)
                     }
                 }
@@ -352,7 +360,7 @@ class BrainStormRepositoryImpl @Inject constructor(
 
     /* ####################################### GAME ############################################# */
 
-    override suspend fun findTheGame(): Pair<Boolean, String> {
+    override suspend fun findTheGame(): Triple<Boolean, String, String> {
         return apiService.findTheGame()
     }
 

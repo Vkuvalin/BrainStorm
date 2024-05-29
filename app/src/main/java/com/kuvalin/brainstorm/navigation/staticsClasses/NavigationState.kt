@@ -30,8 +30,8 @@ class NavigationState(
     fun navigateToSearchForWar() {navHostController.navigate(Screen.SearchForWar.route)}
 
     // Функция перехода в онлайн игру, после нахождения соперника
-    fun navigateToWar(sessionId: String) {
-        navHostController.navigate("${Screen.War.route}/$sessionId")
+    fun navigateToWar(sessionId: String, uid: String) {
+        navHostController.navigate("${Screen.War.route}/$sessionId/$uid")
     }
 
 

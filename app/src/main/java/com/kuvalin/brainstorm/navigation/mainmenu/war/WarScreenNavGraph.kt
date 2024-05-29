@@ -40,8 +40,8 @@ fun NavGraphBuilder.warScreenNavGraph(
             searchForWarScreenContent()
         }
         composable(
-            route = "${Screen.War.route}/{sessionId}",
-            arguments = listOf(navArgument("sessionId") { type = NavType.StringType }),
+            route = "${Screen.War.route}/{sessionId}/{uid}",
+            arguments = listOf(navArgument("sessionId") { type = NavType.StringType }, navArgument("uid") { type = NavType.StringType }),
             enterTransition = {noEnterTransition()}, exitTransition = {noExitTransition()},
             popEnterTransition = {noEnterTransition()}, popExitTransition = {noExitTransition()}
         ) {

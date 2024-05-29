@@ -46,6 +46,7 @@ import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.navigation.staticsClasses.animationStates.AnimationTopBarState
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
+import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
@@ -63,10 +64,14 @@ fun SearchForWar(
     navigationState: NavigationState
 ){
 
+
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
 
-    LaunchedEffect(Unit) { GlobalStates.putScreenState("runGameScreenState", true)}
+    LaunchedEffect(Unit) {
+        GlobalStates.putScreenState("runGameScreenState", true)
+        clickNavigation = true
+    }
     BackHandler {
         navigationState.navigateToHome()
         GlobalStates.putScreenState("runGameScreenState", false)
@@ -77,6 +82,12 @@ fun SearchForWar(
 
     val component = getApplicationComponent()
     val viewModel: WarViewModel = viewModel(factory = component.getViewModelFactory())
+
+    var userName by remember { mutableStateOf("") }
+    var opponentUserName by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        viewModel.getUserInfo.invoke()?.name?.let { userName = it }
+    }
 
 
     // Аватар
@@ -90,9 +101,10 @@ fun SearchForWar(
         // TODO Так-с, сюда все-таки нужно было вытащить uid... Зря я поленился :))
 
         if (result.first){
+            viewModel.getUserInfoFB.invoke(result.third)?.name?.let { opponentUserName = it }
             waitOpponent = false
-            delay(3000)
-            navigationState.navigateToWar(result.second)
+            delay(2000) // TODO может оставить, чтобы хоть какая-то пауза была?
+            navigationState.navigateToWar(result.second, result.third)
         }
     }
 
@@ -122,7 +134,7 @@ fun SearchForWar(
                 .weight(1f)
                 .background(color = CyanAppColor)
         ){
-            UserInfo( uriAvatar = uriAvatar, name = "Vlad", grade = "Bear", rank = 941)
+            UserInfo( uriAvatar = uriAvatar, name = userName, grade = "Bear", rank = 941)
         }
         //endregion
 
@@ -135,7 +147,7 @@ fun SearchForWar(
                 .background(color = if (waitOpponent) BackgroundAppColor else PinkAppColor)
         ){
             if (!waitOpponent) {
-                UserInfo( uriAvatar = uriAvatar, name = "Evgeny", grade = "Cat", rank = 248)
+                UserInfo( uriAvatar = uriAvatar, name = opponentUserName, grade = "Cat", rank = 248)
             } else {
                 Text(
                     text = "Waiting for opponent...",

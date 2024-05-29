@@ -20,6 +20,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
@@ -52,6 +60,17 @@ fun ShareContent(
     // Для проигрывания звуков
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
+
+    // Component
+    val component = getApplicationComponent()
+    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
+
+    var userName by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        viewModel.getUserInfo.invoke()?.name?.let { userName = it }
+    }
+
+
 
     Dialog(
         onDismissRequest = {
@@ -143,7 +162,7 @@ fun ShareContent(
                             .width(10.dp))
 
                         Text(
-                            text = "Владислав",
+                            text = userName,
                             fontSize = 20.sp,
                             color = Color.White,
                             fontWeight = FontWeight.W400

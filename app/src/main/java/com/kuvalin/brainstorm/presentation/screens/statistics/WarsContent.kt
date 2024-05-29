@@ -27,7 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,14 +45,16 @@ import kotlin.math.roundToInt
 
 @Composable
 fun WarsContent(
-    paddingParent: PaddingValues
+    paddingParent: PaddingValues,
+    uid: String? = null,
+    parentWidth: Int? = null,
 ) {
 
     // Компонент
     val component = getApplicationComponent()
     val viewModel: StatisticsViewModel = viewModel(factory = component.getViewModelFactory())
 
-    val userUid = Firebase.auth.uid ?: "zero_user_uid"
+    val userUid = uid ?: Firebase.auth.uid ?: "zero_user_uid"
 
 
     var wins by remember { mutableIntStateOf(0) }
@@ -71,6 +75,13 @@ fun WarsContent(
         }
     }
 
+    val configuration = LocalConfiguration.current
+    val screenWidth = parentWidth ?: configuration.screenWidthDp
+    val compressionRatio = (screenWidth/393.toFloat())
+    // 393 - величина ширины экрана устройства, на котором разрабатывался (высота не учтена - это плохо)
+    // TODO нужна универсальная функция AdaptiveBoxContent, которая будет учитывать несколько парам.
+    // Посмотреть, какие вообще практики есть
+
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -82,36 +93,40 @@ fun WarsContent(
             .padding(horizontal = 30.dp)
     ) {
 
-        RoundCircleIndicator(winRate)
-        Spacer(modifier = Modifier.height(50.dp))
+        AdaptiveBoxContent(compressionRatio){ RoundCircleIndicator(winRate, compressionRatio) }
+        Spacer(modifier = Modifier.height((50*compressionRatio).dp))
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            StatisticBoxContent("WINS", wins)
-            StatisticBoxContent("LOSSES", losses)
-            StatisticBoxContent("DRAWS", draws)
+            AdaptiveBoxContent(compressionRatio){
+                Box(modifier = Modifier.weight(1f)){StatisticBoxContent("WINS", wins, compressionRatio) }
+            }
+
+            AdaptiveBoxContent(compressionRatio){
+                Box(modifier = Modifier.weight(1f)){ StatisticBoxContent("LOSSES", losses, compressionRatio) }
+            }
+            AdaptiveBoxContent(compressionRatio){
+                Box(modifier = Modifier.weight(1f)){StatisticBoxContent("DRAWS", draws, compressionRatio)}
+            }
         }
-        Spacer(modifier = Modifier.height(50.dp))
-        HighestScoreBoxContent(highestScore)
+        AdaptiveBoxContent(compressionRatio){ Spacer(modifier = Modifier.height((50*compressionRatio).dp)) }
+        AdaptiveBoxContent(compressionRatio){ HighestScoreBoxContent(highestScore, compressionRatio) }
 
     }
 
 }
 
-
-
-
-
-
-
-
+@Composable
+private fun AdaptiveBoxContent(scale: Float, content: @Composable () -> Unit) {
+    Box(modifier = Modifier.scale(scale)) {content()}
+}
 
 
 //region RoundCircleIndicator
 @Composable
 private fun RoundCircleIndicator(
-    winRate: Float
+    winRate: Float, scale: Float
 ) {
 
     val winRateInterest = (winRate * 1000).roundToInt() / 10.0f
@@ -123,7 +138,7 @@ private fun RoundCircleIndicator(
         CircularProgressIndicator(
             progress = winRate,
             modifier = Modifier
-                .size(150.dp)
+                .size((150*scale).dp)
                 .clip(CircleShape)
                 .background(color = Color(0xFFE85B9D)),
             strokeWidth = 20.dp,
@@ -131,7 +146,7 @@ private fun RoundCircleIndicator(
         )
         Box(
             modifier = Modifier
-                .size(110.dp)
+                .size((110*scale).dp)
                 .clip(CircleShape)
                 .background(color = Color(0xFFE6E6E6))
         )
@@ -139,10 +154,10 @@ private fun RoundCircleIndicator(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "WIN RATE", fontSize = 16.sp, fontWeight = FontWeight.W400)
+            Text(text = "WIN RATE", fontSize = (16*scale).sp, fontWeight = FontWeight.W400)
             Text(
                 text = "$winRateInterest",
-                fontSize = 26.sp,
+                fontSize = (26*scale).sp,
                 fontWeight = FontWeight.W300
             )
         }
@@ -152,7 +167,7 @@ private fun RoundCircleIndicator(
 //endregion
 //region StatisticBoxContent
 @Composable
-private fun StatisticBoxContent(name: String, value: Int) {
+private fun StatisticBoxContent(name: String, value: Int, scale: Float) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -160,16 +175,16 @@ private fun StatisticBoxContent(name: String, value: Int) {
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
             .background(color = Color(0xFFF3F3F3))
-            .width(100.dp)
-            .height(75.dp)
+            .width((100*scale).dp)
+            .height((75*scale).dp)
     ) {
         Text(
             text = name,
-            fontSize = 16.sp
+            fontSize = (16*scale).sp
         )
         Text(
             text = "$value",
-            fontSize = 30.sp,
+            fontSize = (30*scale).sp,
             color = when(name){
                 "WINS" -> CyanAppColor
                 "LOSSES" -> PinkAppColor
@@ -183,7 +198,7 @@ private fun StatisticBoxContent(name: String, value: Int) {
 //endregion
 //region HighestScoreBoxContent
 @Composable
-private fun HighestScoreBoxContent(value: Int) {
+private fun HighestScoreBoxContent(value: Int, scale: Float) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -196,11 +211,11 @@ private fun HighestScoreBoxContent(value: Int) {
     ) {
         Text(
             text = "Highest Score",
-            fontSize = 14.sp
+            fontSize = (16*scale).sp
         )
         Text(
             text = "$value",
-            fontSize = 30.sp,
+            fontSize = (30*scale).sp,
             color = Color.Black
         )
     }

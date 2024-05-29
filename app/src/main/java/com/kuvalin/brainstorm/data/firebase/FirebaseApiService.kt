@@ -784,11 +784,12 @@ class FirebaseApiService @Inject constructor(
     // ###################### GAME
 
     //region FindTheGame
-    override suspend fun findTheGame(): Pair<Boolean, String> {
+    override suspend fun findTheGame(): Triple<Boolean, String, String> {
 
         // ###################### ПЕРЕМЕННЫЕ
         var findFailed = false
         var gameSessionId = ""
+        var opponentUid = ""
 
         var gameReady = false
         var elapsedTime = 0L // Переменная для отслеживания прошедшего времени
@@ -834,7 +835,7 @@ class FirebaseApiService @Inject constructor(
                 gameSessionId = newGameSessionId
             } catch (e: Exception) {
                 Log.w("FIRESTORE_SEND", "Error adding document", e)
-                return Pair(false, "")
+                return Triple(false, "", opponentUid)
             }
 
         }else{
@@ -855,6 +856,13 @@ class FirebaseApiService @Inject constructor(
                         value.data?.get("cyan_ready") == true
                     ) {
                         listGames = value.data?.get("list_games") as MutableList<String>
+                        opponentUid = (
+                                if (findFailed)
+                                    value.data?.get("pink_user")
+                                else
+                                    value.data?.get("cyan_user")
+                                ).toString()
+
                         gameReady = true
                     }
                 }
@@ -873,7 +881,7 @@ class FirebaseApiService @Inject constructor(
                         .await()
                 }
 
-                return Pair(true, gameSessionId)
+                return Triple(true, gameSessionId, opponentUid)
             }
             delay(1000)
             elapsedTime += 1000
@@ -881,7 +889,7 @@ class FirebaseApiService @Inject constructor(
 
         // Если время истекло, отменяем прослушивание и возвращаем false и пустой id
         listenerRegistration.remove()
-        return Pair(false, "")
+        return Triple(false, "", opponentUid)
     }
     //endregion
 

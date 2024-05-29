@@ -84,7 +84,7 @@ fun FriendsMainScreen(
 
     // Стейт нажатия по навиге
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(210){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
 
     /* ########################################################################################## */
 

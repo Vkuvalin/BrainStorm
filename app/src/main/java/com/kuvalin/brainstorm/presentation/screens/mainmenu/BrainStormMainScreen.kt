@@ -369,6 +369,8 @@ private fun TopAppBarContent(
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
 
+    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+
     // Получаем доступ к текущему файлу NavDestination, чтобы узнать, на каком мы экране.
     val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
     val selected = navBackStackEntry?.destination?.route.toString()
@@ -413,15 +415,17 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        navigationState.navigateToMenu()
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChangeNavigation()
-                                delay(3000)
-                                release()
+                        if (animLoadState){
+                            navigationState.navigateToMenu()
+                            musicScope.launch {
+                                MusicPlayer(context = context).run {
+                                    playChangeNavigation()
+                                    delay(3000)
+                                    release()
+                                }
                             }
+                            onClickNavigationButton()
                         }
-                        onClickNavigationButton()
                     }
             )
 
@@ -454,7 +458,7 @@ private fun TopAppBarContent(
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
-                    .noRippleClickable {
+                    .noRippleClickable { // TODO нужно немного иначе обрабатывать (подумать)
                         musicScope.launch {
                             MusicPlayer(context = context).run {
                                 playChoiceClick()
@@ -463,6 +467,7 @@ private fun TopAppBarContent(
                             }
                         }
                         onClickRefreshButton()
+                        onClickNavigationButton()
                     }
             )
 
@@ -479,6 +484,7 @@ private fun TopAppBarContent(
                             }
                         }
                         clickOnAddFriendsButton = true
+                        onClickNavigationButton()
                     }
             )
         }
@@ -498,6 +504,7 @@ private fun TopAppBarContent(
                             }
                         }
                         clickOnAddQuestionButton = true
+                        onClickNavigationButton()
                     }
             )
 
@@ -511,6 +518,7 @@ private fun TopAppBarContent(
                     .size(40.dp)
                     .noRippleClickable {
                         onClickRefreshButton()
+                        onClickNavigationButton()
                     }
             )
 
@@ -522,7 +530,7 @@ private fun TopAppBarContent(
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
-                    .noRippleClickable {
+                    .noRippleClickable { // TODO нужно немного иначе обрабатывать (подумать)
                         musicScope.launch {
                             MusicPlayer(context = context).run {
                                 playChoiceClick()
@@ -531,6 +539,7 @@ private fun TopAppBarContent(
                             }
                         }
                         clickOnGameSettingsButton = true
+                        onClickNavigationButton()
                     }
             )
         }
@@ -554,15 +563,17 @@ private fun TopAppBarContent(
                     enabled = clickableArrowButtonState
                 ) {}
                 .noRippleClickable {
-                    navigationState.navHostController.popBackStack()
-                    musicScope.launch {
-                        MusicPlayer(context = context).run {
-                            playChangeNavigation()
-                            delay(3000)
-                            release()
+                    if (animLoadState){
+                        navigationState.navHostController.popBackStack()
+                        musicScope.launch {
+                            MusicPlayer(context = context).run {
+                                playChangeNavigation()
+                                delay(3000)
+                                release()
+                            }
                         }
+                        onClickNavigationButton()
                     }
-                    onClickNavigationButton()
                 }
         )
         //endregion
@@ -570,20 +581,22 @@ private fun TopAppBarContent(
         AssetImage(
             fileName = "tab_logo.png",
             modifier = Modifier
-                .size(40.dp)
+                .size(40.dp) // TODO о чем я вообще ниже говорю?
                 .clickable( // Тут продублировал логику кнопки назад, чтобы расширить поле нажатия
                     enabled = clickableArrowButtonState // Проверить, влияет ли это на производительность?
                 ) {}
                 .noRippleClickable {
-                    navigationState.navHostController.popBackStack()
-                    musicScope.launch {
-                        MusicPlayer(context = context).run {
-                            playChangeNavigation()
-                            delay(3000)
-                            release()
+                    if (animLoadState){
+                        navigationState.navHostController.popBackStack()
+                        musicScope.launch {
+                            MusicPlayer(context = context).run {
+                                playChangeNavigation()
+                                delay(3000)
+                                release()
+                            }
                         }
+                        onClickNavigationButton()
                     }
-                    onClickNavigationButton()
                 }
         )
         //endregion

@@ -31,7 +31,7 @@ sealed class Screen(
         const val ROUTE_PROFILE = "profile"
 
         const val ROUTE_SEARCH_FOR_WAR = "search_for_war"
-        const val ROUTE_WAR = "war/{sessionId}"
+        const val ROUTE_WAR = "war/{sessionId}/{uid}"
 
         const val ROUTE_FRIENDS = "friends"
         const val ROUTE_ACHIEVEMENTS = "achievements"

@@ -2,6 +2,7 @@ package com.kuvalin.brainstorm.presentation.screens.mainmenu.menu
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +52,7 @@ import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
@@ -81,6 +83,10 @@ import kotlinx.coroutines.withContext
 @Composable
 fun MenuScreen(){
 
+    var clickNavigation by remember { mutableStateOf(false) }
+    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    BackHandler { clickNavigation = true }
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
@@ -107,12 +113,12 @@ fun MenuScreen(){
     var settingsButtonState by remember { mutableStateOf(false) }
     var informationButtonState by remember { mutableStateOf(false) }
     var contactsButtonState by remember { mutableStateOf(false) }
-    var registrationButtonState by remember { mutableStateOf(false) }
+    var accountButtonState by remember { mutableStateOf(false) }
 
 
     var clickButtonState by remember { mutableStateOf(false) }
     clickButtonState = announcementButtonState || settingsButtonState || informationButtonState
-            || contactsButtonState || registrationButtonState
+            || contactsButtonState || accountButtonState
 
     //region Кнопки
     Box(
@@ -169,11 +175,11 @@ fun MenuScreen(){
             Spacer(modifier = Modifier.height(12.dp))
             MenuText(
                 clickButtonState = clickButtonState,
-                text = "Registration",
+                text = "Account",
                 backgroundColor = Color(0xFF009688),
                 width = dynamicRowWidth
             ) {
-                registrationButtonState = true
+                accountButtonState = true
             }
         }
 
@@ -183,8 +189,8 @@ fun MenuScreen(){
         if (settingsButtonState) {
             SettingsContent(modifierForCloseButton2) { settingsButtonState = false }
         }
-        if (registrationButtonState) {
-            RegistrationContent() { registrationButtonState = false }
+        if (accountButtonState) {
+            AccountContent() { accountButtonState = false }
         }
 
     }
@@ -458,10 +464,10 @@ private fun SwitchButton(
 
 
 //endregion
-//region RegistrationContent
+//region AccountContent
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun RegistrationContent(
+fun AccountContent(
     onClickDismiss: () -> Unit
 ){
     // Component
@@ -477,9 +483,20 @@ fun RegistrationContent(
     val auth = Firebase.auth
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
 
     // TODO Затем добавить в GlobalStates (чтобы подхватывать в других местах)
     var authState by remember { mutableStateOf(false) }
+    if (authState){
+        LaunchedEffect(Unit) {
+            var count = 0
+            while (userName.isEmpty() && count <= 20) {
+                count++
+                viewModel.getUserInfo.invoke()?.name?.let { userName = it }
+                delay(100)
+            }
+        }
+    }
 
 
     // TODO Сделать поле ввода пароля секретным/скрытным
@@ -533,13 +550,21 @@ fun RegistrationContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    LabelText("Registration")
-                    Text( // TODO заменить текст на имя или что-то прикольное (также многострочный текст)
-                        text = if (!authState) "Зарегистрируйтесь для синхронизации с другими устройствами"
-                        else "Вы авторизованы",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.offset(y = (-10).dp)
-                    )
+                    LabelText("Account")
+
+                    if (authState) {
+                        Text(
+                            text = "Рады, что вы с нами $userName",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.offset(y = (-10).dp)
+                        )
+                    }else {
+                        Text(
+                            text = "Зарегистрируйтесь для синхронизации с другими устройствами",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.offset(y = (-10).dp)
+                        )
+                    }
 
                     Column(
                         verticalArrangement = Arrangement.Center,
@@ -652,6 +677,7 @@ fun RegistrationContent(
 
                                 }else{
                                     auth.signOut()
+                                    userName = ""
                                     authState = false
                                 }
                             }

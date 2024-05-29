@@ -22,6 +22,7 @@ object GlobalStates {
     private val _animLoadState = MutableStateFlow(true)
     val animLoadState: StateFlow<Boolean> = _animLoadState
 
+
     // Внизу
     private val _lifecycleCurrentState = MutableStateFlow(Lifecycle.State.INITIALIZED)
     val lifecycleCurrentState: StateFlow<Lifecycle.State> = _lifecycleCurrentState

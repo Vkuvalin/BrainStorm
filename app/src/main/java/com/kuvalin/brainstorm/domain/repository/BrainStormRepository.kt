@@ -88,7 +88,7 @@ interface BrainStormRepository {
 
 
     /* ####################################### GAME ############################################# */
-    suspend fun findTheGame(): Pair<Boolean, String>
+    suspend fun findTheGame(): Triple<Boolean, String, String>
 
     suspend fun updateUserScopeInWarGame(sessionId: String, gameName: String, scope: Int)
     suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int>

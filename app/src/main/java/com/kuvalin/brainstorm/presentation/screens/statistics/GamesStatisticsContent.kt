@@ -1,6 +1,7 @@
 package com.kuvalin.brainstorm.presentation.screens.statistics
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,13 +41,19 @@ import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
 
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun GamesStatisticsContent(paddingParent: PaddingValues) {
+fun GamesStatisticsContent(
+    paddingParent: PaddingValues,
+    uid: String = "",
+    parentWidth: Int? = null,
+    type: String = "games", // TODO как лучше действовать в таких случаях?
+) {
 
     // Компонент
     val component = getApplicationComponent()
@@ -62,7 +71,7 @@ fun GamesStatisticsContent(paddingParent: PaddingValues) {
         // TODO распространить на другие места, с подобной проблемой
         */
         val temporaryList = mutableStateListOf<GameStatistic>()
-        viewModel.getListGamesStatistics.invoke().map { temporaryList.add(it) }
+        viewModel.getListGamesStatistics.invoke(uid).map { temporaryList.add(it) }
         gamesStatistics = temporaryList
     }
 
@@ -80,19 +89,31 @@ fun GamesStatisticsContent(paddingParent: PaddingValues) {
             ,
             columns = GridCells.Fixed(2)
         ) {
-            items(items.size) { position ->
+
+            items(items.size ) { position ->
                 val item = items[position]
                 var find = false
 
                 for (game in gamesStatistics) {
                     if (game.gameName == item.sectionName) {
-                        GamesStatisticsItem(gamesInfo = item, gameStatistic = game)
+                        GamesStatisticsItem(
+                            gamesInfo = item,
+                            parentWidth = parentWidth,
+                            type = type,
+                            gameStatistic = game)
                         find = true
                         break
                     }
                 }
-                if (!find) { GamesStatisticsItem(gamesInfo = item, gameStatistic = null) }
+                if (!find) {
+                    GamesStatisticsItem(
+                    gamesInfo = item,
+                    parentWidth = parentWidth,
+                    type = type,
+                    gameStatistic = null)
+                }
             }
+
         }
     }
 
@@ -104,8 +125,14 @@ fun GamesStatisticsContent(paddingParent: PaddingValues) {
 @Composable
 fun GamesStatisticsItem(
     gamesInfo: GamesNavigationItem,
+    parentWidth: Int?,
+    type: String, // TODO как лучше действовать в таких случаях?
     gameStatistic: GameStatistic?
 ) {
+
+    val screenWidth = parentWidth ?:  LocalConfiguration.current.screenWidthDp
+
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -125,7 +152,7 @@ fun GamesStatisticsItem(
         ) {
             Text(
                 text = gamesInfo.sectionName,
-                fontSize = 12.sp,
+                fontSize = dynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
                 color = Color.DarkGray
             )
             Row(
@@ -133,15 +160,19 @@ fun GamesStatisticsItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "${gameStatistic?.maxGameScore ?: 0}", fontSize = 16.sp, color = Color.Black)
+                Text(
+                    text = "${gameStatistic?.maxGameScore ?: 0}",
+                    fontSize = dynamicFontSize(screenWidth, if (type == "games") 16f else 12f),
+                    color = Color.Black
+                )
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text = "Avg. ${gameStatistic?.avgGameScore ?: 0}", fontSize = 12.sp, color = Color.Gray)
+                Text(
+                    text = "Avg. ${gameStatistic?.avgGameScore ?: 0}",
+                    fontSize = dynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
+                    color = Color.Gray
+                )
             }
         }
     }
 }
 //endregion
-
-
-
-

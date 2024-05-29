@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -38,6 +40,23 @@ fun Dp.toPx() = with(LocalDensity.current) {
     this@toPx.toPx()
 }
 //endregion
+
+//region Динамический (адаптивный) размер текста
+@Composable
+fun dynamicFontSize(screenWidth: Int, desiredFontSize: Float): TextUnit {
+    // Высчитываем коэффициент на основе желаемого результата
+    val coefficient = screenWidth / desiredFontSize
+    // Возвращаем желаемый размер шрифта, деленный на этот коэффициент
+    return (screenWidth / coefficient).sp
+}
+//endregion
+
+/* Развить потом идею
+@Composable
+private fun AdaptiveBoxContent(scale: Float, content: @Composable () -> Unit) {
+    Box(modifier = Modifier.scale(scale)) {content()}
+}
+*/
 // ######################
 
 // ###################### Assets (дописать сохранение в базу)
@@ -237,6 +256,16 @@ class NoRippleInteractionSource : MutableInteractionSource {
 // ######################################################
 
 
+/*
+Хрень, чтобы вычислить размеры папы
+modifier = Modifier
+            .onGloballyPositioned { coordinates ->
+                parentWidth = with(localDensity) {
+                    coordinates.size.width.toDp().value.toInt()
+                }
+            }
+*/
+
 
 
 
@@ -248,6 +277,7 @@ class NoRippleInteractionSource : MutableInteractionSource {
 //val animLoadState = GlobalStates.animLoadState.collectAsState().value
 //GlobalStates.AnimLoadState(500)
 //Log.d("DEBUG-1", "--------------END--------------")
+//Log.d("DEBUG-1", "-------------- $userInfoOpponent -------------- userInfoOpponent")
 //Log.d("DEBUG-1", "-------------- RECOMPOSITION --------------")
 // ######################
 

@@ -58,8 +58,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.auth.User
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.GameResult
+import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.getApplicationComponent
@@ -80,6 +82,7 @@ import com.kuvalin.brainstorm.presentation.screens.game.games.PathToSafety
 import com.kuvalin.brainstorm.presentation.screens.game.games.RapidSorting
 import com.kuvalin.brainstorm.presentation.screens.game.games.Reflection
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -130,6 +133,11 @@ fun WarScreen(
     val uriAvatar by remember { mutableStateOf<Uri?>(null) }
     // Нужно будет тянуть с прошлого экрана. Вообще мне тут же в конце вообще весь User понадобится
 
+    // UserInfo
+    var userInfoOpponent by remember { mutableStateOf(UserInfo("")) }
+    var userInfo by remember { mutableStateOf(UserInfo("")) }
+
+
     var scopeCyanPlayer by remember { mutableIntStateOf(0) }
     var scopePinkPlayer by remember { mutableIntStateOf(0) }
     val ratio = ((scopeCyanPlayer - scopePinkPlayer).toFloat() / 2000) // 2000 = 0.5 = лучший вид
@@ -147,6 +155,17 @@ fun WarScreen(
 
     val warScreenState = WarScreenState.warScreenState.collectAsState()
     /* ########################################################################################## */
+
+    LaunchedEffect(Unit) {
+        navBackStackEntry?.arguments?.getString("uid")?.let { uid ->
+            viewModel.getUserInfoFB.invoke(uid)?.let {userInfo ->
+                userInfoOpponent = userInfo
+            }
+        }
+        viewModel.getUserInfo.invoke()?.let {
+            userInfo = it
+        }
+    }
 
 
     // Динамическая функция отправки актуального scope
@@ -257,6 +276,8 @@ fun WarScreen(
                 WarScreenState.WarGameThree -> {}
                 WarScreenState.WarGameResults -> {
                     WarGameResult(
+                        userInfo = userInfo,
+                        userInfoOpponent = userInfoOpponent,
                         selectedGames,
                         viewModel,
                         sessionId
@@ -700,16 +721,18 @@ private fun WarGameScreen(
 //region WarGameResult
 @Composable
 fun WarGameResult(
+    userInfo: UserInfo,
+    userInfoOpponent: UserInfo,
     selectedGames: List<String>,
     viewModel: WarViewModel,
     sessionId: String?,
     onBackButtonClick: () -> Unit
 ) {
+
     val scope = CoroutineScope(Dispatchers.IO)
     val context = LocalContext.current
 
     val uriAvatar by remember { mutableStateOf<Uri?>(null) }
-    val userUid = Firebase.auth.uid ?: "zero_user_uid"
 
     val localDensity = LocalDensity.current
     var parentWidth by remember { mutableIntStateOf(0) }
@@ -723,6 +746,8 @@ fun WarGameResult(
     var secondGamePinkScope by remember { mutableIntStateOf(0) }
     var thirdGamePinkScope by remember { mutableIntStateOf(0) }
     var totalPink by remember { mutableIntStateOf(0) }
+
+    var endOfCalculations by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (sessionId != null) {
@@ -738,10 +763,11 @@ fun WarGameResult(
             totalCyan = firstGameCyanScope + secondGameCyanScope + thirdGameCyanScope
             totalPink = firstGamePinkScope + secondGamePinkScope + thirdGamePinkScope
 
+            endOfCalculations = true
 
             viewModel.addWarResult.invoke(
                 WarResult(
-                    uid = userUid,
+                    uid = userInfo.uid,
                     scope = totalCyan,
                     result = if (totalCyan > totalPink) "win"
                     else if (totalCyan == totalPink) "draw" else "loss"
@@ -756,6 +782,7 @@ fun WarGameResult(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxSize()
+            .background(color = Color(0xE6E6E6E6))
             .padding(horizontal = 20.dp)
     ) {
 
@@ -767,59 +794,75 @@ fun WarGameResult(
                 .fillMaxWidth()
         ) {
             //region CyanUser
-            Box(
-                contentAlignment = Alignment.Center,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .onGloballyPositioned { coordinates ->
-                        parentWidth = with(localDensity) {
-                            coordinates.size.width.toDp().value.toInt()
-                        }
-                    }
-                ,
             ) {
-                AssetImage(fileName = if (totalCyan > totalPink) "winner.png"
-                else if (totalCyan == totalPink) "winner.png" else "loser.png")
-                Avatar(
-                    uriAvatar = uriAvatar,
-                    color = CyanAppColor,
+                Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .scale(0.6f)
-                        .offset(y = (-parentWidth / 5).dp)
-                )
-                AssetImage(
-                    fileName = "ic_profile_russia.png", // TODO User Country
-                    modifier = Modifier
-                        .size(40.dp)
-                        .offset(x = (parentWidth / 5).dp, y = (parentWidth / 10).dp)
-                )
+                        .onGloballyPositioned { coordinates ->
+                            parentWidth = with(localDensity) {
+                                coordinates.size.width.toDp().value.toInt()
+                            }
+                        }
+                    ,
+                ) {
+                    if (endOfCalculations) {
+                        AssetImage(fileName = if (totalCyan > totalPink) "winner.png"
+                        else if (totalCyan == totalPink) "winner.png" else "loser.png")
+                    }
+                    Avatar(
+                        uriAvatar = uriAvatar,
+                        color = CyanAppColor,
+                        modifier = Modifier
+                            .scale(0.6f)
+                            .offset(y = (-parentWidth / 5).dp)
+                    )
+                    AssetImage(
+                        fileName = "ic_profile_russia.png", // TODO User Country
+                        modifier = Modifier
+                            .size(40.dp)
+                            .offset(x = (parentWidth / 5).dp, y = (parentWidth / 10).dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = "${userInfo?.name}", fontSize = 24.sp, fontWeight = FontWeight.W400, color = CyanAppColor)
             }
+
             //endregion
             Text(text = "VS", fontSize = 30.sp, color = Color(0xFF373737))
             //region PinkUser
-            Box(
-                contentAlignment = Alignment.Center,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                ,
             ) {
-                AssetImage(fileName = if (totalCyan < totalPink) "winner.png"
-                else if (totalCyan == totalPink) "winner.png" else "loser.png")
-                Avatar(
-                    uriAvatar = uriAvatar,
-                    color = PinkAppColor,
-                    modifier = Modifier
-                        .scale(0.6f)
-                        .offset(y = (-parentWidth / 5).dp)
-                )
-                AssetImage(
-                    fileName = "ic_profile_russia.png", // TODO User Country
-                    modifier = Modifier
-                        .size(40.dp)
-                        .offset(x = (parentWidth / 5).dp, y = (parentWidth / 10).dp)
-                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (endOfCalculations) {
+                        AssetImage(fileName = if (totalCyan < totalPink) "winner.png"
+                        else if (totalCyan == totalPink) "winner.png" else "loser.png")
+                    }
+                    Avatar(
+                        uriAvatar = uriAvatar,
+                        color = PinkAppColor,
+                        modifier = Modifier
+                            .scale(0.6f)
+                            .offset(y = (-parentWidth / 5).dp)
+                    )
+                    AssetImage(
+                        fileName = "ic_profile_russia.png", // TODO User Country
+                        modifier = Modifier
+                            .size(40.dp)
+                            .offset(x = (parentWidth / 5).dp, y = (parentWidth / 10).dp)
+                    )
+                }
+                Text(text = "${userInfoOpponent?.name}", fontSize = 24.sp, fontWeight = FontWeight.W400, color = PinkAppColor)
             }
             //endregion
         }
@@ -873,7 +916,7 @@ fun WarGameResult(
             WarScreenButton(type = "Add"){
                 if (sessionId != null) {
                     scope.launch {
-                        viewModel.addFriendInGame.invoke(sessionId)
+                        viewModel.addFriendInGame.invoke(sessionId) // TODO снова поленился... Че не вытащил uid?
                         withContext(Dispatchers.Main) {
                             Toast.makeText(context, "Запрос был отправлен", Toast.LENGTH_LONG).show()
                         }
