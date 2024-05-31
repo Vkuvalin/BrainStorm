@@ -460,13 +460,14 @@ fun DrawingChart(
         CircleBackground(modifier = modifier, workMode = workMode)
         Crosshair(modifier)
 
+        // Цифры немного странные получились, даже не могу объяснить, почему именно такие
         SkillNamePolus(text = "Speed", x = 5f, y = -120f, workMode = workMode)
-        SkillNamePolus(text = "Accuracy", x = 10f, y = 125f, workMode = workMode)
+        SkillNamePolus(text = "Accuracy", x = 10f, y = 135f, workMode = workMode)
 
         SkillName(text = "Judgement", x = 80f * 1.6f, y = -55f, workMode = workMode)
-        SkillName(text = "Calculation", x = 75f * 1.6f, y = 70f, workMode = workMode)
+        SkillName(text = "Calculation", x = 80f * 1.6f, y = 80f, workMode = workMode)
         SkillName(text = "Memory", x = -85f * 1.6f, y = -60f, workMode = workMode)
-        SkillName(text = "Observation", x = -98f * 1.6f, y = 70f, workMode = workMode)
+        SkillName(text = "Observation", x = -100f * 1.6f, y = 75f, workMode = workMode)
 
         if (workMode == 1){
             Neck()

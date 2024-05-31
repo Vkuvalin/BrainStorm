@@ -84,7 +84,7 @@ fun GameDialogAndStart(
     val screenWidth = configuration.screenWidthDp
     // А я хуй его знает, почему именно ширина так хорошо подходит :)
 
-    GlobalStates.AnimLoadState(410){} // TODO Проверить на рекомпозиции
+    GlobalStates.AnimLoadState(450){} // TODO Проверить на рекомпозиции
 
     Dialog(
         onDismissRequest = {

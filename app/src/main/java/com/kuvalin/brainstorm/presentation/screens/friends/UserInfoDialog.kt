@@ -46,6 +46,7 @@ import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
@@ -389,12 +390,6 @@ fun AddDeleteUser(
 
     val scope = CoroutineScope(Dispatchers.IO)
 
-
-    // Динамический размер текста
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize = (screenWidth/19) // == 20.sp
-
     // Проигрывание звуков
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
@@ -450,7 +445,7 @@ fun AddDeleteUser(
                         text = if (sender == true) "Cancel request?"
                         else if (type == 1) "Do you want to add a user?" else "Delete a friend?",
                         color = Color.Black,
-                        fontSize = dynamicFontSize.sp,
+                        fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f),
                         fontWeight = FontWeight.W400,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )

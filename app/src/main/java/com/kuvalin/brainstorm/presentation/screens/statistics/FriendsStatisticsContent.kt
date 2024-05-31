@@ -3,14 +3,12 @@ package com.kuvalin.brainstorm.presentation.screens.statistics
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +21,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +45,6 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,12 +53,11 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.domain.entity.Friend
-import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.screens.friends.UserInfoDialog
 import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -89,7 +83,7 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
     // Динамический размер текста
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize = (screenWidth/19) // == 20.sp
+    val dynamicFontSize = dynamicFontSize(screenWidth, 20f)
     // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
 
     LaunchedEffect(Unit) {
@@ -130,7 +124,7 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ){
-                Text("No information about friends.", fontSize = dynamicFontSize.sp)
+                Text("No information about friends.", fontSize = dynamicFontSize)
             }
         }
 
@@ -143,7 +137,7 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
 @Composable
 private fun RoundCircleFriendsStatisticIndicator(
     friend: Friend,
-    dynamicFontSize: Int
+    dynamicFontSize: TextUnit
 ) {
 
     val wins = friend.warStatistics?.wins ?: 0
@@ -181,7 +175,7 @@ private fun RoundCircleFriendsStatisticIndicator(
         }
         Text(
             text = "${friend.name}",
-            fontSize = dynamicFontSize.sp,
+            fontSize = dynamicFontSize,
             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
         )
     }
@@ -228,8 +222,7 @@ private fun Avatar(
 }
 //endregion
 
-
-
+//region FriendStatDialog
 @Composable
 fun FriendStatDialog(
     friend: Friend,
@@ -294,7 +287,6 @@ fun FriendStatDialog(
                         .height((screenWidth * 1.2).dp) // TODO TODO TODO TODO TODO TODO TODO TODO
                         .clip(RoundedCornerShape(3))
                         .background(color = Color(0xFFE6E6E6))
-//                        .verticalScroll(rememberScrollState())
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -332,9 +324,7 @@ fun FriendStatDialog(
         },
     )
 }
-
-
-
+//endregion
 //region LabelText
 @Composable
 private fun LabelText(text: String, fontSize: TextUnit, color: Color) {

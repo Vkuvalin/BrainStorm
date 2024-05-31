@@ -111,7 +111,7 @@ fun PathToSafety(
 ){
 
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
     BackHandler {
         clickNavigation = true

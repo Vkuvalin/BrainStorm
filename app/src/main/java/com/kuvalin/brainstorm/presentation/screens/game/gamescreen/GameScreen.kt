@@ -47,7 +47,7 @@ fun GameScreen(
 ){
 
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     lateinit var gameName: String

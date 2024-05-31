@@ -45,12 +45,11 @@ import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +72,7 @@ fun GameResults(
     onBackButtonClick: () -> Unit
 ){
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
     BackHandler {
         clickNavigation = true
@@ -89,11 +88,10 @@ fun GameResults(
     val musicScope = CoroutineScope(Dispatchers.Default)
 
     // Отрисовка элементов
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize1 = (screenWidth / 20)
-    val dynamicFontSize2 = (screenWidth / 25)
-    val dynamicFontSize3 = (screenWidth / 30)
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val dynamicFontSize1 = dynamicFontSize(screenWidth, 20f)
+    val dynamicFontSize2 = dynamicFontSize(screenWidth, 16f)
+    val dynamicFontSize3 = dynamicFontSize(screenWidth, 13f)
 
     // Подсчет статистики
     val finalAccuracy = (accuracy * 1000).roundToInt() / 10.0f
@@ -102,7 +100,6 @@ fun GameResults(
     var averageValue by remember { mutableIntStateOf(0) }
 
     // Работа с базой (GameStatistic)
-    val databaseScope = CoroutineScope(Dispatchers.IO)
     val component = getApplicationComponent()
     val viewModel: GamesViewModel = viewModel(factory = component.getViewModelFactory())
     val userUid = Firebase.auth.uid ?: "zero_user_uid"
@@ -247,7 +244,7 @@ fun GameResults(
             ) {
                 Text(
                     text = "Battle Record",
-                    fontSize = dynamicFontSize2.sp,
+                    fontSize = dynamicFontSize2,
                     fontWeight = FontWeight.W400,
                     color = CyanAppColor,
                 )
@@ -259,13 +256,13 @@ fun GameResults(
                     ) {
                         Text(
                             text = "Highest",
-                            fontSize = dynamicFontSize3.sp,
+                            fontSize = dynamicFontSize3,
                             fontWeight = FontWeight.W400,
                             color = Color.Black
                         )
                         Text(
                             text = "$highestValue",
-                            fontSize = dynamicFontSize1.sp,
+                            fontSize = dynamicFontSize1,
                             fontWeight = FontWeight.W400,
                             color = Color.Black
                         )
@@ -278,13 +275,13 @@ fun GameResults(
                     ) {
                         Text(
                             text = "Average",
-                            fontSize = dynamicFontSize3.sp,
+                            fontSize = dynamicFontSize3,
                             fontWeight = FontWeight.W400,
                             color = Color.Black
                         )
                         Text(
                             text = "$averageValue",
-                            fontSize = dynamicFontSize1.sp,
+                            fontSize = dynamicFontSize1,
                             fontWeight = FontWeight.W400,
                             color = Color.Black
                         )
@@ -303,7 +300,7 @@ fun GameResults(
             ) {
                 Text(
                     text = "Score",
-                    fontSize = dynamicFontSize2.sp,
+                    fontSize = dynamicFontSize2,
                     fontWeight = FontWeight.W400,
                     color = CyanAppColor,
                 )
@@ -313,7 +310,7 @@ fun GameResults(
                 ) {
                     Text(
                         text = "$finalScope",
-                        fontSize = dynamicFontSize1.sp,
+                        fontSize = dynamicFontSize1,
                         fontWeight = FontWeight.W400,
                         color = Color.Black
                     )

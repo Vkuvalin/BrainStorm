@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,22 +14,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @SuppressLint("MutableCollectionMutableState")
@@ -44,13 +38,6 @@ fun RequestsContent(
     // Компонент
     val component = getApplicationComponent()
     val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
-
-
-    // Динамический размер текста
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize = (screenWidth/19) // == 20.sp
-    // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
 
 
     // Список пользователей
@@ -128,7 +115,10 @@ fun RequestsContent(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ){
-                Text("No new requests have been received.", fontSize = dynamicFontSize.sp)
+                Text(
+                    text = "No new requests have been received.",
+                    fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f)
+                )
             }
         }
 

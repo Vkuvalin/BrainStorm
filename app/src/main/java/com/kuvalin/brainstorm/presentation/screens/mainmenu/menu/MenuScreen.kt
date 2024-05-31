@@ -84,7 +84,7 @@ import kotlinx.coroutines.withContext
 fun MenuScreen(){
 
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
     BackHandler { clickNavigation = true }
 
     val configuration = LocalConfiguration.current

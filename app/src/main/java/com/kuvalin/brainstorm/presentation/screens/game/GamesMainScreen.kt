@@ -26,9 +26,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
@@ -51,11 +53,6 @@ fun GamesMainScreen(
 ) {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
-    val configuration = LocalConfiguration.current
-
-    val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize = (screenWidth / 35)
-
     val navigationState = rememberNavigationState()
 
     // Данная шляпа нужна для скрытия списка игр
@@ -82,7 +79,7 @@ fun GamesMainScreen(
             gameInitialScreenContent = {
                 if (!runGameScreenState) {
                     gameOut()
-                    GameScreenInitialContent(paddingValuesParent, items, dynamicFontSize, navigationState)
+                    GameScreenInitialContent(paddingValuesParent, items, navigationState)
                 }
             },
             flickMasterScreenContent = { GameScreen(navigationState) { gameOut() } },
@@ -105,9 +102,9 @@ fun GamesMainScreen(
 private fun GameScreenInitialContent(
     paddingValuesParent: PaddingValues,
     items: List<GamesNavigationItem>,
-    dynamicFontSize: Int,
     navigationState: NavigationState
 ) {
+
     // Для проигрывания звуков
     val context = LocalContext.current
     val musicScope = CoroutineScope(Dispatchers.Default)
@@ -135,7 +132,7 @@ private fun GameScreenInitialContent(
         ) {
             items(items.size) { position ->
                 GameCard(
-                    dynamicFontSize = dynamicFontSize,
+                    dynamicFontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 11f),
                     sectionName = items[position].sectionName,
                     miniatureGameImage = items[position].miniatureGameImage
                 ) {
@@ -163,7 +160,7 @@ private fun GameScreenInitialContent(
 //region GameCard
 @Composable
 fun GameCard(
-    dynamicFontSize: Int,
+    dynamicFontSize: TextUnit,
     sectionName: String,
     miniatureGameImage: String,
     onCardClick: () -> Unit
@@ -182,7 +179,7 @@ fun GameCard(
                 .border(width = 1.dp, shape = RoundedCornerShape(10), color = Color.White)
                 .then(Modifier.padding(5.dp))
         )
-        Text(text = sectionName, fontSize = dynamicFontSize.sp, color = Color.DarkGray)
+        Text(text = sectionName, fontSize = dynamicFontSize, color = Color.DarkGray)
     }
 }
 //endregion

@@ -96,7 +96,7 @@ fun MainScreen(
 
     // Стейт нажатия по навиге
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
     // Icon
     val sizeIcon = 35

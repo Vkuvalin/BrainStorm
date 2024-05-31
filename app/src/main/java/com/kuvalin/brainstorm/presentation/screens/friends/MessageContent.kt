@@ -29,6 +29,7 @@ import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -48,13 +49,6 @@ fun MessageContent(
     // Компонент
     val component = getApplicationComponent()
     val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
-
-
-    // Динамический размер текста
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize = (screenWidth/19) // == 20.sp
-    // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
 
 
     // Список друзей
@@ -160,7 +154,10 @@ fun MessageContent(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxSize()
                     ){
-                        Text("No new requests have been received.", fontSize = dynamicFontSize.sp)
+                        Text(
+                            text = "No new requests have been received.",
+                            fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f)
+                        )
                     }
                 }
             }

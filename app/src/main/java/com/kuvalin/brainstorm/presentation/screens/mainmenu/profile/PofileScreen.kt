@@ -88,7 +88,7 @@ fun ProfileScreenContent(
     paddingValues: PaddingValues
 ) {
 
-    GlobalStates.AnimLoadState(310){}
+    GlobalStates.AnimLoadState(350){}
 
     val component = getApplicationComponent()
     val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())

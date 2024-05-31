@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
@@ -62,10 +63,6 @@ fun FriendsContent(
     if (onClickButtonState){
         AddFriendsButtonContent(){ onClickButtonState = false }
     }
-
-    // Динамический размер текста
-    val dynamicFontSize = (screenWidth/19) // == 20.sp
-    // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
 
 
     // Список друзей
@@ -132,7 +129,7 @@ fun FriendsContent(
                     .wrapContentSize(align = Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Challenge your friends!", fontSize = dynamicFontSize.sp)
+                Text("Challenge your friends!", fontSize = dynamicFontSize(screenWidth, 20f))
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier

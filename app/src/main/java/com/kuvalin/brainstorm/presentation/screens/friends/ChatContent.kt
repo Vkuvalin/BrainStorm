@@ -58,7 +58,7 @@ fun ChatContent(
     onBackButtonClick: () -> Unit
 ){
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(310){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
     LaunchedEffect(Unit) { GlobalStates.putScreenState("runGameScreenState", true) }
     BackHandler {

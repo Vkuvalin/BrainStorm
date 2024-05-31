@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -40,9 +39,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.globalClasses.presentation.rememberMusicPlayer
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,9 +54,6 @@ fun AchievementsScreen(
 ) {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val dynamicFontSize = (screenWidth/25)
 
     // Вот эта срань позде переедет в базу
     val achievementsList = mutableListOf(
@@ -90,7 +86,7 @@ fun AchievementsScreen(
             columns = GridCells.Fixed(2) // .Adaptive(minSize = 100.dp)
         ) {
             items(achievementsList.size) { position ->
-                AchievementsItem(achievementsList, position, dynamicFontSize, achievementsActiveState)
+                AchievementsItem(achievementsList, position, achievementsActiveState)
             }
         }
     }
@@ -102,7 +98,6 @@ fun AchievementsScreen(
 private fun AchievementsItem(
     achievementsList: MutableList<MutableList<String>>,
     position: Int,
-    dynamicFontSize: Int,
     activeStateList: List<Boolean>
 ) {
 
@@ -113,7 +108,7 @@ private fun AchievementsItem(
     if (clickOnAchievementState){
         AchievementsItemContent(
             fileName = achievementsList[position][0],
-            achievementsName = achievementsList[position][1],
+            achievementName = achievementsList[position][1],
             description = achievementsList[position][2]
         ){ clickOnAchievementState = false }
     }
@@ -144,7 +139,7 @@ private fun AchievementsItem(
             text = achievementsList[position][1],
             color = CyanAppColor,
             fontWeight = FontWeight.W500,
-            fontSize = dynamicFontSize.sp,
+            fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 16f),
             modifier = Modifier.alpha(if(isActive) 0.5f else 1f)
         )
     }
@@ -154,7 +149,7 @@ private fun AchievementsItem(
 @Composable
 fun AchievementsItemContent(
     fileName: String,
-    achievementsName: String,
+    achievementName: String,
     description: String,
     onClickDismiss: () -> Unit
 ) {
@@ -209,7 +204,7 @@ fun AchievementsItemContent(
                         }
                 )
                 //endregion
-                AchievementsItemLabel(achievementsName)
+                AchievementsItemLabel(achievementName)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 AssetImage(
