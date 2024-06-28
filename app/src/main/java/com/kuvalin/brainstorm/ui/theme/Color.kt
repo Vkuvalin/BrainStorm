@@ -29,6 +29,7 @@ val BackgroundAppColor = Color(0xFFE6E6E6)
 val CyanAppColor = Color(0xFF00BBBA)
 val PinkAppColor = Color(0xFFEB6FA6)
 val LinearTrackColor = Color(0xFF373737)
+val TopAppBarBackgroundColor = Color(0xFF373737)
 
 
 

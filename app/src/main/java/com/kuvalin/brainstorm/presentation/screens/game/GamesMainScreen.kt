@@ -56,7 +56,7 @@ fun GamesMainScreen(
     val navigationState = rememberNavigationState()
 
     // Данная шляпа нужна для скрытия списка игр
-    val runGameScreenState = GlobalStates.runGameScreenState.collectAsState().value
+    val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
 
     // Можно потом заменить. Так куда лаконичнее и дополнять не придется
     val items = GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance }
@@ -110,7 +110,7 @@ private fun GameScreenInitialContent(
     val musicScope = CoroutineScope(Dispatchers.Default)
 
     // Ждем прогрузки анимации
-    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+    val animLoadState by GlobalStates.animLoadState.collectAsState()
     GlobalStates.AnimLoadState(400){}
 
     Box(

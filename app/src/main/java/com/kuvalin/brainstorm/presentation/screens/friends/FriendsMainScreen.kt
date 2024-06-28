@@ -76,10 +76,10 @@ fun FriendsMainScreen(
     val scope = CoroutineScope(Dispatchers.Default)
 
     // Данная шляпа нужна для скрытия topbar // TODO Измени название, а лучше создай просто второй
-    val runGameScreenState = GlobalStates.runGameScreenState.collectAsState().value
+    val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
 
     // Ждем прогрузки анимации
-    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+    val animLoadState by GlobalStates.animLoadState.collectAsState()
 
 
     // Стейт нажатия по навиге

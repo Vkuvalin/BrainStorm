@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.war
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.RepeatMode
@@ -53,17 +52,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarResult
-import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
@@ -71,7 +67,6 @@ import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.navigation.mainmenu.war.WarScreenState
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
-import com.kuvalin.brainstorm.navigation.staticsClasses.animationStates.AnimationTopBarState
 import com.kuvalin.brainstorm.presentation.screens.game.games.AdditionAddiction
 import com.kuvalin.brainstorm.presentation.screens.game.games.BreakTheBlock
 import com.kuvalin.brainstorm.presentation.screens.game.games.ColorSwitch
@@ -82,7 +77,6 @@ import com.kuvalin.brainstorm.presentation.screens.game.games.PathToSafety
 import com.kuvalin.brainstorm.presentation.screens.game.games.RapidSorting
 import com.kuvalin.brainstorm.presentation.screens.game.games.Reflection
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
-import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -153,7 +147,7 @@ fun WarScreen(
     val selectedGames = listOf("Flick Master", "Path To Safety", "Make10")
 
 
-    val warScreenState = WarScreenState.warScreenState.collectAsState()
+    val warScreenState by WarScreenState.warScreenState.collectAsState()
     /* ########################################################################################## */
 
     LaunchedEffect(Unit) {
@@ -198,7 +192,7 @@ fun WarScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        if (warScreenState.value != WarScreenState.WarGameResults) {
+        if (warScreenState != WarScreenState.WarGameResults) {
             TopWarBar(topBarHeight, uriAvatar, scopeCyanPlayer, timer, scopePinkPlayer, ratio)
         }
 
@@ -207,7 +201,7 @@ fun WarScreen(
                 .fillMaxSize()
         ) {
             //region WarScreenState
-            when(warScreenState.value){
+            when(warScreenState){
                 WarScreenState.PreparingForTheGame -> {
                     LaunchedEffect(Unit) {
                         timer.intValue = 11

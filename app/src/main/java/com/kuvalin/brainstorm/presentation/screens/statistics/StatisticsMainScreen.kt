@@ -75,7 +75,7 @@ fun StatisticsMainScreen(
 
 
     // Ждем прогрузки анимации
-    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+    val animLoadState by GlobalStates.animLoadState.collectAsState()
 
     // Стейт нажатия по навиге
     var clickNavigation by remember { mutableStateOf(false) }

@@ -67,11 +67,11 @@ class MusicPlayer(context: Context) {
 }
 
 
-@Composable
-fun rememberMusicPlayer(): MusicPlayer {
-    val context = LocalContext.current
-//    val scope = rememberCoroutineScope()
-    val musicPlayer = remember(context) { MusicPlayer(context) }
-    DisposableEffect(key1 = Unit) { onDispose { musicPlayer.release() } }
-    return musicPlayer
-}
+//@Composable
+//fun rememberMusicPlayer(): MusicPlayer {
+//    val context = LocalContext.current
+////    val scope = rememberCoroutineScope()
+//    val musicPlayer = remember(context) { MusicPlayer(context) }
+//    DisposableEffect(key1 = Unit) { onDispose { musicPlayer.release() } }
+//    return musicPlayer
+//}

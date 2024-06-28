@@ -1,7 +1,7 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.ExperimentalAnimationApi
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,8 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,14 +43,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.NoRippleInteractionSource
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
-import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.mainmenu.AppNavGraph
 import com.kuvalin.brainstorm.navigation.mainmenu.NavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
@@ -65,71 +68,63 @@ import com.kuvalin.brainstorm.presentation.screens.mainmenu.profile.ProfileScree
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.SearchForWar
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.WarScreen
 import com.kuvalin.brainstorm.presentation.screens.statistics.StatisticsMainScreen
+import com.kuvalin.brainstorm.presentation.viewmodels.MainViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
-import kotlinx.coroutines.CoroutineScope
+import com.kuvalin.brainstorm.ui.theme.TopAppBarBackgroundColor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition",
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint(
+    "UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition",
     "StateFlowValueCalledInComposition"
 )
 @Composable
-fun MainScreen(
-    onClickRefreshButton: () -> Unit
-) {
+fun MainScreen(onClickRefreshButton: () -> Unit) {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    // Компонент
+    val component = getApplicationComponent()
+    val viewModel: MainViewModel = viewModel(factory = component.getViewModelFactory())
+
+    // Навигация
     val navigationState = rememberNavigationState()
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
     // TopAppBar
     val appbarHeight = 50
-    val runGameScreenState = GlobalStates.runGameScreenState.collectAsState().value
-    val animLoadState = GlobalStates.animLoadState.collectAsState().value
+    val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
+    val animLoadState by GlobalStates.animLoadState.collectAsState()
 
     // Стейт нажатия по навиге
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
-
-    // Icon
-    val sizeIcon = 35
-    val paddingBottomIcon = 3
-    val paddingTopIcon = 3
-    val strokeWidthIcon = 3
-    val correctionValueHeightBorder = 1
-
-    // Separator
-    val separatorHeight = (sizeIcon * 0.8).toInt()
-    val separatorColor = Color.Gray
-    val separatorWidth = 1
+    if (clickNavigation) {
+        GlobalStates.AnimLoadState(400) { clickNavigation = false } // Было 350
+    }
     /* ########################################################################################## */
 
 
 
     Scaffold(
 
-        modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = BackgroundAppColor),
 
         topBar = {
 
-            if (!runGameScreenState){
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+            if (!runGameScreenState) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                     //region TopAppBar 1
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)
-                            .background(color = Color(0xFF373737)),
+                            .background(color = TopAppBarBackgroundColor),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         TopAppBarContent(
@@ -142,7 +137,7 @@ fun MainScreen(
                     //region TopAppBar 2
                     BottomAppBar(
                         modifier = Modifier.height(appbarHeight.dp),
-                        containerColor = Color(0xFFE6E6E6)
+                        containerColor = BackgroundAppColor
                     ) {
 
                         // Получаем доступ к текущему файлу NavDestination (из доки)
@@ -169,44 +164,18 @@ fun MainScreen(
                                 selected = selected,
                                 onClick = {
 
-                                    // TODO - ОБЪЕДИНИТЬ (Вообще, как лучше в даном случае быть?)
-                                    if (!selected && animLoadState) {
-                                        clickNavigation = true
-
-                                        if (item.screen.route == Screen.Home.route) {
-                                            musicScope.launch {
-                                                MusicPlayer(context = context).run {
-                                                    playChangeNavigation()
-                                                    delay(3000)
-                                                    release()
-                                                }
-                                            }
-                                            navigationState.navHostController.navigate(
-                                                Screen.Home.route
-                                            ){
-                                                popUpTo(Screen.Home.route) {
-                                                    inclusive = true
-                                                }
-                                            }
-                                        } else {
-                                            musicScope.launch {
-                                                MusicPlayer(context = context).run {
-                                                    playChangeNavigation()
-                                                    delay(3000)
-                                                    release()
-                                                }
-                                            }
-                                            navigationState.navigateTo(item.screen.route)
-                                        }
-                                    }
-                                    // TODO - ОБЪЕДИНИТЬ
-
+                                    onClickNavigationItem(
+                                        selected,
+                                        animLoadState,
+                                        item,
+                                        viewModel,
+                                        context,
+                                        navigationState
+                                    ) { clickNavigation = it }
 
                                 },
                                 icon = {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                                         Icon(
                                             bitmap = GetAssetBitmap(fileName = item.iconFileName),
@@ -214,58 +183,33 @@ fun MainScreen(
                                             tint = if (selected) Color(0xFF312D2D) else Color.Gray,
                                             modifier = Modifier
                                                 .noRippleClickable {
-
-                                                    // TODO - ОБЪЕДИНИТЬ (Вообще, как лучше в даном случае быть?)
-                                                    if (!selected && animLoadState) {
-                                                        clickNavigation = true
-
-                                                        if (item.screen.route == Screen.Home.route) {
-                                                            musicScope.launch {
-                                                                MusicPlayer(context = context).run {
-                                                                    playChangeNavigation()
-                                                                    delay(3000)
-                                                                    release()
-                                                                }
-                                                            }
-                                                            navigationState.navHostController.navigate(
-                                                                Screen.Home.route
-                                                            ){
-                                                                popUpTo(Screen.Home.route) {
-                                                                    inclusive = true
-                                                                }
-                                                            }
-                                                        } else {
-                                                            musicScope.launch {
-                                                                MusicPlayer(context = context).run {
-                                                                    playChangeNavigation()
-                                                                    delay(3000)
-                                                                    release()
-                                                                }
-                                                            }
-                                                            navigationState.navigateTo(item.screen.route)
-                                                        }
-                                                    }
-                                                    // TODO - ОБЪЕДИНИТЬ
-
+                                                    onClickNavigationItem(
+                                                        selected,
+                                                        animLoadState,
+                                                        item,
+                                                        viewModel,
+                                                        context,
+                                                        navigationState
+                                                    ) { clickNavigation = it }
                                                 }
                                                 .zIndex(-1f)
-                                                .size(sizeIcon.dp)
+                                                .size(viewModel.sizeIcon.dp)
                                                 .padding(
-                                                    top = paddingTopIcon.dp,
-                                                    bottom = paddingBottomIcon.dp
+                                                    top = viewModel.paddingTopIcon.dp,
+                                                    bottom = viewModel.paddingBottomIcon.dp
                                                 )
                                                 .drawBehind {
                                                     if (selected) {
                                                         drawLine(
                                                             color = PinkAppColor,
-                                                            strokeWidth = strokeWidthIcon.dp.toPx(),
+                                                            strokeWidth = viewModel.strokeWidthIcon.dp.toPx(),
                                                             start = Offset(
                                                                 0f,
-                                                                sizeIcon.dp.toPx() + correctionValueHeightBorder.dp.toPx()
+                                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
                                                             ),
                                                             end = Offset(
-                                                                sizeIcon.dp.toPx(),
-                                                                sizeIcon.dp.toPx() + correctionValueHeightBorder.dp.toPx()
+                                                                viewModel.sizeIcon.dp.toPx(),
+                                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
                                                             )
                                                         )
                                                     }
@@ -274,34 +218,19 @@ fun MainScreen(
 
                                     }
                                 },
-                                colors = NavigationBarItemDefaults.colors(indicatorColor = Color(0xFFE6E6E6))
+                                colors = NavigationBarItemDefaults.colors( indicatorColor = Color(0xFFE6E6E6) )
                             )
                             //endregion
 
                             if (index < items.size - 1) {
-                                //region Иные реализации
-    //                                Spacer(
-    //                                    modifier = Modifier
-    //                                        .fillMaxHeight()
-    ////                                        .height(20.dp)
-    //                                        .width(2.dp)
-    //                                        .background(Color.Black)
-    //                                )
-    //                                Divider(
-    //                                    color = Color.Blue,
-    //                                    modifier = Modifier
-    //                                        .fillMaxHeight()
-    //                                        .width(2.dp)
-    //                                )
-                                //endregion
-                                Column (
+                                Column(
                                     modifier = Modifier.zIndex(1f)
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .height(separatorHeight.dp)
-                                            .width(separatorWidth.dp)
-                                            .background(separatorColor)
+                                            .height(viewModel.separatorHeight.dp)
+                                            .width(viewModel.separatorWidth.dp)
+                                            .background(viewModel.separatorColor)
                                     )
                                 }
                             }
@@ -310,10 +239,11 @@ fun MainScreen(
                     }
                     //endregion
 
-                    Spacer(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(0.5.dp)
-                        .background(color = Color.DarkGray)
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(color = Color.LightGray)
                     )
 
                 }
@@ -332,15 +262,6 @@ fun MainScreen(
             menuScreenContent = { MenuScreen() },
             profileScreenContent = { ProfileScreenContent(paddingValues) },
 
-            //region Почему решил сделать так?
-            /*
-            Решил не делать аналогично с GamesMainScreen, потому что там прям отдельная навигационный
-            экран с множеством особенностей, а тут всё-таки просто несколько последовательных экранов.
-
-            Да, логика своя будет, но она будет привязана к своей отдельной ViewModel.
-            В общем не вижу проблемы в данной реализации, хоть и вышеупомянутый вариант выглядит лучше.
-            */
-            //endregion
             searchForWarScreenContent = { SearchForWar(navigationState) },
             warScreenContent = { WarScreen(navigationState) },
 
@@ -355,7 +276,6 @@ fun MainScreen(
 
 }
 
-
 //region TopAppBarContent
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -365,42 +285,46 @@ private fun TopAppBarContent(
     onClickRefreshButton: () -> Unit,
 ) {
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+
+    // Компонент и производные
+    val component = getApplicationComponent()
+    val viewModel: MainViewModel = viewModel(factory = component.getViewModelFactory())
+
+
     // Для проигрывания звуков
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
+    val animLoadState by GlobalStates.animLoadState.collectAsState()
 
-    val animLoadState = GlobalStates.animLoadState.collectAsState().value
 
     // Получаем доступ к текущему файлу NavDestination, чтобы узнать, на каком мы экране.
     val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
     val selected = navBackStackEntry?.destination?.route.toString()
 
     var arrowButtonAlpha = 1f
-    var clickableArrowButtonState = true
+    var clickableArrowButtonState by remember { mutableStateOf(true) }
 
-    var screenName = ""
+    var screenName by remember { mutableStateOf("") }
+
     val listFilesNames = mutableListOf<String>()
     val listModifierButtons = mutableListOf<Modifier>()
 
-    var clickOnShareState by remember { mutableStateOf(false) }
-    if (clickOnShareState){
-        ShareContent(){ clickOnShareState = false }
-    }
 
-    var clickOnAddFriendsButton by remember { mutableStateOf(false) }
-    if (clickOnAddFriendsButton){
-        AddFriendsButtonContent(){ clickOnAddFriendsButton = false }
-    }
+    // Обработка нажатий на кнопки верхнего TopAppBar
+    val clickOnShareState by viewModel.clickOnShareState.collectAsState()
+    if (clickOnShareState) { ShareContent { viewModel.toggleShareState(false) } }
 
-    var clickOnAddQuestionButton by remember { mutableStateOf(false) }
-    if (clickOnAddQuestionButton){
-        QuestionButton(){ clickOnAddQuestionButton = false }
-    }
+    val clickOnAddFriendsButton by viewModel.clickOnAddFriendsButton.collectAsState()
+    if (clickOnAddFriendsButton) { AddFriendsButtonContent { viewModel.toggleAddFriendsButton(false) } }
 
-    var clickOnGameSettingsButton by remember { mutableStateOf(false) }
-    if (clickOnGameSettingsButton){
-        GameSettingsButton(){ clickOnGameSettingsButton = false }
-    }
+    val clickOnAddQuestionButton by viewModel.clickOnAddQuestionButton.collectAsState()
+    if (clickOnAddQuestionButton) { QuestionButton { viewModel.toggleAddQuestionButton(false) } }
+
+    val clickOnGameSettingsButton by viewModel.clickOnGameSettingsButton.collectAsState()
+    if (clickOnGameSettingsButton) { GameSettingsButton { viewModel.toggleGameSettingsButton(false) } }
+
+    /* ########################################################################################## */
+
 
 
     //region Кнопки и их логика
@@ -415,15 +339,9 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        if (animLoadState){
+                        if (animLoadState) {
                             navigationState.navigateToMenu()
-                            musicScope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChangeNavigation()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            viewModel.playChangeNavigationSound(context = context)
                             onClickNavigationButton()
                         }
                     }
@@ -434,23 +352,20 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        clickOnShareState = true
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
+                        viewModel.toggleShareState(true)
+                        viewModel.playChoiceClickSound(context = context)
                     }
             )
         }
+
         "menu" -> {
             screenName = "Menu"
         }
+
         "profile" -> {
             screenName = "Profile"
         }
+
         "friends" -> {
             screenName = "Friends"
 
@@ -459,13 +374,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable { // TODO нужно немного иначе обрабатывать (подумать)
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
+                        viewModel.playChoiceClickSound(context = context)
                         onClickRefreshButton()
                         onClickNavigationButton()
                     }
@@ -476,18 +385,13 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
-                        clickOnAddFriendsButton = true
+                        viewModel.playChoiceClickSound(context = context)
+                        viewModel.toggleAddFriendsButton(true)
                         onClickNavigationButton()
                     }
             )
         }
+
         "achievements" -> {
             screenName = "Achievements"
 
@@ -496,19 +400,14 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
-                        clickOnAddQuestionButton = true
+                        viewModel.playChoiceClickSound(context = context)
+                        viewModel.toggleAddQuestionButton(true)
                         onClickNavigationButton()
                     }
             )
 
         }
+
         "statistics" -> {
             screenName = "Statistics"
 
@@ -518,11 +417,13 @@ private fun TopAppBarContent(
                     .size(40.dp)
                     .noRippleClickable {
                         onClickRefreshButton()
+                        viewModel.playChoiceClickSound(context = context)
                         onClickNavigationButton()
                     }
             )
 
         }
+
         "games" -> {
             screenName = "Games"
 
@@ -531,14 +432,8 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable { // TODO нужно немного иначе обрабатывать (подумать)
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
-                        clickOnGameSettingsButton = true
+                        viewModel.playChoiceClickSound(context = context)
+                        viewModel.toggleGameSettingsButton(true)
                         onClickNavigationButton()
                     }
             )
@@ -563,15 +458,9 @@ private fun TopAppBarContent(
                     enabled = clickableArrowButtonState
                 ) {}
                 .noRippleClickable {
-                    if (animLoadState){
+                    if (animLoadState) {
                         navigationState.navHostController.popBackStack()
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChangeNavigation()
-                                delay(3000)
-                                release()
-                            }
-                        }
+                        viewModel.playChangeNavigationSound(context = context)
                         onClickNavigationButton()
                     }
                 }
@@ -581,20 +470,15 @@ private fun TopAppBarContent(
         AssetImage(
             fileName = "tab_logo.png",
             modifier = Modifier
-                .size(40.dp) // TODO о чем я вообще ниже говорю?
-                .clickable( // Тут продублировал логику кнопки назад, чтобы расширить поле нажатия
-                    enabled = clickableArrowButtonState // Проверить, влияет ли это на производительность?
-                ) {}
+                .size(40.dp)
+                // TODO о чем я вообще ниже говорю?
+                // Тут продублировал логику кнопки назад, чтобы расширить поле нажатия
+                // Проверить, влияет ли это на производительность?
+                .clickable(enabled = clickableArrowButtonState) {}
                 .noRippleClickable {
-                    if (animLoadState){
+                    if (animLoadState) {
                         navigationState.navHostController.popBackStack()
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChangeNavigation()
-                                delay(3000)
-                                release()
-                            }
-                        }
+                        viewModel.playChangeNavigationSound(context = context)
                         onClickNavigationButton()
                     }
                 }
@@ -611,16 +495,18 @@ private fun TopAppBarContent(
         verticalAlignment = Alignment.CenterVertically
     ) {
         listFilesNames.forEachIndexed { index, fileName ->
-            if (index > 0 && index != listFilesNames.size) { Spacer(modifier = Modifier.width(5.dp)) }
+            if (index > 0 && index != listFilesNames.size) {
+                Spacer(modifier = Modifier.width(5.dp))
+            }
 
-            if (fileName == "tab_refresh_stats.png"){  // Почему-то, сука, в виде иконци уменьшается до невозможного
+            if (fileName == "tab_refresh_stats.png") {  // Почему-то, сука, в виде иконци уменьшается до невозможного
                 Image(
                     bitmap = GetAssetBitmap(fileName = "tab_refresh_stats.png"),
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(Color.White),
                     modifier = listModifierButtons[index]
                 )
-            }else {
+            } else {
                 Icon(
                     bitmap = GetAssetBitmap(fileName = fileName),
                     contentDescription = null,
@@ -632,6 +518,30 @@ private fun TopAppBarContent(
     }
     //endregion
 
+}
+
+//endregion
+//region onClickNavigationItem
+private fun onClickNavigationItem(
+    selected: Boolean,
+    animLoadState: Boolean,
+    item: NavigationItem,
+    viewModel: MainViewModel,
+    context: Context,
+    navigationState: NavigationState,
+    clickNavigation: (Boolean) -> Unit
+) {
+    if (!selected && animLoadState) {
+        clickNavigation(true)
+        viewModel.playChangeNavigationSound(context = context)
+        if (item.screen.route == Screen.Home.route) {
+            navigationState.navHostController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Home.route) { inclusive = true }
+            }
+        } else {
+            navigationState.navigateTo(item.screen.route)
+        }
+    }
 }
 //endregion
 
