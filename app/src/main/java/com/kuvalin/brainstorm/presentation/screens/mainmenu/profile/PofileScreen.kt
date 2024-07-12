@@ -2,7 +2,6 @@ package com.kuvalin.brainstorm.presentation.screens.mainmenu.profile
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -27,7 +26,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,16 +47,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.kuvalin.brainstorm.domain.entity.SocialData
-import com.kuvalin.brainstorm.domain.entity.UserInfo
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
-import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
-import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.ProfileViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
@@ -78,8 +73,6 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedThumbColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 @SuppressLint("Recycle")
@@ -88,60 +81,47 @@ fun ProfileScreenContent(
     paddingValues: PaddingValues
 ) {
 
+
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    // init
     GlobalStates.AnimLoadState(350){}
 
+    // Базовые
     val component = getApplicationComponent()
-    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
-
+    val viewModel: ProfileViewModel = viewModel(factory = component.getViewModelFactory())
     val context = LocalContext.current
-    val databaseScope = CoroutineScope(Dispatchers.IO)
 
 
     // UserInfo
-    val userUid = Firebase.auth.uid ?: "zero_user_uid"
-    var userName by remember { mutableStateOf("") }
-    var userEmail by remember { mutableStateOf("") }
-    var userCountry by remember { mutableStateOf("") }
+    val userName by viewModel.userName.collectAsState()
+    val userEmail by viewModel.userEmail.collectAsState()
+    val userCountry by viewModel.userCountry.collectAsState()
 
-    var twitter by remember { mutableStateOf("") } // Заменить потом на телеграм
-    var facebookConnectState by remember { mutableStateOf(false) }
+    val twitter by viewModel.twitter.collectAsState()
+    val facebookConnectState by viewModel.facebookConnectState.collectAsState()
 
 
     //region Open Gallery
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-
+    val selectedImageUri by viewModel.selectedImageUri.collectAsState()
     val getContent = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { newUri: Uri? ->
-        if (newUri == null) return@rememberLauncherForActivityResult
 
-        val input = context.contentResolver.openInputStream(newUri)
-            ?: return@rememberLauncherForActivityResult
-        val outputFile = context.filesDir.resolve("profilePic${(1..1_000_000).random()}.jpg")
-        input.copyTo(outputFile.outputStream())
-        selectedImageUri = outputFile.toUri()
+        newUri?.let {uri ->
+            context.contentResolver.openInputStream(uri)?.let {input ->
+                val outputFile = context.filesDir.resolve("profilePic${(1..1_000_000).random()}.jpg")
+                input.copyTo(outputFile.outputStream())
+                viewModel.updateSelectedImageUri(outputFile.toUri())
+            }
+        }
     }
     //endregion
 
-    LaunchedEffect(Unit) {
-        databaseScope.launch {
-            val userInfo = viewModel.getUserInfo.invoke()
-            val socialData = viewModel.getSocialData.invoke()
-
-            userName = userInfo?.name ?: ""
-            userEmail = userInfo?.email ?: ""
-            userCountry = userInfo?.country ?: ""
-            selectedImageUri = userInfo?.avatar
-
-            twitter = socialData?.twitter ?: ""
-            facebookConnectState = socialData?.facebookConnect ?: false
-        }
-    }
-
-    var onClickAvatar by remember { mutableStateOf(false) }
-    if (onClickAvatar) { onClickAvatar = false }
+    /* ########################################################################################## */
 
 
+
+    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
     Column(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
     ) {
@@ -153,150 +133,142 @@ fun ProfileScreenContent(
                 .background(color = CyanAppColor),
             contentAlignment = Alignment.Center
         ) {
-            //region Avatar
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .noRippleClickable {
-                        onClickAvatar = true
-                    }
-            ) {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(color = Color.White)
-                        .border(width = 2.dp, color = Color.White, shape = CircleShape)
-                        .noRippleClickable { getContent.launch("image/*") }
-                    ,
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (selectedImageUri == null){
-                        AssetImage(fileName = "av_user.png")
-                    }else{
-                        Image(
-                            painter = rememberAsyncImagePainter(model = selectedImageUri),
-                            contentDescription = null,
-                            modifier = Modifier
-                        )
-                    }
-                }
-
-                //region Camera (icon)
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(RoundedCornerShape(10))
-                        .border(
-                            width = 0.5.dp,
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(10)
-                        )
-                        .background(color = Color.White)
-                        .align(alignment = Alignment.BottomEnd),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        bitmap = GetAssetBitmap(fileName = "ic_profile_camera.png"),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(PinkAppColor),
-                        modifier = Modifier
-                            .size(20.dp)
-                    )
-                }
-                //endregion
-            }
-            //endregion
+            // Аватар (нажатие вызывает метод получения данных из галереи)
+            AvatarBox(selectedImageUri) { getContent.launch("image/*") }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xFFE6E6E6)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            ProfileItem(
-                iconFileName = "ic_profile_human.png",
-                placeholder = "Name",
-                lineContent = userName){name ->
-                userName = name
-            }
-            ProfileItem(
-                iconFileName = "ic_profile_email.png",
-                placeholder = "Email Address",
-                lineContent = userEmail
-            ){email ->
-                userEmail = email
-            }
-            ProfileItem(
-                iconFileName = "ic_profile_russia.png",
-                placeholder = "Russian Federation",
-                lineContent = userCountry
-            ){country ->
-                userCountry = country
-            }
-            ProfileItem(
-                iconFileName = "ic_twitter.png",
-                placeholder = "Twitter @username",
-                lineContent = twitter
-            ){lineContent ->
-                twitter = lineContent
-            }
-            //region Facebook
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 40.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                AssetImage(
-                    fileName = "ic_facebook.png",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .padding(15.dp))
-                Text(text = "Facebook Connect", fontSize = 18.sp, color = Color.Black)
-                SwitchButton(checkedState = facebookConnectState){
-                    facebookConnectState = !facebookConnectState
-                }
-            }
-            //endregion
-
-
-            SaveButton(){
-                databaseScope.launch {
-                    viewModel.addUserInfo.invoke(
-                        UserInfo(
-                            uid = userUid,
-                            name = userName,
-                            email = userEmail,
-                            avatar = selectedImageUri,
-                            country = userCountry
-                        )
-                    )
-
-                    viewModel.addSocialData.invoke(
-                        SocialData(
-                            uid = userUid,
-                            twitter = twitter,
-                            facebookConnect = facebookConnectState
-                        )
-                    )
-
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Данные сохранены.", Toast.LENGTH_LONG).show()
-                    }
-                }
+        ProfileContent(
+            userName = userName,
+            userEmail = userEmail,
+            userCountry = userCountry,
+            twitter = twitter,
+            facebookConnectState = facebookConnectState,
+            onUserNameChange = viewModel::updateUserName,
+            onUserEmailChange = viewModel::updateUserEmail,
+            onUserCountryChange = viewModel::updateUserCountry,
+            onTwitterChange = viewModel::updateTwitter,
+            onFacebookConnectChange = viewModel::updateFacebookConnectState
+        ){
+            SaveButton {
+                viewModel.updateUserInfoInDatabase(context)
             }
         }
+
+
 
     }
 }
+/* ########################################################################################## */
 
 
+
+/* ################################# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ################################ */
+
+//region AvatarBox
+@Composable
+fun AvatarBox(selectedImageUri: Uri?, getContent: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(vertical = 10.dp)
+//            .noRippleClickable { getContent() } // TODO Вроде больше не нужна
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(color = Color.White)
+                .border(width = 2.dp, color = Color.White, shape = CircleShape)
+                .noRippleClickable { getContent() },
+            contentAlignment = Alignment.Center
+        ) {
+            if (selectedImageUri == null) {
+                AssetImage(fileName = "av_user.png")
+            } else {
+                Image(
+                    painter = rememberAsyncImagePainter(model = selectedImageUri),
+                    contentDescription = null,
+                    modifier = Modifier
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .clip(RoundedCornerShape(10))
+                .border(
+                    width = 0.5.dp,
+                    color = Color.LightGray,
+                    shape = RoundedCornerShape(10)
+                )
+                .background(color = Color.White)
+                .align(alignment = Alignment.BottomEnd),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                bitmap = GetAssetBitmap(fileName = "ic_profile_camera.png"),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(PinkAppColor),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+//endregion
+
+//region ProfileContent
+@Composable
+fun ProfileContent(
+    userName: String,
+    userEmail: String,
+    userCountry: String,
+    twitter: String,
+    facebookConnectState: Boolean,
+    onUserNameChange: (String) -> Unit,
+    onUserEmailChange: (String) -> Unit,
+    onUserCountryChange: (String) -> Unit,
+    onTwitterChange: (String) -> Unit,
+    onFacebookConnectChange: (Boolean) -> Unit,
+    saveButton: @Composable () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0xFFE6E6E6)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ProfileItem(
+            iconFileName = "ic_profile_human.png",
+            placeholder = "Name",
+            lineContent = userName,
+            inputText = onUserNameChange
+        )
+        ProfileItem(
+            iconFileName = "ic_profile_email.png",
+            placeholder = "Email Address",
+            lineContent = userEmail,
+            inputText = onUserEmailChange
+        )
+        ProfileItem(
+            iconFileName = "ic_profile_russia.png",
+            placeholder = "Russian Federation",
+            lineContent = userCountry,
+            inputText = onUserCountryChange
+        )
+        ProfileItem(
+            iconFileName = "ic_twitter.png",
+            placeholder = "Twitter @username",
+            lineContent = twitter,
+            inputText = onTwitterChange
+        )
+
+        FacebookConnectItem(facebookConnectState, onFacebookConnectChange)
+        saveButton()
+
+    }
+}
+//endregion
 //region ProfileItem
 @Composable
 fun ProfileItem(
@@ -321,6 +293,32 @@ fun ProfileItem(
     }
 }
 //endregion
+//region FacebookConnectItem
+@Composable
+fun FacebookConnectItem(
+    facebookConnectState: Boolean,
+    onFacebookConnectChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 40.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AssetImage(
+            fileName = "ic_facebook.png",
+            modifier = Modifier.size(60.dp).padding(15.dp)
+        )
+        Text(text = "Facebook Connect", fontSize = 18.sp, color = Color.Black)
+        SwitchButton(
+            checkedState = facebookConnectState,
+            onCheckedChange = { onFacebookConnectChange(!facebookConnectState) }
+        )
+    }
+}
+//endregion
+
 //region CustomTextField
 @Composable
 private fun CustomTextFieldProfileScreen(
@@ -406,7 +404,7 @@ private fun SwitchButton(
     )
 }
 //endregion
-//region MenuText
+//region SaveButton
 @Composable
 private fun SaveButton(
     onPressButton: () -> Unit
@@ -438,3 +436,13 @@ private fun SaveButton(
 
 }
 //endregion
+
+/* ########################################################################################## */
+
+
+
+
+
+
+
+

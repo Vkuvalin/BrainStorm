@@ -23,7 +23,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.populateResultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.MainScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.BrainStormMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
 import kotlinx.coroutines.CoroutineScope
@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(color = BackgroundAppColor)
                 ) {
-                    MainScreen(){refreshState = true}
+                    BrainStormMainScreen(){refreshState = true}
                 }
                 // Бля, что-то не могу понять, почему теперь она работает лишь за пределами
                 if (refreshState){

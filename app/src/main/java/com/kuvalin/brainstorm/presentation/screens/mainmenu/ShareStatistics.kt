@@ -20,11 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,45 +39,34 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
-import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.ShareStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
+
 
 @Composable
 fun ShareContent(
     onClickDismiss: () -> Unit
 ) {
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     // Для проигрывания звуков
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
     // Component
     val component = getApplicationComponent()
-    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
+    val viewModel: ShareStatisticsViewModel = viewModel(factory = component.getViewModelFactory())
 
-    var userName by remember { mutableStateOf("") }
-    LaunchedEffect(Unit) {
-        viewModel.getUserInfo.invoke()?.name?.let { userName = it }
-    }
+    val userName by viewModel.userName.collectAsState()
+    /* ########################################################################################## */
 
 
-
+    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
     Dialog(
         onDismissRequest = {
-            musicScope.launch {
-                MusicPlayer(context = context).run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
+            viewModel.playChoiceClickSound(context)
             onClickDismiss()
         },
         content = {
@@ -102,13 +88,7 @@ fun ShareContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            musicScope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            viewModel.playChoiceClickSound(context)
                             onClickDismiss()
                         }
                 )
@@ -223,8 +203,11 @@ fun ShareContent(
             }
         },
     )
+    /* ########################################################################################## */
+
 }
 
+/* ################################# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ################################ */
 //region ShareLabel
 @Composable
 private fun ShareLabel() {
@@ -343,3 +326,5 @@ fun ShareCompany(
     }
 }
 //endregion
+/* ########################################################################################## */
+

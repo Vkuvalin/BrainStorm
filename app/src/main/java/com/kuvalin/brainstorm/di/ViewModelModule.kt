@@ -1,10 +1,12 @@
 package com.kuvalin.brainstorm.di
 
 import androidx.lifecycle.ViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.BrainStormMainViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.MainViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.ProfileViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.ShareStatisticsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import com.sumin.vknewsclient.di.ViewModelKey
@@ -47,8 +49,18 @@ interface ViewModelModule {
 
 
     @IntoMap
-    @ViewModelKey(MainViewModel::class)
+    @ViewModelKey(BrainStormMainViewModel::class)
     @Binds
-    fun bindMainViewModel(viewModel: MainViewModel): ViewModel
+    fun bindBrainStormMainViewModel(viewModel: BrainStormMainViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(ShareStatisticsViewModel::class)
+    @Binds
+    fun bindShareStatisticsViewModel(viewModel: ShareStatisticsViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(ProfileViewModel::class)
+    @Binds
+    fun bindProfileViewModel(viewModel: ProfileViewModel): ViewModel
 
 }

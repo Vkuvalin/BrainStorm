@@ -27,10 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,12 +66,10 @@ import com.kuvalin.brainstorm.presentation.screens.mainmenu.profile.ProfileScree
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.SearchForWar
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.WarScreen
 import com.kuvalin.brainstorm.presentation.screens.statistics.StatisticsMainScreen
-import com.kuvalin.brainstorm.presentation.viewmodels.MainViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.BrainStormMainViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.TopAppBarBackgroundColor
-import kotlinx.coroutines.Dispatchers
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,12 +78,12 @@ import kotlinx.coroutines.Dispatchers
     "StateFlowValueCalledInComposition"
 )
 @Composable
-fun MainScreen(onClickRefreshButton: () -> Unit) {
+fun BrainStormMainScreen(onClickRefreshButton: () -> Unit) {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     // Компонент
     val component = getApplicationComponent()
-    val viewModel: MainViewModel = viewModel(factory = component.getViewModelFactory())
+    val viewModel: BrainStormMainViewModel = viewModel(factory = component.getViewModelFactory())
 
     // Навигация
     val navigationState = rememberNavigationState()
@@ -96,7 +92,7 @@ fun MainScreen(onClickRefreshButton: () -> Unit) {
     val context = LocalContext.current
 
     // TopAppBar
-    val appbarHeight = 50
+    val appbarHeight = 50 // TODO подумать, где ещё фигурирует и куда вынести
     val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
     val animLoadState by GlobalStates.animLoadState.collectAsState()
 
@@ -290,7 +286,7 @@ private fun TopAppBarContent(
 
     // Компонент и производные
     val component = getApplicationComponent()
-    val viewModel: MainViewModel = viewModel(factory = component.getViewModelFactory())
+    val viewModel: BrainStormMainViewModel = viewModel(factory = component.getViewModelFactory())
 
 
     // Для проигрывания звуков
@@ -527,7 +523,7 @@ private fun onClickNavigationItem(
     selected: Boolean,
     animLoadState: Boolean,
     item: NavigationItem,
-    viewModel: MainViewModel,
+    viewModel: BrainStormMainViewModel,
     context: Context,
     navigationState: NavigationState,
     clickNavigation: (Boolean) -> Unit

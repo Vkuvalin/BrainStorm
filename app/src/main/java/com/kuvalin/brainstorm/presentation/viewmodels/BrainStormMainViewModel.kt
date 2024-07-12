@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class MainViewModel @Inject constructor() : ViewModel() {
+class BrainStormMainViewModel @Inject constructor() : ViewModel() {
 
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
@@ -54,8 +54,10 @@ class MainViewModel @Inject constructor() : ViewModel() {
     fun toggleAddFriendsButton(value: Boolean) { _clickOnAddFriendsButton.value = value }
     fun toggleAddQuestionButton(value: Boolean) { _clickOnAddQuestionButton.value = value }
     fun toggleGameSettingsButton(value: Boolean) { _clickOnGameSettingsButton.value = value }
+    // ######################
 
 
+    // ###################### Функции проигрывания звуков
     fun playChangeNavigationSound(context: Context) {
         viewModelScope.launch {
             MusicPlayer(context = context).run {
