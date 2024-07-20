@@ -26,6 +26,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,11 +54,16 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
-import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.MenuViewModel
+import com.kuvalin.brainstorm.ui.theme.AccountButtonColor
+import com.kuvalin.brainstorm.ui.theme.AnnouncementButtonColor
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
+import com.kuvalin.brainstorm.ui.theme.ContactUsButtonColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.InformationButtonColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
+import com.kuvalin.brainstorm.ui.theme.SettingsButtonColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
 import com.kuvalin.brainstorm.ui.theme.checkedIconColor
 import com.kuvalin.brainstorm.ui.theme.checkedThumbColor
@@ -83,17 +89,40 @@ import kotlinx.coroutines.withContext
 @Composable
 fun MenuScreen(){
 
+    // Обработка (блокировка) анимационных кнопок
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
     BackHandler { clickNavigation = true }
 
+
+
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    // Компонент и производные
+    val component = getApplicationComponent()
+    val viewModel: MenuViewModel = viewModel(factory = component.getViewModelFactory())
+
+
+
+    // Стейты нажатия на кнопки
+    var announcementButtonState by remember { mutableStateOf(false) }
+    var settingsButtonState by remember { mutableStateOf(false) }
+    var informationButtonState by remember { mutableStateOf(false) }
+    var contactsButtonState by remember { mutableStateOf(false) }
+    var accountButtonState by remember { mutableStateOf(false) }
+
+    var clickButtonState by remember { mutableStateOf(false) }
+    clickButtonState = announcementButtonState || settingsButtonState || informationButtonState
+            || contactsButtonState || accountButtonState
+
+
+
+    //region Button settings
+    // Ширина
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-
-    //Buttons
     val dynamicRowWidth = (screenWidth/1.5).toInt()
 
-    //region Modifiers
+    // Modifiers
     val modifierForCloseButton = Modifier
         .offset(x = (10).dp, y = 5.dp)
         .size(30.dp)
@@ -108,24 +137,17 @@ fun MenuScreen(){
         .border(width = 2.dp, color = Color.White, shape = CircleShape)
         .background(color = Color.White)
     //endregion
-
-    var announcementButtonState by remember { mutableStateOf(false) }
-    var settingsButtonState by remember { mutableStateOf(false) }
-    var informationButtonState by remember { mutableStateOf(false) }
-    var contactsButtonState by remember { mutableStateOf(false) }
-    var accountButtonState by remember { mutableStateOf(false) }
+    /* ########################################################################################## */
 
 
-    var clickButtonState by remember { mutableStateOf(false) }
-    clickButtonState = announcementButtonState || settingsButtonState || informationButtonState
-            || contactsButtonState || accountButtonState
 
-    //region Кнопки
+    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+    //region Кнопки меню
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -134,8 +156,9 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Announcement",
-                backgroundColor = Color(0xFF439AD3),
-                width = dynamicRowWidth
+                backgroundColor = AnnouncementButtonColor,
+                width = dynamicRowWidth,
+                viewModel = viewModel
             ){
                 announcementButtonState = true
             }
@@ -144,8 +167,9 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Settings",
-                backgroundColor = Color(0xFFFE5FA6),
-                width = dynamicRowWidth
+                backgroundColor = SettingsButtonColor,
+                width = dynamicRowWidth,
+                viewModel = viewModel
             ){
                 settingsButtonState = true
             }
@@ -154,8 +178,9 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Information",
-                backgroundColor = Color(0xFFFFAA01),
-                width = dynamicRowWidth
+                backgroundColor = InformationButtonColor,
+                width = dynamicRowWidth,
+                viewModel = viewModel
             ){
 //                informationButtonState = true
                 announcementButtonState = true
@@ -165,8 +190,9 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Contact Us",
-                backgroundColor = Color(0xFF595959),
-                width = dynamicRowWidth
+                backgroundColor = ContactUsButtonColor,
+                width = dynamicRowWidth,
+                viewModel = viewModel
             ) {
 //                contactsButtonState = true
                 settingsButtonState = true
@@ -176,27 +202,33 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Account",
-                backgroundColor = Color(0xFF009688),
-                width = dynamicRowWidth
+                backgroundColor = AccountButtonColor,
+                width = dynamicRowWidth,
+                viewModel = viewModel
             ) {
                 accountButtonState = true
             }
         }
 
         if (announcementButtonState) {
-            AnnouncementContent(modifierForCloseButton) { announcementButtonState = false}
+            AnnouncementContent(viewModel, modifierForCloseButton) { announcementButtonState = false}
         }
         if (settingsButtonState) {
-            SettingsContent(modifierForCloseButton2) { settingsButtonState = false }
+            SettingsContent(viewModel, modifierForCloseButton2) { settingsButtonState = false }
         }
         if (accountButtonState) {
-            AccountContent() { accountButtonState = false }
+            AccountContent(viewModel) { accountButtonState = false }
         }
 
     }
     //endregion
+    /* ########################################################################################## */
+
 }
 
+
+
+/* ################################# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ################################ */
 //region MenuText
 @Composable
 private fun MenuText(
@@ -204,35 +236,34 @@ private fun MenuText(
     text: String,
     backgroundColor: Color,
     width: Int,
+    viewModel: MenuViewModel,
     onPressButton: () -> Unit
 ) {
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
+
 
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .width(width.dp)
             .clip(RoundedCornerShape(14))
-            .background(color = if (clickButtonState) Color(0xFFE6E6E6) else backgroundColor)
+            .background(color = if (clickButtonState) BackgroundAppColor else backgroundColor)
             .border(
                 width = 1.dp,
-                color = if (clickButtonState) Color(0xFFE6E6E6) else backgroundColor,
+                color = if (clickButtonState) BackgroundAppColor else backgroundColor,
                 shape = RoundedCornerShape(14)
             )
             .noRippleClickable {
-                scope.launch {
-                    MusicPlayer(context).playChoiceClick()
-                }
+                viewModel.playChoiceClickSound(context)
                 onPressButton()
             }
     ){
         Text(
             text = text,
             fontSize = 24.sp,
-            color = if (clickButtonState) Color(0xFFE6E6E6) else Color(0xFFFFFFFF),
+            color = if (clickButtonState) BackgroundAppColor else Color(0xFFFFFFFF),
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -243,22 +274,22 @@ private fun MenuText(
 }
 //endregion
 
+
 //region AnnouncementContent
 @Composable
 fun AnnouncementContent(
+    viewModel: MenuViewModel,
     customModifier: Modifier,
     onClickDismiss: () -> Unit
 ){
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
+
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context).playChoiceClick()
-            }
+            viewModel.playChoiceClickSound(context)
             onClickDismiss()
         },
         content = {
@@ -273,9 +304,7 @@ fun AnnouncementContent(
                         modifier = customModifier
                             .align(alignment = Alignment.End)
                             .noRippleClickable {
-                                scope.launch {
-                                    MusicPlayer(context).playChoiceClick()
-                                }
+                                viewModel.playChoiceClickSound(context)
                                 onClickDismiss()
                             }
                     )
@@ -300,40 +329,32 @@ fun AnnouncementContent(
 //region SettingsContent
 @Composable
 fun SettingsContent(
+    viewModel: MenuViewModel,
     customModifier: Modifier,
     onClickDismiss: () -> Unit
 ) {
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
+    // Получение размеров
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenWidthDp
 
-    var musicState by remember { mutableStateOf(true) }
-    var seState by remember { mutableStateOf(false) }
-    var vibrationState by remember { mutableStateOf(true) }
-
-    // Settings
-    val databaseScope = CoroutineScope(Dispatchers.IO)
-    val component = getApplicationComponent()
-    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
-
-    LaunchedEffect(Unit) {
-        databaseScope.launch {
-            val appSettings = viewModel.getAppSettings.invoke()
-            musicState = appSettings.musicState
-            vibrationState = appSettings.vibrateState
-        }
-    }
+    // Получение стейтов кнопок
+    val appSettings by viewModel.appSettings.collectAsState()
+    val musicState = appSettings.musicState
+    var seState by remember { mutableStateOf(false) } // TODO-1 убрать или придумать значение
+    val vibrationState = appSettings.vibrateState
+    /* ########################################################################################## */
 
 
+
+    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context).playChoiceClick()
-            }
+            viewModel.playChoiceClickSound(context)
             onClickDismiss()
         },
         content = {
@@ -341,7 +362,7 @@ fun SettingsContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xFFE6E6E6))
+                    .background(color = BackgroundAppColor)
                     .height(screenHeight.dp)
             ) {
 
@@ -350,9 +371,7 @@ fun SettingsContent(
                     modifier = customModifier
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context).playChoiceClick()
-                            }
+                            viewModel.playChoiceClickSound(context)
                             onClickDismiss()
                         }
                 )
@@ -360,35 +379,13 @@ fun SettingsContent(
                 LabelText("Settings")
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("Music", musicState){
-                    musicState = !musicState
-                    databaseScope.launch {
-                        viewModel.addAppSettings.invoke(
-                            AppSettings(
-                                id = UNDEFINED_ID,
-                                musicState = musicState,
-                                vibrateState = vibrationState
-                            )
-                        )
-                    }
-                }
+                SettingItem("Music", musicState){ viewModel.updateAppSettings(musicState = !musicState) }
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("SE", seState){ seState = !seState } // TODO убрать или придумать значение
+                SettingItem("SE", seState){ seState = !seState } //TODO-1
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("Vibrate", vibrationState){
-                    vibrationState = !vibrationState
-                    databaseScope.launch {
-                        viewModel.addAppSettings.invoke(
-                            AppSettings(
-                                id = UNDEFINED_ID,
-                                musicState = musicState,
-                                vibrateState = vibrationState
-                            )
-                        )
-                    }
-                }
+                SettingItem("Vibrate", vibrationState){ viewModel.updateAppSettings(musicState = !vibrationState)}
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
@@ -405,6 +402,7 @@ fun SettingsContent(
             }
         },
     )
+    /* ########################################################################################## */
 }
 
 
@@ -468,49 +466,26 @@ private fun SwitchButton(
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun AccountContent(
+    viewModel: MenuViewModel,
     onClickDismiss: () -> Unit
 ){
-    // Component
-    val component = getApplicationComponent()
-    val viewModel: MainMenuViewModel = viewModel(factory = component.getViewModelFactory())
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
-
-    // Authorization -> Firebase
-    val auth = Firebase.auth
+    // Переменные
+    val authState by viewModel.authState.collectAsState()
+    val userName by viewModel.userName.collectAsState()
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
-    var userName by remember { mutableStateOf("") }
-
-    // TODO Затем добавить в GlobalStates (чтобы подхватывать в других местах)
-    var authState by remember { mutableStateOf(false) }
-    if (authState){
-        LaunchedEffect(Unit) {
-            var count = 0
-            while (userName.isEmpty() && count <= 20) {
-                count++
-                viewModel.getUserInfo.invoke()?.name?.let { userName = it }
-                delay(100)
-            }
-        }
-    }
-
-
     // TODO Сделать поле ввода пароля секретным/скрытным
+    /* ########################################################################################## */
 
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context = context).run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
+            viewModel.playChoiceClickSound(context)
             onClickDismiss()
         },
         content = {
@@ -531,13 +506,7 @@ fun AccountContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            viewModel.playChoiceClickSound(context)
                             onClickDismiss()
                         }
                 )
@@ -551,7 +520,7 @@ fun AccountContent(
                 ) {
 
                     LabelText("Account")
-
+                    //region Приветственное сообщение
                     if (authState) {
                         Text(
                             text = "Рады, что вы с нами $userName",
@@ -565,6 +534,7 @@ fun AccountContent(
                             modifier = Modifier.offset(y = (-10).dp)
                         )
                     }
+                    //endregion
 
                     Column(
                         verticalArrangement = Arrangement.Center,
@@ -574,12 +544,6 @@ fun AccountContent(
                             .padding(vertical = 20.dp)
                     ) {
 
-                        // Проверяем авторизован ли уже пользователь
-                        scope.launch { // TODO проверить на 2ю рекомпозицию
-                            authState = viewModel.authorizationCheck.invoke()
-                        }
-
-                        // Если авторизован, то убираем инпуты
                         //region CustomTextFieldFiendsScreen - Поля ввода
                         if (!authState) {
                             CustomTextFieldFiendsScreen(placeholder = "Enter your email"){email ->
@@ -591,71 +555,36 @@ fun AccountContent(
                             }
                         }
                         //endregion
-
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Row( // TODO не забыть сделать динамичный размер для элементов
-                            horizontalArrangement = if(!authState) Arrangement.SpaceBetween
-                            else Arrangement.Center,
+                            horizontalArrangement = if(!authState) Arrangement.SpaceBetween else Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             if (!authState){
                                 //region RegistrationButton
-                                RegistrationButton(){
+                                RegistrationButton {
 
+                                    // TODO сделать реакцию на пустые поля, непосредственно в самих полях (типа там красить их и тп)
                                     if (userEmail.isNotEmpty() && userPassword.isNotEmpty()){
-
-                                        scope.launch {
-                                            val singUpResult = viewModel.singUp.invoke(userEmail, userPassword)
-
-                                            if(singUpResult.first){
-                                                // Сообщение об успешной регистрации
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(context, singUpResult.second, Toast.LENGTH_LONG).show()
-                                                }
-
-                                                // Дальнейший вход для избежания повторного ввода данных
-                                                val singInResult = viewModel.singIn.invoke(userEmail, userPassword)
-                                                authState = singInResult.first
-
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(context, singInResult.second, Toast.LENGTH_LONG).show()
-                                                }
-
-                                            }else{
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(context, singUpResult.second, Toast.LENGTH_LONG).show()
-                                                }
-                                            }
-                                        }
-
+                                        viewModel.updateUserEmail(userEmail)
+                                        viewModel.updateUserPassword(userPassword)
+                                        viewModel.signUp(context)
                                     } else {
-                                        // TODO сделать реакцию на пустые поля, непосредственно в самих полях (типа там красить их и тп)
                                         Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show()
                                     }
-
-
 
                                 }
                                 //endregion
                                 //region ForgotPassButton
                                 ForgotPassButton(){
 
-                                    if (userEmail != ""){
-                                        scope.launch {
-                                            val resetPasswordResult = viewModel.resetPassword.invoke(userEmail)
-
-                                            withContext(Dispatchers.Main) {
-                                                Toast.makeText(context, resetPasswordResult.second, Toast.LENGTH_LONG).show()
-                                            }
-                                        }
+                                    if (userEmail.isNotEmpty()) {
+                                        viewModel.updateUserEmail(userEmail)
+                                        viewModel.resetPassword(context)
                                     } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Пожалуйста, заполните поле Email",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(context, "Пожалуйста, заполните поле Email", Toast.LENGTH_SHORT).show()
                                     }
 
                                 }
@@ -665,30 +594,22 @@ fun AccountContent(
                             //region LogInLogOutButton
                             LogInLogOutButton(authState){
                                 if (!authState) {
-                                    scope.launch {
-                                        val singInResult = viewModel.singIn.invoke(userEmail, userPassword)
-                                        authState = singInResult.first
-
-                                        withContext(Dispatchers.Main) {
-                                            Toast.makeText(context, singInResult.second, Toast.LENGTH_LONG).show()
-                                        }
-
+                                    if (userEmail.isNotEmpty() && userPassword.isNotEmpty()){
+                                        viewModel.updateUserEmail(userEmail)
+                                        viewModel.updateUserPassword(userPassword)
+                                        viewModel.signIn(context)
+                                    } else {
+                                        Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show()
                                     }
-
-                                }else{
-                                    auth.signOut()
-                                    userName = ""
-                                    authState = false
+                                } else {
+                                    viewModel.signOut()
                                 }
                             }
                             //endregion
                         }
                     }
 
-                    Spacer(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                    )
+                    Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
                 }
             }
 
@@ -867,22 +788,6 @@ private fun LabelText(text: String) {
     )
 }
 //endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* ########################################################################################## */
 
 

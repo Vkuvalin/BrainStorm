@@ -281,13 +281,21 @@ modifier = Modifier
 
 // ###################### DEBUG
 //Log.d("DEBUG-1", "--------------START--------------")
-// Ждем прогрузки анимации
-//val animLoadState = GlobalStates.animLoadState.collectAsState().value
-//GlobalStates.AnimLoadState(500)
 //Log.d("DEBUG-1", "--------------END--------------")
 //Log.d("DEBUG-1", "-------------- $userInfoOpponent -------------- userInfoOpponent")
+//Log.d("DEBUG-1", "-------------- ${_userName.value} -------------- _userName.value")
 //Log.d("DEBUG-1", "-------------- RECOMPOSITION --------------")
+
+
+//Log.d("DEBUG-1", "-------------- 1 --------------")
+//Log.d("DEBUG-1", "-------------- 2 --------------")
+//Log.d("DEBUG-1", "-------------- 3 --------------")
+//Log.d("DEBUG-1", "-------------- 3-1 --------------")
 // ######################
+
+/* ###################################### ИНИЦИАЛИЗАЦИЯ ##################################### */
+/* ########################################################################################## */
+
 
 
 /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
@@ -471,19 +479,6 @@ modifier = Modifier
 
 
 class Pystoi_klacc_dlya_paboti_docymmentation() {}
-
-
-
-
-
-
-
-
-
-// Вот так нужно оформлять
-// val musicScope = rememberCoroutineScope { Dispatchers.Default }
-
-
 
 
 

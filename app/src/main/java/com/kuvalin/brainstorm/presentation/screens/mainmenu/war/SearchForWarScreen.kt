@@ -35,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,9 +43,7 @@ import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
-import com.kuvalin.brainstorm.navigation.staticsClasses.animationStates.AnimationTopBarState
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
-import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
 import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor

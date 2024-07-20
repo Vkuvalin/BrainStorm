@@ -95,6 +95,10 @@ class FirebaseApiService @Inject constructor(
         return fireBase.auth.currentUser != null
     }
 
+    override suspend fun signOutFirebase() {
+        fireBase.auth.signOut()
+    }
+
     override suspend fun getUserUid(): String {
         return fireBase.auth.uid.toString() // TODO ОБработать случай, когда ещё нет реги
     }

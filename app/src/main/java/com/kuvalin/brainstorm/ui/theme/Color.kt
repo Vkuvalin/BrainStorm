@@ -43,3 +43,13 @@ val GameLevelCColor = Color(0xFFBECF0D)
 
 //Crosshair
 val CrosshairColor = Color(0xFF00C5C0)
+
+
+
+
+// Presentation >>> Mainmenu >>> Menuscreen
+val AnnouncementButtonColor = Color(0xFF439AD3)
+val SettingsButtonColor = Color(0xFFFE5FA6)
+val InformationButtonColor = Color(0xFFFFAA01)
+val ContactUsButtonColor = Color(0xFF595959)
+val AccountButtonColor = Color(0xFF009688)

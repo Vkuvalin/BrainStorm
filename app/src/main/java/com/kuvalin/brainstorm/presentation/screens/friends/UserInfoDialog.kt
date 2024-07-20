@@ -49,7 +49,7 @@ import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.DrawingChart
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelAColor

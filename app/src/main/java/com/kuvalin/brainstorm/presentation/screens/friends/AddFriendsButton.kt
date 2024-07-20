@@ -38,7 +38,7 @@ import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.ShareCompany
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.ShareCompany
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

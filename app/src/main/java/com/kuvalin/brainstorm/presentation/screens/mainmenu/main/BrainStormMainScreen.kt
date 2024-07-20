@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.screens.mainmenu
+package com.kuvalin.brainstorm.presentation.screens.mainmenu.main
 
 import android.annotation.SuppressLint
 import android.content.Context

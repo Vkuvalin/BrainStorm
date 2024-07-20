@@ -5,6 +5,7 @@ import com.kuvalin.brainstorm.presentation.viewmodels.BrainStormMainViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.MenuViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.ProfileViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.ShareStatisticsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
@@ -18,49 +19,84 @@ import dagger.multibindings.IntoMap
 @Module
 interface ViewModelModule {
 
+    // ###################### Home
+    // Main (навигация)
     @IntoMap
-    @ViewModelKey(MainMenuViewModel::class)
+    @ViewModelKey(BrainStormMainViewModel::class)
     @Binds
-    fun bindMainMenuViewModel(viewModel: MainMenuViewModel): ViewModel
+    fun bindBrainStormMainViewModel(viewModel: BrainStormMainViewModel): ViewModel
 
-
-    @IntoMap
-    @ViewModelKey(GamesViewModel::class)
-    @Binds
-    fun bindGamesViewModel(viewModel: GamesViewModel): ViewModel
-
-
+    // War
     @IntoMap
     @ViewModelKey(WarViewModel::class)
     @Binds
     fun bindWarsViewModel(viewModel: WarViewModel): ViewModel
 
 
+
+    // MainMenuScreen
     @IntoMap
-    @ViewModelKey(FriendsViewModel::class)
+    @ViewModelKey(MainMenuViewModel::class)
     @Binds
-    fun bindFriendsViewModel(viewModel: FriendsViewModel): ViewModel
+    fun bindMainMenuViewModel(viewModel: MainMenuViewModel): ViewModel
 
-
+    // MainMenuScreen
     @IntoMap
-    @ViewModelKey(StatisticsViewModel::class)
+    @ViewModelKey(MenuViewModel::class)
     @Binds
-    fun bindStatisticsViewModel(viewModel: StatisticsViewModel): ViewModel
+    fun bindMenuViewModel(viewModel: MenuViewModel): ViewModel
 
-
-    @IntoMap
-    @ViewModelKey(BrainStormMainViewModel::class)
-    @Binds
-    fun bindBrainStormMainViewModel(viewModel: BrainStormMainViewModel): ViewModel
-
-    @IntoMap
-    @ViewModelKey(ShareStatisticsViewModel::class)
-    @Binds
-    fun bindShareStatisticsViewModel(viewModel: ShareStatisticsViewModel): ViewModel
-
+    // ProfileScreen
     @IntoMap
     @ViewModelKey(ProfileViewModel::class)
     @Binds
     fun bindProfileViewModel(viewModel: ProfileViewModel): ViewModel
+
+    // TopAppBar > ShareStatisticDialog
+    @IntoMap
+    @ViewModelKey(ShareStatisticsViewModel::class)
+    @Binds
+    fun bindShareStatisticsViewModel(viewModel: ShareStatisticsViewModel): ViewModel
+    // ######################
+
+
+
+    // ###################### Friends
+    @IntoMap
+    @ViewModelKey(FriendsViewModel::class)
+    @Binds
+    fun bindFriendsViewModel(viewModel: FriendsViewModel): ViewModel
+    // ######################
+
+
+
+    // ###################### Achievements
+    // ######################
+
+
+
+    // ###################### Statistics
+    @IntoMap
+    @ViewModelKey(StatisticsViewModel::class)
+    @Binds
+    fun bindStatisticsViewModel(viewModel: StatisticsViewModel): ViewModel
+    // ######################
+
+
+
+    // ###################### Games
+    @IntoMap
+    @ViewModelKey(GamesViewModel::class)
+    @Binds
+    fun bindGamesViewModel(viewModel: GamesViewModel): ViewModel
+    // ######################
+
+
+
+
+
+
+
+
 
 }

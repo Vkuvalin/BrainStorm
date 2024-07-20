@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.screens.mainmenu
+package com.kuvalin.brainstorm.presentation.screens.mainmenu.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

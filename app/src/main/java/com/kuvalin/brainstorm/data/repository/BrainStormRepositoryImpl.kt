@@ -251,24 +251,29 @@ class BrainStormRepositoryImpl @Inject constructor(
 
     //region singIn
     override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
+        Log.d("DEBUG-1", "--------------START-2--------------")
 
         val singInResult = apiService.singInFirebase(email = email, password = password)
 
-        // TODO initialState его нужно как-то будет проверять, чтобы не подгружать каждый раз (хотя?)
-        CoroutineScope(Dispatchers.Default).launch {
-            if (singInResult.first){
-                val userUid = apiService.getUserUid()
+        if (singInResult.first) {
+            Log.d("DEBUG-1", "-------------- @1 --------------")
+            val userUid = apiService.getUserUid()
+
+            withContext(Dispatchers.Default) {
                 apiService.getUserInfoFB(userUid)?.let { addUserInfo(it, initialState = true) }
-                    ?: UserInfo(uid = userUid, name = email.split("@")[0], email = email).also {userInfo ->
+                    ?: UserInfo(uid = userUid, name = email.split("@")[0], email = email).also { userInfo ->
                         apiService.sendUserInfoToFirestore(userInfo)
                         addUserInfo(userInfo, initialState = true)
+                        Log.d("DEBUG-1", "-------------- @2-1 --------------")
                     }
+                Log.d("DEBUG-1", "-------------- @3 --------------")
+            }
 
-
+            CoroutineScope(Dispatchers.Default).launch {
                 apiService.getSocialDataFB(userUid)?.let { addSocialData(it, initialState = true) }
                 apiService.getAppCurrencyFB(userUid)?.let { addAppCurrency(it, initialState = true) }
                 apiService.getGameStatisticFB(userUid)?.let { listGameStatistics ->
-                    listGameStatistics.map {gameStatistics ->
+                    listGameStatistics.map { gameStatistics ->
                         userDataDao.addGameStatistic(
                             GameStatisticDbModel(
                                 uid = userUid,
@@ -279,14 +284,18 @@ class BrainStormRepositoryImpl @Inject constructor(
                         )
                     }
                 }
+                Log.d("DEBUG-1", "-------------- @4 --------------")
                 apiService.getWarStatisticsFB(userUid)?.let { addWarStatistic(it, initialState = true) }
-                apiService.getFriendsFB(userUid)?.let {listFriends ->
-                    listFriends.map {friend ->
+                apiService.getFriendsFB(userUid)?.let { listFriends ->
+                    listFriends.map { friend ->
                         addFriend(friend, initialState = true)
                     }
                 }
+                Log.d("DEBUG-1", "-------------- @5 --------------")
             }
         }
+
+        Log.d("DEBUG-1", "--------------END-2--------------")
 
         return singInResult
     }
@@ -303,6 +312,10 @@ class BrainStormRepositoryImpl @Inject constructor(
 
     override suspend fun authorizationCheck(): Boolean {
         return apiService.authorizationCheckFirebase()
+    }
+
+    override suspend fun signOutFirebase() {
+        apiService.signOutFirebase()
     }
 
     override suspend fun getUserUid(): String {

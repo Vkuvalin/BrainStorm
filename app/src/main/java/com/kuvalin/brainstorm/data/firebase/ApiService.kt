@@ -29,6 +29,7 @@ interface ApiService {
     suspend fun signUpFirebase(email: String, password: String): Pair<Boolean, String>
     suspend fun resetPasswordFirebase(email: String): Pair<Boolean, String>
     suspend fun authorizationCheckFirebase(): Boolean
+    suspend fun signOutFirebase()
     suspend fun getUserUid(): String
 
     // Firestore

@@ -63,6 +63,7 @@ interface BrainStormRepository {
     suspend fun singUp(email: String, password: String): Pair<Boolean, String>
     suspend fun resetPassword(email: String): Pair<Boolean, String>
     suspend fun authorizationCheck(): Boolean
+    suspend fun signOutFirebase()
     suspend fun getUserUid(): String
     /* ########################################################################################## */
 

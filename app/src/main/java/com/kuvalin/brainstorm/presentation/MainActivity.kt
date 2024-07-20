@@ -23,7 +23,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.populateResultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.BrainStormMainScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.BrainStormMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
 import kotlinx.coroutines.CoroutineScope
