@@ -45,6 +45,9 @@ class FriendsViewModel @Inject constructor(
 
 ): ViewModel() {
 
+    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+
+    val addMessageToFB = addMessageToFBUseCase
     val getUserRequests = getUserRequestsUseCase
     val getUserInfoFB = getUserInfoFBUseCase
 
@@ -57,6 +60,13 @@ class FriendsViewModel @Inject constructor(
     val updateUserRequestFB = updateUserRequestFBUseCase
     val deleteUserRequestFB = deleteUserRequestFBUseCase
     val getUserUid = getUserUidUseCase
+
+    /* ########################################################################################## */
+
+
+
+    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+
 
     suspend fun addFriend(userInfo: UserInfo, chatId: String) {
 
@@ -82,8 +92,7 @@ class FriendsViewModel @Inject constructor(
     /**
     Такой подход позволяет легко менять слои приложения и делает код более модульным и поддерживаемым.
     Кроме того, это обеспечивает более чистую архитектуру и упрощает тестирование.
-    */
-    val addMessageToFB = addMessageToFBUseCase
+     */
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
@@ -101,6 +110,10 @@ class FriendsViewModel @Inject constructor(
     viewModel.getListMessages("MY8f5pnDYVUTk6mfxyf8NFObgcL2")
     val listMessage by viewModel.messages.collectAsState()
     */
+
+    /* ########################################################################################## */
+
+
 
 }
 

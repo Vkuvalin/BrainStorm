@@ -52,8 +52,8 @@ import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
 import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelAColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelSColor
+import com.kuvalin.brainstorm.ui.theme.GameLevelAColorOrange
+import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -171,7 +171,7 @@ fun UserInfoDialog(
                                     .background(color = Color.White)
                                     .border(
                                         width = 3.dp,
-                                        color = GameLevelAColor,
+                                        color = GameLevelAColorOrange,
                                         shape = CircleShape
                                     ),
                                 contentAlignment = Alignment.Center
@@ -207,14 +207,14 @@ fun UserInfoDialog(
 
                             Text(
                                 text = "World Rank: 12,284th",
-                                color = GameLevelSColor,
+                                color = GameLevelSColorPink,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.W400
                             )
 
                             Text(
                                 text = "A-League: 1,574th",
-                                color = GameLevelAColor,
+                                color = GameLevelAColorOrange,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.W400
                             )

@@ -52,13 +52,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.ui.theme.Beige
-import com.kuvalin.brainstorm.ui.theme.Blue
-import com.kuvalin.brainstorm.ui.theme.Orange
-import com.kuvalin.brainstorm.ui.theme.Red
-import com.kuvalin.brainstorm.ui.theme.White
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenBeige
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenBlue
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenOrange
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenRed
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenLightOrange
 import com.kuvalin.brainstorm.ui.theme.WhiteAppBackground
-import com.kuvalin.brainstorm.ui.theme.Yellow
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenYellow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -647,7 +647,7 @@ fun YellowPart(animationScale: Float, correctionInCalculations: Int, animationSc
                     lineTo(firstPositionX + 27.dp.toPx(), firstPositionY - 17.dp.toPx())
                     lineTo(firstPositionX, firstPositionY)
                 },
-                color = Yellow,
+                color = WelcomeScreenYellow,
                 style = Fill,
             )
         }
@@ -680,7 +680,7 @@ fun RedPart(animationScale: Float, correctionInCalculations: Int, animationScale
                     lineTo(firstPositionX - 25.dp.toPx(), firstPositionY + 20.dp.toPx())
                     lineTo(firstPositionX, firstPositionY)
                 },
-                color = Red,
+                color = WelcomeScreenRed,
                 style = Fill,
             )
         }
@@ -709,7 +709,7 @@ fun BeigePart(animationScale: Float, correctionInCalculations: Int, animationSca
                     lineTo(firstPositionX + 27.dp.toPx(), firstPositionY - 17.dp.toPx())
                     lineTo(firstPositionX, firstPositionY)
                 },
-                color = Beige,
+                color = WelcomeScreenBeige,
                 style = Fill,
             )
         }
@@ -741,7 +741,7 @@ fun BluePart(animationScale: Float, correctionInCalculations: Int, animationScal
                     lineTo(secondPositionX, secondPositionY)
 
                 },
-                color = Blue,
+                color = WelcomeScreenBlue,
                 style = Fill,
             )
         }
@@ -769,7 +769,7 @@ fun OrangePart(animationScale: Float, correctionInCalculations: Int, animationSc
                     lineTo(secondPositionX - 37.dp.toPx(), secondPositionY + 14.dp.toPx())
                     lineTo(secondPositionX, secondPositionY)
                 },
-                color = Orange,
+                color = WelcomeScreenOrange,
                 style = Fill,
             )
         }
@@ -798,7 +798,7 @@ fun WhitePart(animationScale: Float, correctionInCalculations: Int, animationSca
                     lineTo(thirdPositionX + 14.dp.toPx(), thirdPositionY - 7.dp.toPx())
                     lineTo(thirdPositionX, thirdPositionY)
                 },
-                color = White,
+                color = WelcomeScreenLightOrange,
                 style = Fill,
             )
         }
@@ -819,7 +819,7 @@ fun SmallCircle(animationScale: Float, animationAlpha: Float, correctionInCalcul
         scale(scale = animationScale) {
             drawCircle(
                 center = Offset(firstPositionX, firstPositionY),
-                color = Orange,
+                color = WelcomeScreenOrange,
                 alpha = animationAlpha,
                 radius = 100.dp.toPx(),
                 style = Fill
@@ -840,7 +840,7 @@ fun MediumCircle(animationScale: Float, animationAlpha: Float, correctionInCalcu
         scale(scale = animationScale) {
             drawCircle(
                 center = Offset(firstPositionX, firstPositionY),
-                color = White,
+                color = WelcomeScreenLightOrange,
                 alpha = animationAlpha,
                 radius = 100.dp.toPx(),
                 style = Fill
@@ -861,7 +861,7 @@ fun BigCircle(animationScale: Float, animationAlpha: Float, correctionInCalculat
         scale(scale = animationScale) {
             drawCircle(
                 center = Offset(firstPositionX, firstPositionY),
-                color = Yellow,
+                color = WelcomeScreenYellow,
                 alpha = animationAlpha,
                 radius = 100.dp.toPx(),
                 style = Fill
@@ -1117,7 +1117,7 @@ fun LetterS(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX, firstPositionY - 25.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Color.Magenta, Color.Cyan, Orange),
+                colors = listOf(Color.Magenta, Color.Cyan, WelcomeScreenOrange),
                 start = Offset(200.dp.toPx(), 120.dp.toPx()),
                 end = Offset(120.dp.toPx(), 0.dp.toPx()),
                 tileMode = TileMode.Mirror
@@ -1129,7 +1129,7 @@ fun LetterS(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX, firstPositionY + 25.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Color.Magenta, Color.Cyan, Orange),
+                colors = listOf(Color.Magenta, Color.Cyan, WelcomeScreenOrange),
                 start = Offset(200.dp.toPx(), 120.dp.toPx()),
                 end = Offset(120.dp.toPx(), 0.dp.toPx()),
                 tileMode = TileMode.Mirror
@@ -1201,7 +1201,7 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY + 25.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Yellow, Color.Magenta, Color.Cyan),
+                colors = listOf(WelcomeScreenYellow, Color.Magenta, Color.Cyan),
                 start = Offset(200.dp.toPx(), 120.dp.toPx()),
                 end = Offset(120.dp.toPx(), 0.dp.toPx()),
                 tileMode = TileMode.Mirror
@@ -1214,7 +1214,7 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY + 5.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Orange, Yellow, Color.Magenta, Color.Cyan),
+                colors = listOf(WelcomeScreenOrange, WelcomeScreenYellow, Color.Magenta, Color.Cyan),
                 start = Offset(0.dp.toPx(), 200.dp.toPx()),
                 end = Offset(200.dp.toPx(), 200.dp.toPx()),
                 tileMode = TileMode.Mirror
@@ -1227,7 +1227,7 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 15.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Orange, Color.Magenta, Color.Cyan),
+                colors = listOf(WelcomeScreenOrange, Color.Magenta, Color.Cyan),
                 start = Offset(0.dp.toPx(), 0.dp.toPx()),
                 end = Offset(100.dp.toPx(), 100.dp.toPx()),
                 tileMode = TileMode.Mirror
@@ -1251,7 +1251,7 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 25.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Orange, Color.Magenta, Color.Cyan),
+                colors = listOf(WelcomeScreenOrange, Color.Magenta, Color.Cyan),
                 start = Offset(200.dp.toPx(), 0.dp.toPx()),
                 end = Offset(200.dp.toPx(), 200.dp.toPx()),
                 tileMode = TileMode.Mirror
@@ -1263,7 +1263,7 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 25.dp.toPx()),
             brush = Brush.linearGradient(
-                colors = listOf(Yellow, Color.Magenta, Color.Cyan),
+                colors = listOf(WelcomeScreenYellow, Color.Magenta, Color.Cyan),
                 end = Offset(200.dp.toPx(), 0.dp.toPx()),
                 start = Offset(0.dp.toPx(), 0.dp.toPx()),
                 tileMode = TileMode.Mirror

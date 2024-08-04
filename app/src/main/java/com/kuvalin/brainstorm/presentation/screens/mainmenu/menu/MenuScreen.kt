@@ -25,7 +25,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,24 +45,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.MenuViewModel
-import com.kuvalin.brainstorm.ui.theme.AccountButtonColor
-import com.kuvalin.brainstorm.ui.theme.AnnouncementButtonColor
+import com.kuvalin.brainstorm.ui.theme.AccountButtonColorTeal
+import com.kuvalin.brainstorm.ui.theme.AnnouncementButtonColorBlue
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
-import com.kuvalin.brainstorm.ui.theme.ContactUsButtonColor
+import com.kuvalin.brainstorm.ui.theme.ContactUsButtonColorDarkGray
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import com.kuvalin.brainstorm.ui.theme.InformationButtonColor
+import com.kuvalin.brainstorm.ui.theme.InformationButtonColorOrange
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
-import com.kuvalin.brainstorm.ui.theme.SettingsButtonColor
+import com.kuvalin.brainstorm.ui.theme.SettingsButtonColorPink
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
 import com.kuvalin.brainstorm.ui.theme.checkedIconColor
 import com.kuvalin.brainstorm.ui.theme.checkedThumbColor
@@ -80,11 +75,7 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedBorderColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedIconColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedThumbColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 
 @Composable
 fun MenuScreen(){
@@ -156,7 +147,7 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Announcement",
-                backgroundColor = AnnouncementButtonColor,
+                backgroundColor = AnnouncementButtonColorBlue,
                 width = dynamicRowWidth,
                 viewModel = viewModel
             ){
@@ -167,7 +158,7 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Settings",
-                backgroundColor = SettingsButtonColor,
+                backgroundColor = SettingsButtonColorPink,
                 width = dynamicRowWidth,
                 viewModel = viewModel
             ){
@@ -178,7 +169,7 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Information",
-                backgroundColor = InformationButtonColor,
+                backgroundColor = InformationButtonColorOrange,
                 width = dynamicRowWidth,
                 viewModel = viewModel
             ){
@@ -190,7 +181,7 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Contact Us",
-                backgroundColor = ContactUsButtonColor,
+                backgroundColor = ContactUsButtonColorDarkGray,
                 width = dynamicRowWidth,
                 viewModel = viewModel
             ) {
@@ -202,7 +193,7 @@ fun MenuScreen(){
             MenuText(
                 clickButtonState = clickButtonState,
                 text = "Account",
-                backgroundColor = AccountButtonColor,
+                backgroundColor = AccountButtonColorTeal,
                 width = dynamicRowWidth,
                 viewModel = viewModel
             ) {
@@ -299,29 +290,29 @@ fun AnnouncementContent(
                     .padding(horizontal = 10.dp)
             ) {
 
-                    AssetImage(
-                        fileName = "ic_cancel.png",
-                        modifier = customModifier
-                            .align(alignment = Alignment.End)
-                            .noRippleClickable {
-                                viewModel.playChoiceClickSound(context)
-                                onClickDismiss()
-                            }
-                    )
+                AssetImage(
+                    fileName = "ic_cancel.png",
+                    modifier = customModifier
+                        .align(alignment = Alignment.End)
+                        .noRippleClickable {
+                            viewModel.playChoiceClickSound(context)
+                            onClickDismiss()
+                        }
+                )
 
-                    LabelText("Announcement")
-                    Spacer(modifier = Modifier.height(10.dp))
-                    AssetImage(
-                        fileName = "im_announcement.jpg",
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(5))
-                            .border(
-                                width = 0.01.dp,
-                                color = CyanAppColor,
-                                shape = RoundedCornerShape(5)
-                            )
-                    )
-                }
+                LabelText("Announcement")
+                Spacer(modifier = Modifier.height(10.dp))
+                AssetImage(
+                    fileName = "im_announcement.jpg",
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(5))
+                        .border(
+                            width = 0.01.dp,
+                            color = CyanAppColor,
+                            shape = RoundedCornerShape(5)
+                        )
+                )
+            }
         },
     )
 }

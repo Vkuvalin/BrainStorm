@@ -60,12 +60,12 @@ import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
-import com.kuvalin.brainstorm.ui.theme.CrosshairColor
+import com.kuvalin.brainstorm.ui.theme.CrosshairColorCyan
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelAColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelBColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelCColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelSColor
+import com.kuvalin.brainstorm.ui.theme.GameLevelAColorOrange
+import com.kuvalin.brainstorm.ui.theme.GameLevelBColorYellow
+import com.kuvalin.brainstorm.ui.theme.GameLevelCColorGreen
+import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -290,10 +290,10 @@ fun StatisticsCard(
     val configuration = LocalConfiguration.current
 
     val leagueList = mutableListOf(
-        mutableListOf("S", GameLevelSColor, false),
-        mutableListOf("A", GameLevelAColor, true),
-        mutableListOf("B", GameLevelBColor, false),
-        mutableListOf("C", GameLevelCColor, false)
+        mutableListOf("S", GameLevelSColorPink, false),
+        mutableListOf("A", GameLevelAColorOrange, true),
+        mutableListOf("B", GameLevelBColorYellow, false),
+        mutableListOf("C", GameLevelCColorGreen, false)
     )
 
     val gradeList = mutableListOf( // TODO перевести в базу, а затем добавить в ShareStatistics.kt
@@ -575,7 +575,7 @@ fun Crosshair(modifier: Modifier) {
                 lineTo(center.x - (degreeConstant * length).dp.toPx(), center.y - length.dp.toPx())
 
             },
-            color = CrosshairColor,
+            color = CrosshairColorCyan,
             style = Stroke(width = 1.dp.toPx()),
         )
     }
@@ -629,7 +629,7 @@ fun Graph(
                 lineTo(center.x, center.y - calculateLevel(speed, policy = true).dp.toPx()) // Speed
 
             },
-            color = if (workMode != 3) CrosshairColor else PinkAppColor,
+            color = if (workMode != 3) CrosshairColorCyan else PinkAppColor,
             style = Fill,
             alpha = 0.5f
         )
