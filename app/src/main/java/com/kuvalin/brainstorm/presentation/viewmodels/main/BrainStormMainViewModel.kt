@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.viewmodels
+package com.kuvalin.brainstorm.presentation.viewmodels.main
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
@@ -80,6 +80,5 @@ class BrainStormMainViewModel @Inject constructor() : ViewModel() {
     // ######################
 
     /* ########################################################################################## */
-
 
 }

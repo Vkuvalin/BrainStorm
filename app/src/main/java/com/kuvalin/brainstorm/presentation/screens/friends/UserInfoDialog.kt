@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +51,7 @@ import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
-import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelAColorOrange
 import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
@@ -67,13 +68,13 @@ fun UserInfoDialog(
     userInfo: UserInfo,
     sender: Boolean? = null,
     chatId: String = "",
-    type: Int, // 1 для request, 2 для friends // TODO подумать потом, как это лучше оформить
+    type: Int,
     onClickDismiss: () -> Unit
 ) {
 
-    // Аватарка
-    var uriAvatar by remember { mutableStateOf<Uri?>(null) }
-    val name = userInfo.name
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    val displayName by remember { derivedStateOf { userInfo.name ?: "Unknown" } } // Имя
+    val uriAvatar by remember { derivedStateOf { userInfo.avatar } } // Аватар
 
 
     // Проигрывание музыки
@@ -84,16 +85,21 @@ fun UserInfoDialog(
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val panelHeight = screenWidth.dp/4
+    val panelHeight = remember { screenWidth/4 }
 
 
     // Функция добавления/удаления в друзья
     var clickAddDeleteUserButton by remember { mutableStateOf(false) }
     if (clickAddDeleteUserButton){
-        AddDeleteUser(userInfo, type, sender, chatId) { clickAddDeleteUserButton = false }
+        AddDeleteUser(userInfo, type, sender, chatId) {
+            clickAddDeleteUserButton = false
+            onClickDismiss()
+        }
     }
+    /* ########################################################################################## */
 
 
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Dialog(
         onDismissRequest = {
             onClickDismiss()
@@ -137,7 +143,7 @@ fun UserInfoDialog(
                 ) {
                     //region Name
                     Text(
-                        text = name!!, // TODO
+                        text = displayName,
                         color = Color.Black,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.W400,
@@ -148,7 +154,7 @@ fun UserInfoDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(panelHeight)
+                            .height(panelHeight.dp)
                             .padding(10.dp)
                     ) {
                         //region Аватарка
@@ -261,12 +267,13 @@ fun UserInfoDialog(
             }
         },
     )
+    /* ########################################################################################## */
 
 }
 
 
 
-// Но я только удаление реализую только
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
 //region AddDeleteUserButton
 @Composable
 private fun AddDeleteUserButton(
@@ -527,3 +534,4 @@ private fun YesNoButton(
 
 }
 //endregion
+/* ########################################################################################## */

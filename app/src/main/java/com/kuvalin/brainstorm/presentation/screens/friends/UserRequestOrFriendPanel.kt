@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,16 +42,10 @@ fun UserRequestOrFriendPanel(
     onPressPanel: () -> Unit
 ) {
 
-    val name = userInfo.name
-
-//    val avatar = userInfo.avatar - Будет заглушкой
-//    val country = userInfo.country - Будет заглушкой
-//    val grade = // Тут другой класс
-//    val lastLogin = // И тут другой класс
-
+    val displayName by remember { derivedStateOf { userInfo.name ?: "Unknown" } }
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    val panelHeight = screenWidth/4
+    val panelHeight = remember { screenWidth/4 }
 
     // Аватар
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
@@ -71,27 +66,23 @@ fun UserRequestOrFriendPanel(
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-
-            Box {
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(color = Color.White)
-                        .border(width = 2.dp, color = Color.White, shape = CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (uriAvatar == null) {
-                        AssetImage(fileName = "av_user.png")
-                    } else {
-                        Image(
-                            painter = rememberAsyncImagePainter(model = uriAvatar),
-                            contentDescription = null,
-                            modifier = Modifier
-                        )
-                    }
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(color = Color.White)
+                    .border(width = 2.dp, color = Color.White, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                if (uriAvatar == null) {
+                    AssetImage(fileName = "av_user.png")
+                } else {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = uriAvatar),
+                        contentDescription = null,
+                        modifier = Modifier
+                    )
                 }
             }
-
         }
         //endregion
         //region UserInfo
@@ -103,7 +94,7 @@ fun UserRequestOrFriendPanel(
                 .padding(start = 10.dp)
         ) {
             Text(
-                text = name!!, // TODO
+                text = displayName,
                 color = Color.Black,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.W400
@@ -117,7 +108,7 @@ fun UserRequestOrFriendPanel(
             )
 
             Text(
-                text = "Last login: ${Random.nextInt(1,59)} min ago", // TODO
+                text = "Last login: ${Random.nextInt(1,59)} min ago",
                 color = Color.Black,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W400

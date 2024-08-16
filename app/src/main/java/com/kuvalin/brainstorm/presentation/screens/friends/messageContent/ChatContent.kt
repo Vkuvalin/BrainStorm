@@ -1,6 +1,7 @@
-package com.kuvalin.brainstorm.presentation.screens.friends
+package com.kuvalin.brainstorm.presentation.screens.friends.messageContent
 
-import android.util.Log
+import ErrorHandler
+import LogContext
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
@@ -38,12 +38,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
-import com.kuvalin.brainstorm.navigation.staticsClasses.animationStates.AnimationTopBarState
-import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -57,55 +57,57 @@ fun ChatContent(
     chatId: String,
     onBackButtonClick: () -> Unit
 ){
+    /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    /* ########################################################################################## */
 
+
+
+    /* ############# 🔄 ###################### BackHandler #################### 🔄 ############## */
     LaunchedEffect(Unit) { GlobalStates.putScreenState("runGameScreenState", true) }
     BackHandler {
         clickNavigation = true
         onBackButtonClick()
         GlobalStates.putScreenState("runGameScreenState", false)
     }
-
-
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
-
-    // Компонент
-    val component = getApplicationComponent()
-    val viewModel: FriendsViewModel = viewModel(factory = component.getViewModelFactory())
-
-    var userUid by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        viewModel.getListMessages(chatId)
-        userUid = viewModel.getUserUid.invoke()
-    }
-
-    val listMessage by viewModel.messages.collectAsState()
+    /* ########################################################################################## */
 
 
 
-    // TODO - почитать
-//    val listState = rememberLazyListState()
-//    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(listMessage.size - 10, listMessage.size - 1))
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
+    // Общие
+    val placeholderForTextField = "Enter your message"
+
+    // ViewModel
+    val viewModel: FriendsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
+    val listMessage by viewModel.listMessage.collectAsState()
+    val userUid by viewModel.userUid.collectAsState()
 
     /* ########################################################################################## */
 
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+
+    // Подгружаем список сообщений
+    LaunchedEffect(Unit) {
+        viewModel.initialChatContent(chatId)
+    }
+
+
+    // UI
+    Column( modifier = Modifier.fillMaxSize() ) {
+
+        // TOP BAR
         ChatTopBar(userName = userName) {
             GlobalStates.putScreenState("runGameScreenState", false)
             onBackButtonClick()
         }
-//        LaunchedEffect(listMessage.size) { // TODO - почитать
-//            listState.animateScrollToItem(listMessage.size)
-//        }
 
+        // CHAT
         LazyColumn(
-//            state = listState, // TODO - почитать
             reverseLayout = true,
             modifier = Modifier
                 .fillMaxSize()
@@ -114,45 +116,54 @@ fun ChatContent(
         ) {
 
             items(listMessage.size) {position ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = if (listMessage[position].senderUid == userUid) Arrangement.End else Arrangement.Start
-                ) {
-                    Row(
-                        horizontalArrangement = if (listMessage[position].senderUid == userUid) Arrangement.End else Arrangement.Start,
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
-
-                    ) {
-                        Text(
-                            text = listMessage[position].text,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(size = 10.dp))
-                                .background(if (listMessage[position].senderUid == userUid) CyanAppColor else PinkAppColor)
-                                .padding(horizontal = 8.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-
+                MessageRow(listMessage, position, userUid)
             }
-
         }
-        CustomTextFieldChatContent(placeholder = "Enter your message"){message ->
+
+        // Поле ввода
+        CustomTextFieldChatContent(placeholder = placeholderForTextField){ message ->
             if (message.isNotEmpty()){
                 CoroutineScope(Dispatchers.Default).launch {
-                    viewModel.addMessageToFB.invoke(
-                        message = message,
-                        chatId = chatId
-                    )
+                    viewModel.addMessageToFB.invoke(message, chatId)
                 }
             }
         }
     }
+    /* ########################################################################################## */
 }
 
 
 
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region MessageRow
+@Composable
+private fun MessageRow(
+    listMessage: List<Message>,
+    position: Int,
+    userUid: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (listMessage[position].senderUid == userUid) Arrangement.End else Arrangement.Start
+    ) {
+        Row(
+            horizontalArrangement = if (listMessage[position].senderUid == userUid) Arrangement.End else Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .padding(horizontal = 10.dp, vertical = 8.dp)
+
+        ) {
+            Text(
+                text = listMessage[position].text,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(size = 10.dp))
+                    .background(if (listMessage[position].senderUid == userUid) CyanAppColor else PinkAppColor)
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+            )
+        }
+    }
+}
+//endregion
 //region CustomTextField
 @Composable
 private fun CustomTextFieldChatContent(
@@ -221,16 +232,5 @@ private fun CustomTextFieldChatContent(
     )
 }
 //endregion
+/* ########################################################################################## */
 
-
-/*
-Image(
-    bitmap = GetAssetBitmap(fileName = "tab_arrow_button.png"),
-    contentDescription = null,
-    colorFilter = ColorFilter.tint(Color.DarkGray),
-    modifier = Modifier
-        .width(50.dp)
-        .padding(vertical = 10.dp, horizontal = 10.dp)
-        .noRippleClickable { onBackButtonClick() }
-)
-*/

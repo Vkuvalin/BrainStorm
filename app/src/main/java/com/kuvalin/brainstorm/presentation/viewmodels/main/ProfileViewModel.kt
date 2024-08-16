@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.viewmodels
+package com.kuvalin.brainstorm.presentation.viewmodels.main
 
 import android.content.Context
 import android.net.Uri
@@ -26,6 +26,7 @@ class ProfileViewModel @Inject constructor(
     private val addSocialDataUseCase: AddSocialDataUseCase,
     private val getSocialDataUseCase: GetSocialDataUseCase
 ): ViewModel() {
+
 
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */

@@ -1,12 +1,9 @@
-package com.kuvalin.brainstorm.presentation.viewmodels
+package com.kuvalin.brainstorm.presentation.viewmodels.main
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.AppSettings
 import com.kuvalin.brainstorm.domain.usecase.AddAppSettingsUseCase
 import com.kuvalin.brainstorm.domain.usecase.AuthorizationCheckUseCase
@@ -154,8 +151,6 @@ class MenuViewModel @Inject constructor(
         }
     }
     /* ########################################################################################## */
-
-
 
 }
 

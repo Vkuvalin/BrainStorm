@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,8 +23,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.kuvalin.brainstorm.R
 import com.kuvalin.brainstorm.globalClasses.populateResultPaths
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.BrainStormMainScreen
+import com.kuvalin.brainstorm.presentation.screens.BrainStormMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+            /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
             // Общие
             val context = LocalContext.current
@@ -48,10 +50,9 @@ class MainActivity : ComponentActivity() {
             var runMainMenu by remember { mutableStateOf(false) }
 
             // Загрузка (мини-мозг)
-            var refreshState by remember { mutableStateOf(false) }
+            val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
             // Loading
-            val scope = CoroutineScope(Dispatchers.IO)
             val scopeMusic = CoroutineScope(Dispatchers.Default)
 
             //region Музыка
@@ -79,10 +80,14 @@ class MainActivity : ComponentActivity() {
             /* ########################################################################################## */
 
 
-            // Наполняет resultPaths при загрузке приложения
+            /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
+            // Наполняет resultPaths при загрузке приложения (т.е. подгружает все фотографии/иконки)
             LaunchedEffect(Unit) { populateResultPaths(context) }
+            /* ########################################################################################## */
 
 
+
+            /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
             BrainStormTheme {
 
                 //region Запуск музыки
@@ -119,16 +124,11 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(color = BackgroundAppColor)
                 ) {
-                    BrainStormMainScreen(){refreshState = true}
+                    BrainStormMainScreen()
                 }
-                // Бля, что-то не могу понять, почему теперь она работает лишь за пределами
-                if (refreshState){
-                    BrainLoading()
-                    scope.launch {
-                        delay(3000)
-                        refreshState = false
-                    }
-                }
+
+                // Анимация мозга при загрузке данных
+                if (animBrainLoadState){ BrainLoading() }
 
 
 //                Column(
@@ -162,6 +162,7 @@ class MainActivity : ComponentActivity() {
 //                }
 
             }
+            /* ########################################################################################## */
         }
 
     }

@@ -39,7 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
-import com.kuvalin.brainstorm.presentation.viewmodels.ShareStatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.ShareStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
@@ -327,4 +327,5 @@ fun ShareCompany(
 }
 //endregion
 /* ########################################################################################## */
+
 

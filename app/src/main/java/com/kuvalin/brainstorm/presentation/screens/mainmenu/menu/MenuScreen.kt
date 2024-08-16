@@ -49,7 +49,7 @@ import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
-import com.kuvalin.brainstorm.presentation.viewmodels.MenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
 import com.kuvalin.brainstorm.ui.theme.AccountButtonColorTeal
 import com.kuvalin.brainstorm.ui.theme.AnnouncementButtonColorBlue
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -780,5 +780,6 @@ private fun LabelText(text: String) {
 }
 //endregion
 /* ########################################################################################## */
+
 
 

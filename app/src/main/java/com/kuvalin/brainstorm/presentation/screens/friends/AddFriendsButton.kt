@@ -1,5 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -52,18 +53,10 @@ fun AddFriendsButtonContent(
 ){
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context = context).run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
-            onClickDismiss()
+            playSoundAndDismiss(context, onClickDismiss)
         },
         content = {
 
@@ -83,14 +76,7 @@ fun AddFriendsButtonContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
-                            onClickDismiss()
+                            playSoundAndDismiss(context, onClickDismiss)
                         }
                 )
                 //endregion
@@ -111,10 +97,7 @@ fun AddFriendsButtonContent(
                     ) {
                         CustomTextFieldFiendsScreen()
                     }
-                    Spacer(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                    )
+                    Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
                     Row(
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -167,10 +150,7 @@ private fun CustomTextFieldFiendsScreen(placeholder: String = "Enter Code") {
             fontWeight = FontWeight.Medium,
             color = Color.DarkGray
         ),
-        modifier = Modifier
-            .onFocusChanged {
-            isFocused = it.isFocused
-        },
+        modifier = Modifier.onFocusChanged { isFocused = it.isFocused },
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier
@@ -198,3 +178,17 @@ private fun CustomTextFieldFiendsScreen(placeholder: String = "Enter Code") {
     )
 }
 //endregion
+//region playSoundAndDismiss
+private fun playSoundAndDismiss(context: Context, onClickDismiss: () -> Unit) {
+    CoroutineScope(Dispatchers.Default).launch {
+        MusicPlayer(context = context).run {
+            playChoiceClick()
+            delay(3000)
+            release()
+        }
+    }
+    onClickDismiss()
+}
+//endregion
+
+

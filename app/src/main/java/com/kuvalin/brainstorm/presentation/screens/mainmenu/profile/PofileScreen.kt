@@ -52,7 +52,7 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
-import com.kuvalin.brainstorm.presentation.viewmodels.ProfileViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.ProfileViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
@@ -71,8 +71,6 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedBorderColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedIconColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedThumbColor
 import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 
 @SuppressLint("Recycle")
@@ -126,6 +124,7 @@ fun ProfileScreenContent(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
     ) {
 
+        //region Верхняя часть (с аватаркой)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,7 +135,8 @@ fun ProfileScreenContent(
             // Аватар (нажатие вызывает метод получения данных из галереи)
             AvatarBox(selectedImageUri) { getContent.launch("image/*") }
         }
-
+        //endregion
+        //region Основная информация профиля
         ProfileContent(
             userName = userName,
             userEmail = userEmail,
@@ -153,8 +153,7 @@ fun ProfileScreenContent(
                 viewModel.updateUserInfoInDatabase(context)
             }
         }
-
-
+        //endregion
 
     }
 }
@@ -438,7 +437,6 @@ private fun SaveButton(
 //endregion
 
 /* ########################################################################################## */
-
 
 
 

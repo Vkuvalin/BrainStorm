@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.viewmodels
+package com.kuvalin.brainstorm.presentation.viewmodels.main
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.screens.friends
+package com.kuvalin.brainstorm.presentation.screens.friends.messageContent
 
 
 import androidx.compose.foundation.Image

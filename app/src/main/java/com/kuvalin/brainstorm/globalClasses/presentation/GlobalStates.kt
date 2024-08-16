@@ -23,6 +23,11 @@ object GlobalStates {
     val animLoadState: StateFlow<Boolean> = _animLoadState
 
 
+    // Стейт анимации мозга при загрузке из интернета
+    private val _animBrainLoadState = MutableStateFlow(false)
+    val animBrainLoadState: StateFlow<Boolean> = _animBrainLoadState
+
+
     // Внизу
     private val _lifecycleCurrentState = MutableStateFlow(Lifecycle.State.INITIALIZED)
     val lifecycleCurrentState: StateFlow<Lifecycle.State> = _lifecycleCurrentState
@@ -70,6 +75,7 @@ object GlobalStates {
         when (key) {
             "runGameScreenState" -> _runGameScreenState.value = value as Boolean
             "animLoadState" -> _animLoadState.value = value as Boolean
+            "animBrainLoadState" -> _animBrainLoadState.value = value as Boolean
             "lifecycleCurrentState" -> _lifecycleCurrentState.value = value as Lifecycle.State
 //region Примеры
 //            "soundEnabled" -> _soundEnabled.value = value as Boolean
@@ -128,11 +134,18 @@ object GlobalStates {
             }
         }
     }
+
+
+    // 📌 Следим за Lifecycle  (Пока не нужно. Это не отсюда. Вставить в нужном месте.)
+    // GlobalStates.ObserverLifecycleCurrentState() // Эту хуйню по сути всегда в инитАпп нужно сувать
+    // val currentLifecycleState = GlobalStates.lifecycleCurrentState.collectAsState().value
+
     //endregion
 
 }
 
 
-// Следим за Lifecycle  (Пока не нужно. Это не отсюда. Вставить в нужном месте.)
-// GlobalStates.ObserverLifecycleCurrentState() // Эту хуйню по сути всегда в инитАпп нужно сувать
-// val currentLifecycleState = GlobalStates.lifecycleCurrentState.collectAsState().value
+
+
+
+

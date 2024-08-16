@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.screens.friends
+    package com.kuvalin.brainstorm.presentation.screens.friends.messageContent
 
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +40,8 @@ fun UserMessagePanel(
     onPressRightPart: () -> Unit
 ) {
 
-    val name = userInfo.name
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    val displayName by remember { derivedStateOf { userInfo.name ?: "Unknown" } }
 
 //    val avatar = userInfo.avatar - Будет заглушкой
 //    val country = userInfo.country - Будет заглушкой
@@ -48,11 +50,17 @@ fun UserMessagePanel(
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    val panelHeight = screenWidth/4
+    val panelHeight = remember { screenWidth/4 }
 
     // Аватар
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
 
+    // Заглушка ласт сообщения
+    /* ########################################################################################## */
+
+
+
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,14 +109,14 @@ fun UserMessagePanel(
                 .noRippleClickable { onPressRightPart() }
         ) {
             Text(
-                text = name!!, // TODO
+                text = displayName,
                 color = Color.Black,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.W400
             )
 
             Text(
-                text = "Привет! Я тебя вчера приглашал поиграть! Где ты был целый день?",
+                text = "Последнее сообщение",
                 maxLines = 1,
                 color = Color.Black,
                 fontSize = 14.sp,
@@ -118,6 +126,8 @@ fun UserMessagePanel(
         //endregion
 
     }
+    /* ########################################################################################## */
+
 
 }
 

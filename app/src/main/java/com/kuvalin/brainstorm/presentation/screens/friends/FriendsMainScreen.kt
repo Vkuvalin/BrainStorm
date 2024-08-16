@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -45,13 +43,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.friends.FriendsNavigationItem
 import com.kuvalin.brainstorm.navigation.friends.FriendsScreenNavGraph
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
+import com.kuvalin.brainstorm.presentation.screens.friends.friendContent.FriendsContent
+import com.kuvalin.brainstorm.presentation.screens.friends.messageContent.MessageContent
+import com.kuvalin.brainstorm.presentation.screens.friends.requestContent.RequestsContent
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +65,7 @@ fun FriendsMainScreen(
     paddingValuesParent: PaddingValues
 ) {
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     val navigationState = rememberNavigationState()
 
     // TopAppBar
@@ -81,13 +81,14 @@ fun FriendsMainScreen(
     // Ждем прогрузки анимации
     val animLoadState by GlobalStates.animLoadState.collectAsState()
 
-
     // Стейт нажатия по навиге
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
     /* ########################################################################################## */
 
+
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
 
     Scaffold(
         modifier = Modifier.padding(top = paddingValuesParent.calculateTopPadding()),
@@ -120,6 +121,7 @@ fun FriendsMainScreen(
                                 it.route == item.screen.route
                             } ?: false
 
+                            //region NavigationBarItem
                             NavigationBarItem(
                                 selected = selected,
                                 onClick = {},
@@ -145,7 +147,7 @@ fun FriendsMainScreen(
                                                     }
                                                 } }
                                                 .requiredWidth(maxWidth + 22.dp)
-                                                .requiredHeight(maxHeight + 20.dp)
+                                                .requiredHeight(maxHeight + 10.dp)
                                                 .fillMaxHeight()
                                                 .background(color = if (selected) Color(0xFFE6E6E6) else CyanAppColor)
                                                 .wrapContentWidth(unbounded = true)
@@ -163,6 +165,7 @@ fun FriendsMainScreen(
                                         )
                                     )
                             )
+                            //endregion
 
                             if (index < items.size - 1) {
                                 Column (
@@ -170,9 +173,9 @@ fun FriendsMainScreen(
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .offset(y = (-2.5).dp)
+                                            .offset(y = (-2).dp)
                                             .fillMaxHeight()
-                                            .width(8.dp)
+                                            .width(9.dp)
                                             .background(Color(0xFFE6E6E6))
                                             .border((3.5).dp, color = CyanAppColor)
                                             .requiredHeight(50.dp)
@@ -200,6 +203,8 @@ fun FriendsMainScreen(
         )
 
     }
+    /* ########################################################################################## */
+
 
 }
 

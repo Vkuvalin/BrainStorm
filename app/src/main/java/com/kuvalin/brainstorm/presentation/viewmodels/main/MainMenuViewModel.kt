@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.viewmodels
+package com.kuvalin.brainstorm.presentation.viewmodels.main
 
 import androidx.lifecycle.ViewModel
 import com.kuvalin.brainstorm.domain.usecase.AddAppSettingsUseCase
@@ -10,7 +10,9 @@ import com.kuvalin.brainstorm.domain.usecase.SingInUseCase
 import com.kuvalin.brainstorm.domain.usecase.SingUpUseCase
 import javax.inject.Inject
 
-
+/**
+ * Устарел, но пока не удаляю.
+ */
 class MainMenuViewModel @Inject constructor(
     private val addAppSettingsUseCase: AddAppSettingsUseCase,
     private val getAppSettingsUseCase: GetAppSettingsUseCase,

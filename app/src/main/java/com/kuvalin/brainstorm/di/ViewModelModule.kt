@@ -1,15 +1,18 @@
 package com.kuvalin.brainstorm.di
 
 import androidx.lifecycle.ViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.BrainStormMainViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.MainMenuViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.MenuViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.ProfileViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.ShareStatisticsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.WarViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsContentViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.friends.MessageContentViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.friends.RequestContentViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.BrainStormMainViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.MainMenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.ProfileViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.ShareStatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.WarViewModel
 import com.sumin.vknewsclient.di.ViewModelKey
 import dagger.Binds
 import dagger.Module
@@ -18,6 +21,7 @@ import dagger.multibindings.IntoMap
 // Урок - https://stepik.org/lesson/926374/step/1?unit=932257
 @Module
 interface ViewModelModule {
+
 
     // ###################### Home
     // Main (навигация)
@@ -66,6 +70,22 @@ interface ViewModelModule {
     @ViewModelKey(FriendsViewModel::class)
     @Binds
     fun bindFriendsViewModel(viewModel: FriendsViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(FriendsContentViewModel::class)
+    @Binds
+    fun bindFriendsContentViewModel(viewModel: FriendsContentViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(MessageContentViewModel::class)
+    @Binds
+    fun bindMessageContentViewModel(viewModel: MessageContentViewModel): ViewModel
+
+
+    @IntoMap
+    @ViewModelKey(RequestContentViewModel::class)
+    @Binds
+    fun bindRequestContentViewModel(viewModel: RequestContentViewModel): ViewModel
     // ######################
 
 
@@ -90,11 +110,6 @@ interface ViewModelModule {
     @Binds
     fun bindGamesViewModel(viewModel: GamesViewModel): ViewModel
     // ######################
-
-
-
-
-
 
 
 

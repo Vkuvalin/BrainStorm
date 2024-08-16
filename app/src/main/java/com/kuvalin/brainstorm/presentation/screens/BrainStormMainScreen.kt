@@ -1,4 +1,4 @@
-package com.kuvalin.brainstorm.presentation.screens.mainmenu.main
+package com.kuvalin.brainstorm.presentation.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -45,11 +45,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.Action
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.NoRippleInteractionSource
+import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates.putScreenState
 import com.kuvalin.brainstorm.navigation.mainmenu.AppNavGraph
 import com.kuvalin.brainstorm.navigation.mainmenu.NavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
@@ -61,15 +64,21 @@ import com.kuvalin.brainstorm.presentation.screens.friends.AddFriendsButtonConte
 import com.kuvalin.brainstorm.presentation.screens.friends.FriendsMainScreen
 import com.kuvalin.brainstorm.presentation.screens.game.GameSettingsButton
 import com.kuvalin.brainstorm.presentation.screens.game.GamesMainScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.MainMenuScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.ShareContent
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.menu.MenuScreen
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.profile.ProfileScreenContent
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.SearchForWar
-import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.WarScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.searchForWarScreen.SearchForWar
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.WarScreen
 import com.kuvalin.brainstorm.presentation.screens.statistics.StatisticsMainScreen
-import com.kuvalin.brainstorm.presentation.viewmodels.BrainStormMainViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.main.BrainStormMainViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.TopAppBarBackgroundColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +87,7 @@ import com.kuvalin.brainstorm.ui.theme.TopAppBarBackgroundColor
     "StateFlowValueCalledInComposition"
 )
 @Composable
-fun BrainStormMainScreen(onClickRefreshButton: () -> Unit) {
+fun BrainStormMainScreen() {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
     // Компонент
@@ -92,7 +101,7 @@ fun BrainStormMainScreen(onClickRefreshButton: () -> Unit) {
     val context = LocalContext.current
 
     // TopAppBar
-    val appbarHeight = 50 // TODO подумать, где ещё фигурирует и куда вынести
+    val appbarHeight = remember { 50 } // TODO подумать, где ещё фигурирует и куда вынести
     val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
     val animLoadState by GlobalStates.animLoadState.collectAsState()
 
@@ -126,8 +135,7 @@ fun BrainStormMainScreen(onClickRefreshButton: () -> Unit) {
                     ) {
                         TopAppBarContent(
                             navigationState = navigationState,
-                            onClickNavigationButton = { clickNavigation = true },
-                            onClickRefreshButton = { onClickRefreshButton() }
+                            onClickNavigationButton = { clickNavigation = true }
                         )
                     }
                     //endregion
@@ -278,8 +286,7 @@ fun BrainStormMainScreen(onClickRefreshButton: () -> Unit) {
 @Composable
 private fun TopAppBarContent(
     navigationState: NavigationState,
-    onClickNavigationButton: () -> Unit,
-    onClickRefreshButton: () -> Unit,
+    onClickNavigationButton: () -> Unit
 ) {
 
     /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
@@ -370,9 +377,16 @@ private fun TopAppBarContent(
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
-                    .noRippleClickable { // TODO нужно немного иначе обрабатывать (подумать)
+                    .noRippleClickable {
                         viewModel.playChoiceClickSound(context = context)
-                        onClickRefreshButton()
+
+                        CoroutineScope(Dispatchers.Default).launch {
+                            UniversalDecorator().executeAsync(
+                                mainFunc = { delay(3000) },
+                                beforeActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", true) }),
+                                afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
+                            )
+                        }
                         onClickNavigationButton()
                     }
             )
@@ -413,7 +427,13 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        onClickRefreshButton()
+                        CoroutineScope(Dispatchers.Default).launch {
+                            UniversalDecorator().executeAsync(
+                                mainFunc = { delay(3000) },
+                                beforeActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", true) }),
+                                afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
+                            )
+                        }
                         viewModel.playChoiceClickSound(context = context)
                         onClickNavigationButton()
                     }
@@ -541,7 +561,6 @@ private fun onClickNavigationItem(
     }
 }
 //endregion
-
 
 
 
