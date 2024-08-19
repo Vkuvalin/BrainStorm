@@ -16,6 +16,7 @@ import com.kuvalin.brainstorm.domain.usecase.GetWarStatisticFBUseCase
 import com.kuvalin.brainstorm.globalClasses.Action
 import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates.putScreenState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -49,7 +50,10 @@ class RequestContentViewModel @Inject constructor(
     fun loadUserRequestsDecorator(){
         viewModelScope.launch {
             UniversalDecorator().executeAsync(
-                mainFunc = { loadUserRequests() },
+                mainFunc = {
+                    loadUserRequests()
+                    delay(1000)
+                },
                 beforeActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", true) }),
                 afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
             )

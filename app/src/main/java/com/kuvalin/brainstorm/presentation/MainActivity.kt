@@ -3,6 +3,7 @@ package com.kuvalin.brainstorm.presentation
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -22,8 +23,11 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.kuvalin.brainstorm.R
+import com.kuvalin.brainstorm.globalClasses.Action
+import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.populateResultPaths
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import com.kuvalin.brainstorm.globalClasses.resultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
 import com.kuvalin.brainstorm.presentation.screens.BrainStormMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -47,13 +51,12 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
 
             // Прогружена ли анимация (переименовать?)
-            var runMainMenu by remember { mutableStateOf(false) }
+            var runMainActivity by remember { mutableStateOf(false) }
 
             // Загрузка (мини-мозг)
             val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
+            val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
 
-            // Loading
-            val scopeMusic = CoroutineScope(Dispatchers.Default)
 
             //region Музыка
             var playerState by remember { mutableStateOf(true) }
@@ -63,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 LifecycleEventObserver { owner, _ ->
                     when (owner.lifecycle.currentState) {
                         Lifecycle.State.RESUMED -> {
-                            if (runMainMenu){
+                            if (runMainActivity){
                                 backgroundMusic.start()
                                 resumedApp = false
                             }
@@ -82,7 +85,13 @@ class MainActivity : ComponentActivity() {
 
             /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
             // Наполняет resultPaths при загрузке приложения (т.е. подгружает все фотографии/иконки)
-            LaunchedEffect(Unit) { populateResultPaths(context) }
+            LaunchedEffect(Unit) {
+                UniversalDecorator().execute(
+                    mainFunc = { populateResultPaths(context) },
+                    afterActions = listOf(Action.Log("$resultPaths")),
+                    subLogTag = "Main"
+                )
+            }
             /* ########################################################################################## */
 
 
@@ -100,30 +109,41 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                scopeMusic.launch {
+                LaunchedEffect(Unit){
                     delay(1000)
-                    if (runMainMenu) {
+                    if (runMainActivity){
                         while (true) {
-                            if (!resumedApp){
-                                if (playerState) {
-                                    backgroundMusic.start()
-                                    playerState = false
+                            if (resumedApp) {
+                                delay(1000)
+                            }
+                            else {
+                                if (runGameScreenState) {
+                                    if (backgroundMusic.isPlaying) {
+                                        backgroundMusic.pause()
+                                    }
                                 }
-                                if (!backgroundMusic.isPlaying) {
-                                    playerState = true
+                                else {
+                                    if (playerState) {
+                                        backgroundMusic.start()
+                                        playerState = false
+                                    }
+                                    if (!backgroundMusic.isPlaying) {
+                                        playerState = true
+                                    }
                                 }
                             }
                             delay(1000)
                         }
                     }
+                    if (backgroundMusic.isPlaying) {
+                        backgroundMusic.pause()
+                    }
                 }
                 //endregion
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = BackgroundAppColor)
-                ) {
+                Column( modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = BackgroundAppColor) ) {
                     BrainStormMainScreen()
                 }
 

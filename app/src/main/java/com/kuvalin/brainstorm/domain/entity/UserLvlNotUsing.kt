@@ -1,6 +1,5 @@
 package com.kuvalin.brainstorm.domain.entity
 
-import androidx.room.PrimaryKey
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal
 
 data class UserLvlNotUsing(

@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +35,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import kotlin.random.Random
 
 @Composable
@@ -42,20 +44,34 @@ fun UserRequestOrFriendPanel(
     onPressPanel: () -> Unit
 ) {
 
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+
+    // Name
     val displayName by remember { derivedStateOf { userInfo.name ?: "Unknown" } }
+
+    // Подсчет размера панели
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val panelHeight = remember { screenWidth/4 }
 
+    // Для проигрывания звуков
+    val context = LocalContext.current
+
     // Аватар
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
 
+    /* ########################################################################################## */
+
+
+
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(panelHeight)
             .padding(10.dp)
             .noRippleClickable {
+                MusicPlayer(context = context).playChoiceClick()
                 onPressPanel()
             }
     ) {
@@ -131,6 +147,7 @@ fun UserRequestOrFriendPanel(
         //endregion
 
     }
+    /* ########################################################################################## */
 
 }
 

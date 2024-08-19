@@ -1,5 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.main
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -55,10 +56,6 @@ import com.kuvalin.brainstorm.ui.theme.GameLevelBColorYellow
 import com.kuvalin.brainstorm.ui.theme.GameLevelCColorGreen
 import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -67,17 +64,18 @@ fun MainMenuScreen(
     paddingValues: PaddingValues
 ) {
 
-
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
+    /* ########################################################################################## */
 
 
 
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Column(
         modifier = Modifier
             .padding(top = paddingValues.calculateTopPadding())
@@ -97,125 +95,13 @@ fun MainMenuScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // Аватарка
-            Box(modifier = Modifier.noRippleClickable {
-                navigationState.navigateToProfile()
-                musicScope.launch {
-                    MusicPlayer(context = context).run {
-                        playChangeNavigation()
-                        delay(3000)
-                        release()
-                    }
-                }
-            }){
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(color = Color.White)
-                        .border(width = 2.dp, color = Color.White, shape = CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AssetImage(fileName = "av_user.png")
-                }
-                //region Pencil
-                Box(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clip(RoundedCornerShape(10))
-                        .border(width = 0.5.dp, color = Color.LightGray, shape = RoundedCornerShape(10))
-                        .background(color = Color.White)
-                        .align(alignment = Alignment.BottomEnd)
-                    ,
-                    contentAlignment = Alignment.Center
-                ){
-                    AssetImage(
-                        fileName = "ic_avatar_pencil.png",
-                        modifier = Modifier
-                            .size(15.dp)
-                    )
-                }
-                //endregion
-            }
-
-
-            Spacer(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(10.dp)
-            )
-
-            // Жизни и койны
-            Column(
-                modifier = Modifier
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    verticalAlignment = Alignment.Bottom,
-                ) {
-                    Icon(
-                        modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.ic_like_set),
-                        contentDescription = null,
-                        tint = Color.Unspecified
-                    )
-                    Icon(
-                        modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.ic_like_set),
-                        contentDescription = null,
-                        tint = Color.Unspecified
-                    )
-                    Icon(
-                        modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.ic_like_set),
-                        contentDescription = null,
-                        tint = Color.Unspecified
-                    )
-                    Icon(
-                        modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.ic_like_set),
-                        contentDescription = null,
-                        tint = Color.Unspecified
-                    )
-                    Icon(
-                        modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.ic_like_set),
-                        contentDescription = null,
-                        tint = Color.Unspecified
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Row(verticalAlignment = Alignment.Top) {
-                        Icon(
-                            modifier = Modifier.size(26.dp),
-                            painter = painterResource(id = R.drawable.ic_stars),
-                            contentDescription = null,
-                            tint = Color.Unspecified
-                        )
-                        Text(
-                            text = "200",
-                            fontSize = 20.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.W300,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
-                }
-            }
+            Avatar(navigationState, context) // Аватарка
+            Spacer( modifier = Modifier .fillMaxHeight() .width(10.dp) )
+            LiveAndCoins() // Жизни и койны
 
         }
-//endregion
-
+        //endregion
+        //region Карточки статистики, график и кнопка
         Column(
             modifier = Modifier
                 .height(screenHeight)
@@ -228,10 +114,126 @@ fun MainMenuScreen(
             DrawingChart(workMode = 1)
             ButtonChallenge{ navigationState.navigateToSearchForWar() }
         }
+        //endregion
 
     }
+    /* ########################################################################################## */
+
 }
 
+
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region Жизни и койны
+@Composable
+private fun LiveAndCoins() {
+    Column(
+        modifier = Modifier
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Icon(
+                modifier = Modifier.size(28.dp),
+                painter = painterResource(id = R.drawable.ic_like_set),
+                contentDescription = null,
+                tint = Color.Unspecified
+            )
+            Icon(
+                modifier = Modifier.size(28.dp),
+                painter = painterResource(id = R.drawable.ic_like_set),
+                contentDescription = null,
+                tint = Color.Unspecified
+            )
+            Icon(
+                modifier = Modifier.size(28.dp),
+                painter = painterResource(id = R.drawable.ic_like_set),
+                contentDescription = null,
+                tint = Color.Unspecified
+            )
+            Icon(
+                modifier = Modifier.size(28.dp),
+                painter = painterResource(id = R.drawable.ic_like_set),
+                contentDescription = null,
+                tint = Color.Unspecified
+            )
+            Icon(
+                modifier = Modifier.size(28.dp),
+                painter = painterResource(id = R.drawable.ic_like_set),
+                contentDescription = null,
+                tint = Color.Unspecified
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .weight(1f),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Row(verticalAlignment = Alignment.Top) {
+                Icon(
+                    modifier = Modifier.size(26.dp),
+                    painter = painterResource(id = R.drawable.ic_stars),
+                    contentDescription = null,
+                    tint = Color.Unspecified
+                )
+                Text(
+                    text = "200",
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W300,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+    }
+}
+//endregion
+//region Avatar
+@Composable
+private fun Avatar(
+    navigationState: NavigationState,
+    context: Context
+) {
+    Box(modifier = Modifier.noRippleClickable {
+        navigationState.navigateToProfile()
+        MusicPlayer(context = context).playChangeNavigation()
+    }) {
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .background(color = Color.White)
+                .border(width = 2.dp, color = Color.White, shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            AssetImage(fileName = "av_user.png")
+        }
+        //region Pencil
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .clip(RoundedCornerShape(10))
+                .border(width = 0.5.dp, color = Color.LightGray, shape = RoundedCornerShape(10))
+                .background(color = Color.White)
+                .align(alignment = Alignment.BottomEnd),
+            contentAlignment = Alignment.Center
+        ) {
+            AssetImage(
+                fileName = "ic_avatar_pencil.png",
+                modifier = Modifier
+                    .size(15.dp)
+            )
+        }
+        //endregion
+    }
+}
+//endregion
 
 // Я зафаршмачил эту часть. Переделывать лень.
 //region StatisticsCards
@@ -272,7 +274,6 @@ fun StatisticsCard(
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
     val configuration = LocalConfiguration.current
 
     val leagueList = mutableListOf(
@@ -315,9 +316,7 @@ fun StatisticsCard(
                 .border(width = 1.dp, color = Color.White, shape = CircleShape)
                 .noRippleClickable {
                     if (type == "Grade"){
-                        scope.launch {
-                            MusicPlayer(context).playChoiceClick()
-                        }
+                        MusicPlayer(context).playChoiceClick()
                         onClickGrade = true
                     }
                 },
@@ -428,7 +427,7 @@ private fun ButtonChallenge(
         modifier = Modifier
             .clip(RoundedCornerShape(25))
             .background(color = CyanAppColor)
-            .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(25))
+            .border(width = 1.dp, color = BackgroundAppColor, shape = RoundedCornerShape(25))
             .noRippleClickable {
                 onButtonClick()
             },
@@ -451,7 +450,6 @@ fun GradeDialog(
     mediaPlayer: MusicPlayer,
     onClickDismiss: () -> Unit
 ){
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
     val gradeList = mutableListOf(
         mutableListOf("level_1_mouse.png", false),
@@ -474,13 +472,7 @@ fun GradeDialog(
 
     Dialog(
         onDismissRequest = {
-            musicScope.launch {
-                mediaPlayer.run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
+            mediaPlayer.playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -488,7 +480,7 @@ fun GradeDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xFFE6E6E6))
+                    .background(color = BackgroundAppColor)
             ) {
 
                 //region Крестик
@@ -502,13 +494,7 @@ fun GradeDialog(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            musicScope.launch {
-                                mediaPlayer.run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            mediaPlayer.playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -523,7 +509,7 @@ fun GradeDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(5.dp)
-                            .background(color = Color(0xFFE6E6E6)),
+                            .background(color = BackgroundAppColor),
                         columns = GridCells.Adaptive(minSize = 60.dp)
                     ) {
                         items(gradeList.size) { position ->
@@ -532,7 +518,7 @@ fun GradeDialog(
                                     .size(60.dp)
                                     .clip(CircleShape)
                                     .zIndex(2f)
-                                    .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = CircleShape),
+                                    .border(width = 1.dp, color = BackgroundAppColor, shape = CircleShape),
                                 contentAlignment = Alignment.Center
                             ){
 
@@ -571,5 +557,6 @@ private fun GradeListLabel() {
     )
 }
 //endregion
+/* ########################################################################################## */
 
 

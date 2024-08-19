@@ -53,6 +53,7 @@ import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates.putScreenState
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.mainmenu.AppNavGraph
 import com.kuvalin.brainstorm.navigation.mainmenu.NavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
@@ -89,7 +90,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun BrainStormMainScreen() {
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Компонент
     val component = getApplicationComponent()
     val viewModel: BrainStormMainViewModel = viewModel(factory = component.getViewModelFactory())
@@ -110,154 +111,23 @@ fun BrainStormMainScreen() {
     if (clickNavigation) {
         GlobalStates.AnimLoadState(400) { clickNavigation = false } // Было 350
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
-
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Scaffold(
-
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = BackgroundAppColor),
-
+        modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor),
         topBar = {
-
             if (!runGameScreenState) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                    //region TopAppBar 1
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .background(color = TopAppBarBackgroundColor),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        TopAppBarContent(
-                            navigationState = navigationState,
-                            onClickNavigationButton = { clickNavigation = true }
-                        )
-                    }
-                    //endregion
-                    //region TopAppBar 2
-                    BottomAppBar(
-                        modifier = Modifier.height(appbarHeight.dp),
-                        containerColor = BackgroundAppColor
-                    ) {
-
-                        // Получаем доступ к текущему файлу NavDestination (из доки)
-                        val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
-
-                        // для выделения выбранного элемента
-                        val items = listOf(
-                            NavigationItem.Home,
-                            NavigationItem.Friends,
-                            NavigationItem.Achievements,
-                            NavigationItem.Statistic,
-                            NavigationItem.Games
-                        )
-                        items.forEachIndexed { index, item ->
-
-                            val selected = navBackStackEntry?.destination?.hierarchy?.any {
-                                it.route == item.screen.route
-                            } ?: false
-
-                            //region NavigationBarItem
-                            NavigationBarItem(
-                                interactionSource = remember { NoRippleInteractionSource() },
-                                modifier = Modifier.fillMaxWidth(),
-                                selected = selected,
-                                onClick = {
-
-                                    onClickNavigationItem(
-                                        selected,
-                                        animLoadState,
-                                        item,
-                                        viewModel,
-                                        context,
-                                        navigationState
-                                    ) { clickNavigation = it }
-
-                                },
-                                icon = {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                                        Icon(
-                                            bitmap = GetAssetBitmap(fileName = item.iconFileName),
-                                            contentDescription = null,
-                                            tint = if (selected) Color(0xFF312D2D) else Color.Gray,
-                                            modifier = Modifier
-                                                .noRippleClickable {
-                                                    onClickNavigationItem(
-                                                        selected,
-                                                        animLoadState,
-                                                        item,
-                                                        viewModel,
-                                                        context,
-                                                        navigationState
-                                                    ) { clickNavigation = it }
-                                                }
-                                                .zIndex(-1f)
-                                                .size(viewModel.sizeIcon.dp)
-                                                .padding(
-                                                    top = viewModel.paddingTopIcon.dp,
-                                                    bottom = viewModel.paddingBottomIcon.dp
-                                                )
-                                                .drawBehind {
-                                                    if (selected) {
-                                                        drawLine(
-                                                            color = PinkAppColor,
-                                                            strokeWidth = viewModel.strokeWidthIcon.dp.toPx(),
-                                                            start = Offset(
-                                                                0f,
-                                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
-                                                            ),
-                                                            end = Offset(
-                                                                viewModel.sizeIcon.dp.toPx(),
-                                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
-                                                            )
-                                                        )
-                                                    }
-                                                }
-                                        )
-
-                                    }
-                                },
-                                colors = NavigationBarItemDefaults.colors( indicatorColor = Color(0xFFE6E6E6) )
-                            )
-                            //endregion
-
-                            if (index < items.size - 1) {
-                                Column(
-                                    modifier = Modifier.zIndex(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .height(viewModel.separatorHeight.dp)
-                                            .width(viewModel.separatorWidth.dp)
-                                            .background(viewModel.separatorColor)
-                                    )
-                                }
-                            }
-
-                        }
-                    }
-                    //endregion
-
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(color = Color.LightGray)
-                    )
-
+                    TopAppBarLevel1(navigationState) {clickNavigation = it}
+                    TopAppBarLevel2(appbarHeight, navigationState, animLoadState,
+                        viewModel, context){ clickNavigation = it }
+                    Spacer( modifier = Modifier.fillMaxWidth().height(1.dp).background(color = Color.LightGray) )
                 }
             }
-
         }
-
     ) { paddingValues ->
-
         // Настоятельно рекомендуется не передавать сложные объекты данных при навигации
         //region AppNavGraph
         AppNavGraph(
@@ -276,10 +146,144 @@ fun BrainStormMainScreen() {
             gamesScreenContent = { GamesMainScreen(paddingValues) }
         )
         //endregion
-
     }
+    //endregion ################################################################################## */
 
 }
+
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
+//region TopAppBarLevel1
+@Composable
+private fun TopAppBarLevel1(
+    navigationState: NavigationState,
+    clickNavigation: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .background(color = TopAppBarBackgroundColor),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TopAppBarContent(
+            navigationState = navigationState,
+            onClickNavigationButton = { clickNavigation (true) }
+        )
+    }
+}
+//endregion
+//region TopAppBarLevel2
+@Composable
+private fun TopAppBarLevel2(
+    appbarHeight: Int,
+    navigationState: NavigationState,
+    animLoadState: Boolean,
+    viewModel: BrainStormMainViewModel,
+    context: Context,
+    clickNavigation: (Boolean) -> Unit
+) {
+    BottomAppBar(
+        modifier = Modifier.height(appbarHeight.dp),
+        containerColor = BackgroundAppColor
+    ) {
+
+        // Получаем доступ к текущему файлу NavDestination (из доки)
+        val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+
+        // для выделения выбранного элемента
+        val items = listOf(
+            NavigationItem.Home,
+            NavigationItem.Friends,
+            NavigationItem.Achievements,
+            NavigationItem.Statistic,
+            NavigationItem.Games
+        )
+        items.forEachIndexed { index, item ->
+
+            val selected = navBackStackEntry?.destination?.hierarchy?.any {
+                it.route == item.screen.route
+            } ?: false
+
+            //region NavigationBarItem
+            NavigationBarItem(
+                interactionSource = remember { NoRippleInteractionSource() },
+                modifier = Modifier.fillMaxWidth(),
+                selected = selected,
+                onClick = {
+
+                    onClickNavigationItem(
+                        selected,
+                        animLoadState,
+                        item,
+                        context,
+                        navigationState
+                    ) { clickNavigation(it) }
+
+                },
+                icon = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                        Icon(
+                            bitmap = GetAssetBitmap(fileName = item.iconFileName),
+                            contentDescription = null,
+                            tint = if (selected) Color(0xFF312D2D) else Color.Gray,
+                            modifier = Modifier
+                                .noRippleClickable {
+                                    onClickNavigationItem(
+                                        selected,
+                                        animLoadState,
+                                        item,
+                                        context,
+                                        navigationState
+                                    ) { clickNavigation(it) }
+                                }
+                                .zIndex(-1f)
+                                .size(viewModel.sizeIcon.dp)
+                                .padding(
+                                    top = viewModel.paddingTopIcon.dp,
+                                    bottom = viewModel.paddingBottomIcon.dp
+                                )
+                                .drawBehind {
+                                    if (selected) {
+                                        drawLine(
+                                            color = PinkAppColor,
+                                            strokeWidth = viewModel.strokeWidthIcon.dp.toPx(),
+                                            start = Offset(
+                                                0f,
+                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
+                                            ),
+                                            end = Offset(
+                                                viewModel.sizeIcon.dp.toPx(),
+                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
+                                            )
+                                        )
+                                    }
+                                }
+                        )
+
+                    }
+                },
+                colors = NavigationBarItemDefaults.colors(indicatorColor = BackgroundAppColor)
+            )
+            //endregion
+
+            if (index < items.size - 1) {
+                Column(
+                    modifier = Modifier.zIndex(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .height(viewModel.separatorHeight.dp)
+                            .width(viewModel.separatorWidth.dp)
+                            .background(viewModel.separatorColor)
+                    )
+                }
+            }
+
+        }
+    }
+}
+//endregion
 
 //region TopAppBarContent
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -289,7 +293,7 @@ private fun TopAppBarContent(
     onClickNavigationButton: () -> Unit
 ) {
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
     // Компонент и производные
     val component = getApplicationComponent()
@@ -345,7 +349,7 @@ private fun TopAppBarContent(
                     .noRippleClickable {
                         if (animLoadState) {
                             navigationState.navigateToMenu()
-                            viewModel.playChangeNavigationSound(context = context)
+                            MusicPlayer(context = context).playChangeNavigation()
                             onClickNavigationButton()
                         }
                     }
@@ -357,7 +361,7 @@ private fun TopAppBarContent(
                     .size(40.dp)
                     .noRippleClickable {
                         viewModel.toggleShareState(true)
-                        viewModel.playChoiceClickSound(context = context)
+                        MusicPlayer(context = context).playChoiceClick()
                     }
             )
         }
@@ -378,7 +382,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        viewModel.playChoiceClickSound(context = context)
+                        MusicPlayer(context = context).playChoiceClick()
 
                         CoroutineScope(Dispatchers.Default).launch {
                             UniversalDecorator().executeAsync(
@@ -396,7 +400,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        viewModel.playChoiceClickSound(context = context)
+                        MusicPlayer(context = context).playChoiceClick()
                         viewModel.toggleAddFriendsButton(true)
                         onClickNavigationButton()
                     }
@@ -411,7 +415,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        viewModel.playChoiceClickSound(context = context)
+                        MusicPlayer(context = context).playChoiceClick()
                         viewModel.toggleAddQuestionButton(true)
                         onClickNavigationButton()
                     }
@@ -434,7 +438,7 @@ private fun TopAppBarContent(
                                 afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
                             )
                         }
-                        viewModel.playChoiceClickSound(context = context)
+                        MusicPlayer(context = context).playChoiceClick()
                         onClickNavigationButton()
                     }
             )
@@ -448,8 +452,8 @@ private fun TopAppBarContent(
             listModifierButtons.add(
                 Modifier
                     .size(40.dp)
-                    .noRippleClickable { // TODO нужно немного иначе обрабатывать (подумать)
-                        viewModel.playChoiceClickSound(context = context)
+                    .noRippleClickable {
+                        MusicPlayer(context = context).playChoiceClick()
                         viewModel.toggleGameSettingsButton(true)
                         onClickNavigationButton()
                     }
@@ -471,13 +475,11 @@ private fun TopAppBarContent(
             modifier = Modifier
                 .height(20.dp)
                 .alpha(arrowButtonAlpha)
-                .clickable(
-                    enabled = clickableArrowButtonState
-                ) {}
+                .clickable( enabled = clickableArrowButtonState ) {}
                 .noRippleClickable {
                     if (animLoadState) {
                         navigationState.navHostController.popBackStack()
-                        viewModel.playChangeNavigationSound(context = context)
+                        MusicPlayer(context = context).playChangeNavigation()
                         onClickNavigationButton()
                     }
                 }
@@ -488,14 +490,11 @@ private fun TopAppBarContent(
             fileName = "tab_logo.png",
             modifier = Modifier
                 .size(40.dp)
-                // TODO о чем я вообще ниже говорю?
-                // Тут продублировал логику кнопки назад, чтобы расширить поле нажатия
-                // Проверить, влияет ли это на производительность?
                 .clickable(enabled = clickableArrowButtonState) {}
                 .noRippleClickable {
                     if (animLoadState) {
                         navigationState.navHostController.popBackStack()
-                        viewModel.playChangeNavigationSound(context = context)
+                        MusicPlayer(context = context).playChangeNavigation()
                         onClickNavigationButton()
                     }
                 }
@@ -516,7 +515,7 @@ private fun TopAppBarContent(
                 Spacer(modifier = Modifier.width(5.dp))
             }
 
-            if (fileName == "tab_refresh_stats.png") {  // Почему-то, сука, в виде иконци уменьшается до невозможного
+            if (fileName == "tab_refresh_stats.png") {
                 Image(
                     bitmap = GetAssetBitmap(fileName = "tab_refresh_stats.png"),
                     contentDescription = null,
@@ -543,14 +542,14 @@ private fun onClickNavigationItem(
     selected: Boolean,
     animLoadState: Boolean,
     item: NavigationItem,
-    viewModel: BrainStormMainViewModel,
     context: Context,
     navigationState: NavigationState,
     clickNavigation: (Boolean) -> Unit
 ) {
     if (!selected && animLoadState) {
         clickNavigation(true)
-        viewModel.playChangeNavigationSound(context = context)
+        MusicPlayer(context = context).playChangeNavigation()
+
         if (item.screen.route == Screen.Home.route) {
             navigationState.navHostController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Home.route) { inclusive = true }
@@ -561,6 +560,7 @@ private fun onClickNavigationItem(
     }
 }
 //endregion
+//endregion ################################################################################## */
 
 
 

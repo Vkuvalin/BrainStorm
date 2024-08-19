@@ -13,15 +13,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.screens.friends.UserInfoDialog
 import com.kuvalin.brainstorm.presentation.screens.friends.UserRequestOrFriendPanel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.RequestContentViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -35,6 +36,8 @@ fun RequestsContent(
     val component = getApplicationComponent()
     val viewModel: RequestContentViewModel = viewModel(factory = component.getViewModelFactory())
 
+    // Анимация мозга
+    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
     // Список пользователей
     val listUsers by viewModel.listUsers.collectAsState()
@@ -62,14 +65,14 @@ fun RequestsContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
             .padding(top = paddingParent.calculateTopPadding())
     ) {
 
-        if (listUsers.isNotEmpty()){
+        if (listUsers.isNotEmpty() && !animBrainLoadState){
             DisplayListRequests(listUsers, viewModel)
         }else {
-            RequestsNotFound()
+            if (!animBrainLoadState){ RequestsNotFound() }
         }
     }
     /* ########################################################################################## */
@@ -104,7 +107,7 @@ private fun RequestsNotFound() {
     ) {
         Text(
             text = "No new requests have been received.",
-            fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f)
+            fontSize = DynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f)
         )
     }
 }

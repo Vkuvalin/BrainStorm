@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.domain.usecase
 
 import com.kuvalin.brainstorm.domain.entity.GameResult
-import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.domain.repository.BrainStormRepository
 import javax.inject.Inject
 

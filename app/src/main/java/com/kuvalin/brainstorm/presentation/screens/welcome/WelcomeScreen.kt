@@ -52,13 +52,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.WelcomeScreenBeige
 import com.kuvalin.brainstorm.ui.theme.WelcomeScreenBlue
+import com.kuvalin.brainstorm.ui.theme.WelcomeScreenLightOrange
 import com.kuvalin.brainstorm.ui.theme.WelcomeScreenOrange
 import com.kuvalin.brainstorm.ui.theme.WelcomeScreenRed
-import com.kuvalin.brainstorm.ui.theme.WelcomeScreenLightOrange
-import com.kuvalin.brainstorm.ui.theme.WhiteAppBackground
 import com.kuvalin.brainstorm.ui.theme.WelcomeScreenYellow
+import com.kuvalin.brainstorm.ui.theme.WhiteAppBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -259,7 +260,6 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
     var loadingHasStarted by remember { mutableStateOf(false) }
     val scope = CoroutineScope(Dispatchers.Default)
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
 
     //region Brain animation
@@ -534,13 +534,7 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
             ) {
                 if (isBrainAnimationEnd) {
                     scope.launch {
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
+                        MusicPlayer(context = context).playChoiceClick()
                         isBrainAnimationEnd = !isBrainAnimationEnd // Для блокировки кнопки
                         delay(500)
                         loadingHasStarted = !loadingHasStarted
@@ -940,7 +934,7 @@ fun StormText(alphaAnimation: Int, animationScale: Float) {
             val paint = Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 32.sp.toPx()
-                color = Color(0xFFEB6FA6).toArgb()
+                color = PinkAppColor.toArgb()
                 alpha = alphaAnimation
             }
 

@@ -1,13 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.game.gamescreen
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +13,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.GamesScreen
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
@@ -41,21 +35,19 @@ import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 @SuppressLint("UnusedContentLambdaTargetStateParameter")
 @Composable
-fun GameScreen(
-    navigationState: NavigationState,
-    onBackButtonClick: () -> Unit
-){
+fun GameScreen( navigationState: NavigationState ){
 
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     lateinit var gameName: String
     lateinit var gameInstructionImage: String
     lateinit var gameDescription: String
     lateinit var miniatureGameImage: String
 
-    val topBarHeight = 50 // Костыль
+    val topBarHeight = remember { 50 } // Костыль
+    val context = LocalContext.current
 
     var correct by remember { mutableIntStateOf(0) }
     var incorrect by remember { mutableIntStateOf(0) }
@@ -83,19 +75,25 @@ fun GameScreen(
     // Течение игры
     var startGameState by remember { mutableStateOf(false) }
     var endGameState by remember { mutableStateOf(false) }
-    /* ########################################################################################## */
 
+    // Меняет стейт для скрытия/открытия TopAppBar 1 и 2
+    val gameOut: () -> Unit = {
+        MusicPlayer(context = context).playChoiceClick()
+        GlobalStates.putScreenState("runGameScreenState", false)
+    }
+    //endregion ################################################################################# */
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
     ) {
         GameTopBar(
-            topBarHeight = 50, // Костыль
+            topBarHeight = topBarHeight,
             onBackButtonClick = {
                 loadFinish = false
                 endGameState = false
                 clickNavigation = true
-                onBackButtonClick()
+                gameOut()
                 navigationState.navHostController.popBackStack()
             }
         )
@@ -112,7 +110,7 @@ fun GameScreen(
                         gameDescription = gameDescription,
                         onDismissRequest = {
                             loadFinish = false
-                            onBackButtonClick()
+                            gameOut()
                             navigationState.navigateTo(GamesScreen.GameInitial.route)
                         }
                     ){startGameState = true}
@@ -127,7 +125,7 @@ fun GameScreen(
                                     FlickMaster(
                                         onBackButtonClick = {
                                             loadFinish = false
-                                            onBackButtonClick()
+                                            gameOut()
                                             navigationState.navigateTo(GamesScreen.GameInitial.route)
                                         },
                                         putActualScope = {}
@@ -149,7 +147,7 @@ fun GameScreen(
                                         topBarHeight = topBarHeight,
                                         onBackButtonClick = {
                                             loadFinish = false
-                                            onBackButtonClick()
+                                            gameOut()
                                             navigationState.navigateTo(GamesScreen.GameInitial.route)
                                         },
                                         putActualScope = {}
@@ -181,7 +179,7 @@ fun GameScreen(
                                 accuracy = accuracy,
                                 onBackButtonClick = {
                                     loadFinish = false
-                                    onBackButtonClick()
+                                    gameOut()
                                     navigationState.navigateTo(GamesScreen.GameInitial.route)
                                 },
                                 onRetryButtonClick = { endGameState = false }
@@ -195,6 +193,7 @@ fun GameScreen(
 
         }
     }
+    //endregion ################################################################################## */
 
 }
 

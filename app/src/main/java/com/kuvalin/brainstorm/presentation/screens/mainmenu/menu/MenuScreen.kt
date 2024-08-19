@@ -80,14 +80,16 @@ import com.kuvalin.brainstorm.ui.theme.uncheckedTrackColor
 @Composable
 fun MenuScreen(){
 
+    /* ############# 🔄 ###################### BackHandler #################### 🔄 ############## */
     // Обработка (блокировка) анимационных кнопок
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
     BackHandler { clickNavigation = true }
+    /* ########################################################################################## */
 
 
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     // Компонент и производные
     val component = getApplicationComponent()
     val viewModel: MenuViewModel = viewModel(factory = component.getViewModelFactory())
@@ -122,7 +124,7 @@ fun MenuScreen(){
         .background(color = Color.White)
 
     val modifierForCloseButton2 = Modifier
-        .offset(x = (10).dp, y = (-10).dp)
+        .offset(x = 10.dp, y = (-10).dp)
         .size(30.dp)
         .clip(CircleShape)
         .border(width = 2.dp, color = Color.White, shape = CircleShape)
@@ -132,7 +134,7 @@ fun MenuScreen(){
 
 
 
-    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     //region Кнопки меню
     Box(
         contentAlignment = Alignment.Center,
@@ -219,7 +221,7 @@ fun MenuScreen(){
 
 
 
-/* ################################# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ################################ */
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
 //region MenuText
 @Composable
 private fun MenuText(
@@ -264,7 +266,6 @@ private fun MenuText(
 
 }
 //endregion
-
 
 //region AnnouncementContent
 @Composable
@@ -325,7 +326,7 @@ fun SettingsContent(
     onClickDismiss: () -> Unit
 ) {
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
 
@@ -342,7 +343,7 @@ fun SettingsContent(
 
 
 
-    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Dialog(
         onDismissRequest = {
             viewModel.playChoiceClickSound(context)
@@ -461,7 +462,7 @@ fun AccountContent(
     onClickDismiss: () -> Unit
 ){
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
 
@@ -760,7 +761,6 @@ private fun ForgotPassButton(
 //endregion
 
 //endregion
-
 
 //region LabelText
 @Composable

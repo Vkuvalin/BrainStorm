@@ -24,6 +24,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CrosshairColorCyan
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlin.random.Random
@@ -125,7 +126,7 @@ private fun CircleBackground(modifier: Modifier, workMode: Int) {
 
         drawCircle(
             center = Offset(center.x, center.y),
-            color = if (workMode == 1) Color(0xFFE6E6E6) else Color.White,
+            color = if (workMode == 1) BackgroundAppColor else Color.White,
             radius = 120.dp.toPx(),
             style = Fill
         )

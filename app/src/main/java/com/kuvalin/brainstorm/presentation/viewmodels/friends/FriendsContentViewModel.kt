@@ -7,6 +7,7 @@ import com.kuvalin.brainstorm.domain.usecase.GetFriendsListUseCase
 import com.kuvalin.brainstorm.globalClasses.Action
 import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -34,7 +35,10 @@ class FriendsContentViewModel @Inject constructor(
     private fun loadFriendsDecorator(){
         viewModelScope.launch {
             UniversalDecorator().executeAsync(
-                mainFunc = { loadFriendList() },
+                mainFunc = {
+                    loadFriendList()
+                    delay(1500)
+                },
                 beforeActions = listOf(Action.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
                 afterActions = listOf(Action.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
             )

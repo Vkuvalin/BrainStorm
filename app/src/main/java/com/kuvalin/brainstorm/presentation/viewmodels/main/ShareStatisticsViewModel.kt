@@ -6,12 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.kuvalin.brainstorm.domain.usecase.GetUserInfoUseCase
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 
 class ShareStatisticsViewModel @Inject constructor(
@@ -29,11 +27,7 @@ class ShareStatisticsViewModel @Inject constructor(
 
     fun playChoiceClickSound(context: Context) {
         viewModelScope.launch(Dispatchers.Default) {
-            MusicPlayer(context = context).run {
-                playChoiceClick()
-                delay(3000)
-                release()
-            }
+            MusicPlayer(context = context).playChoiceClick()
         }
     }
 

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -52,9 +51,6 @@ import com.kuvalin.brainstorm.navigation.statistics.StatisticsNavigationItem
 import com.kuvalin.brainstorm.navigation.statistics.StatisticsScreenNavGraph
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,15 +59,15 @@ import kotlinx.coroutines.launch
 fun StatisticsMainScreen(
     paddingValuesParent: PaddingValues
 ) {
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     val navigationState = rememberNavigationState()
 
     // TopAppBar
-    val appbarHeight = 50
+    val appbarHeight = remember { 50 }
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
 
     // Ждем прогрузки анимации
@@ -90,8 +86,7 @@ fun StatisticsMainScreen(
         topBar = {
 
             Column(
-                modifier = Modifier
-                ,
+                modifier = Modifier ,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -131,13 +126,15 @@ fun StatisticsMainScreen(
                                         fontWeight = if (selected) FontWeight.W400 else FontWeight.W300,
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier
-                                            .noRippleClickable { if (!selected) {
-                                                if (animLoadState) {
-                                                    clickNavigation = true
-                                                    scope.launch { MusicPlayer(context).playChoiceClick() }
-                                                    navigationState.navigateTo(item.screen.route)
+                                            .noRippleClickable {
+                                                if (!selected) {
+                                                    if (animLoadState) {
+                                                        clickNavigation = true
+                                                        MusicPlayer(context).playChoiceClick()
+                                                        navigationState.navigateTo(item.screen.route)
+                                                    }
                                                 }
-                                            }}
+                                            }
                                             .requiredWidth(maxWidth + 22.dp)
                                             .requiredHeight(maxHeight + 20.dp)
                                             .fillMaxHeight()
@@ -186,15 +183,9 @@ fun StatisticsMainScreen(
 
         StatisticsScreenNavGraph(
             navHostController = navigationState.navHostController,
-            warsStatisticsScreenContent = {
-                WarsContent(paddingValues)
-            },
-            friendsStatisticsScreenContent = {
-                FriendsStatisticsContent(paddingValues)
-            },
-            gamesStatisticsScreenContent = {
-                GamesStatisticsContent(paddingValues)
-            }
+            warsStatisticsScreenContent = { WarsContent(paddingValues) },
+            friendsStatisticsScreenContent = { FriendsStatisticsContent(paddingValues) },
+            gamesStatisticsScreenContent = { GamesStatisticsContent(paddingValues) }
         )
 
     }

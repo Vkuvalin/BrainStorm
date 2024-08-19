@@ -1,8 +1,6 @@
 package com.kuvalin.brainstorm.di
 
 import android.content.Context
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.data.database.AppDatabase
 import com.kuvalin.brainstorm.data.database.UserDataDao

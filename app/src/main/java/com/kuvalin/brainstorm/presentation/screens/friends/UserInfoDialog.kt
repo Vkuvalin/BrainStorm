@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
 import android.annotation.SuppressLint
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,18 +46,19 @@ import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.GameLevelAColorOrange
 import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -79,13 +79,12 @@ fun UserInfoDialog(
 
     // Проигрывание музыки
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
-
 
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val panelHeight = remember { screenWidth/4 }
+    val dialogHeight = DynamicSize(screenWidth = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
+    val panelHeight = DynamicSize(screenWidth = screenWidth, desiredSize = (screenWidth/4).toFloat())
 
 
     // Функция добавления/удаления в друзья
@@ -101,13 +100,11 @@ fun UserInfoDialog(
 
     /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Dialog(
-        onDismissRequest = {
-            onClickDismiss()
-        },
+        onDismissRequest = { onClickDismiss() },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
+                modifier = Modifier.height(dialogHeight)
             ) {
 
                 //region Крестик
@@ -122,13 +119,7 @@ fun UserInfoDialog(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -137,9 +128,9 @@ fun UserInfoDialog(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .height((screenWidth * 1.2).dp) // TODO TODO TODO TODO TODO TODO TODO TODO
+//                        .height((screenWidth * 1.2).dp) // TODO TODO TODO TODO TODO TODO TODO TODO
                         .clip(RoundedCornerShape(3))
-                        .background(color = Color(0xFFE6E6E6))
+                        .background(color = BackgroundAppColor)
                 ) {
                     //region Name
                     Text(
@@ -154,7 +145,7 @@ fun UserInfoDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(panelHeight.dp)
+                            .height(panelHeight)
                             .padding(10.dp)
                     ) {
                         //region Аватарка
@@ -231,9 +222,7 @@ fun UserInfoDialog(
                     //region График
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .weight(3f)
-                            .offset(y = 5.dp),
+                        modifier = Modifier.weight(3f).offset(y = 5.dp),
                     ){
                         Box(modifier = Modifier.scale(0.8f)){ DrawingChart(workMode = 4) }
                     }
@@ -264,6 +253,7 @@ fun UserInfoDialog(
                     }
                     //endregion
                 }
+
             }
         },
     )
@@ -337,7 +327,7 @@ private fun ButtonChallenge(
             .fillMaxSize()
             .clip(RoundedCornerShape(25))
             .background(color = CyanAppColor)
-            .border(width = 1.dp, color = Color(0xFFE6E6E6), shape = RoundedCornerShape(14))
+            .border(width = 1.dp, color = BackgroundAppColor, shape = RoundedCornerShape(14))
             .noRippleClickable {
                 onButtonClick()
             },
@@ -399,7 +389,6 @@ fun AddDeleteUser(
 
     // Проигрывание звуков
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
 
     // Компонент
@@ -427,13 +416,7 @@ fun AddDeleteUser(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            musicScope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -443,7 +426,7 @@ fun AddDeleteUser(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clip(RoundedCornerShape(3))
-                        .background(color = Color(0xFFE6E6E6))
+                        .background(color = BackgroundAppColor)
                         .padding(30.dp)
                 ) {
 
@@ -452,7 +435,7 @@ fun AddDeleteUser(
                         text = if (sender == true) "Cancel request?"
                         else if (type == 1) "Do you want to add a user?" else "Delete a friend?",
                         color = Color.Black,
-                        fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f),
+                        fontSize = DynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f),
                         fontWeight = FontWeight.W400,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )

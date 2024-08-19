@@ -29,10 +29,8 @@ import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
+import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 
 
 @Composable
@@ -41,17 +39,10 @@ fun QuestionButton(
 ){
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context = context).run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
+            MusicPlayer(context = context).playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -59,7 +50,7 @@ fun QuestionButton(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xFFE6E6E6))
+                    .background(color = BackgroundAppColor)
             ) {
                 //region Крестик
                 AssetImage(
@@ -72,13 +63,7 @@ fun QuestionButton(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -126,7 +111,7 @@ fun QuestionButton(
 private fun QuestionLabel() {
     Text(
         text = "Achievements",
-        color = Color(0xFF00BBBA),
+        color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
         fontWeight = FontWeight.W400,

@@ -1,7 +1,5 @@
 package com.kuvalin.brainstorm.presentation.screens.friends.messageContent
 
-import ErrorHandler
-import LogContext
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,6 +42,7 @@ import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
@@ -109,10 +108,7 @@ fun ChatContent(
         // CHAT
         LazyColumn(
             reverseLayout = true,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFE6E6E6))
-                .weight(1f)
+            modifier = Modifier.fillMaxSize().background(BackgroundAppColor).weight(1f)
         ) {
 
             items(listMessage.size) {position ->
@@ -186,7 +182,7 @@ private fun CustomTextFieldChatContent(
         ),
         modifier = Modifier
             .padding(horizontal = 3.dp)
-            .background(Color(0xFFE6E6E6))
+            .background(BackgroundAppColor)
             .padding(bottom = 5.dp)
             .onFocusChanged {
                 isFocused = it.isFocused

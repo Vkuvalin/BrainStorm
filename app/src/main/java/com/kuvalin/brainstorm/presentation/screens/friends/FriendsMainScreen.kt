@@ -52,10 +52,8 @@ import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
 import com.kuvalin.brainstorm.presentation.screens.friends.friendContent.FriendsContent
 import com.kuvalin.brainstorm.presentation.screens.friends.messageContent.MessageContent
 import com.kuvalin.brainstorm.presentation.screens.friends.requestContent.RequestsContent
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,11 +67,10 @@ fun FriendsMainScreen(
     val navigationState = rememberNavigationState()
 
     // TopAppBar
-    val appbarHeight = 50
+    val appbarHeight = remember { 50 }
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
     // Данная шляпа нужна для скрытия topbar // TODO Измени название, а лучше создай просто второй
     val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
@@ -139,17 +136,19 @@ fun FriendsMainScreen(
                                             fontWeight = if (selected) FontWeight.W400 else FontWeight.W300,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier
-                                                .noRippleClickable { if (!selected) {
-                                                    if (animLoadState) {
-                                                        clickNavigation = true
-                                                        scope.launch { MusicPlayer(context).playChoiceClick()}
-                                                        navigationState.navigateTo(item.screen.route)
+                                                .noRippleClickable {
+                                                    if (!selected) {
+                                                        if (animLoadState) {
+                                                            clickNavigation = true
+                                                            MusicPlayer(context).playChoiceClick()
+                                                            navigationState.navigateTo(item.screen.route)
+                                                        }
                                                     }
-                                                } }
+                                                }
                                                 .requiredWidth(maxWidth + 22.dp)
                                                 .requiredHeight(maxHeight + 10.dp)
                                                 .fillMaxHeight()
-                                                .background(color = if (selected) Color(0xFFE6E6E6) else CyanAppColor)
+                                                .background(color = if (selected) BackgroundAppColor else CyanAppColor)
                                                 .wrapContentWidth(unbounded = true)
                                                 .wrapContentHeight(Alignment.CenterVertically)
                                                 .zIndex(-1f)
@@ -176,7 +175,7 @@ fun FriendsMainScreen(
                                             .offset(y = (-2).dp)
                                             .fillMaxHeight()
                                             .width(9.dp)
-                                            .background(Color(0xFFE6E6E6))
+                                            .background(BackgroundAppColor)
                                             .border((3.5).dp, color = CyanAppColor)
                                             .requiredHeight(50.dp)
 

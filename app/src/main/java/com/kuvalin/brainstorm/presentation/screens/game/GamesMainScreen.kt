@@ -17,9 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,9 +26,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
@@ -39,79 +38,68 @@ import com.kuvalin.brainstorm.navigation.games.GamesScreenNavGraph
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
 import com.kuvalin.brainstorm.presentation.screens.game.gamescreen.GameScreen
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameMainScreenViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun GamesMainScreen(
-    paddingValuesParent: PaddingValues
-) {
+fun GamesMainScreen( paddingValuesParent: PaddingValues ) {
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+
     val navigationState = rememberNavigationState()
+    val viewModel: GameMainScreenViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
 
-    // Данная шляпа нужна для скрытия списка игр
+    // Стейт для скрытия/открытия TopAppBar 1 и 2
     val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
 
-    // Можно потом заменить. Так куда лаконичнее и дополнять не придется
-    val items = GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance }
-    /* ########################################################################################## */
+    // Список объектов с информацией об играх
+    val items = remember { GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance } }
 
-    /* #################################### ВСПОМОГАТЕЛЬНЫЕ ##################################### */
-    val gameOut: () -> Unit = {
-        GlobalStates.putScreenState("runGameScreenState", false)
-    }
     /* ########################################################################################## */
 
 
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = BackgroundAppColor)
+        modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
     ) {
         GamesScreenNavGraph(
             navHostController = navigationState.navHostController,
             gameInitialScreenContent = {
                 if (!runGameScreenState) {
-                    gameOut()
-                    GameScreenInitialContent(paddingValuesParent, items, navigationState)
+                    viewModel.setRunGameScreenState(false)
+                    GameScreenInitialContent(viewModel, paddingValuesParent, items, navigationState)
                 }
             },
-            flickMasterScreenContent = { GameScreen(navigationState) { gameOut() } },
-            additionAddictionScreenContent = { GameScreen(navigationState) { gameOut() } },
-            reflectionScreenContent = { GameScreen(navigationState) { gameOut() } },
-            pathToSafetyScreenContent = { GameScreen(navigationState) { gameOut() } },
-            rapidSortingScreenContent = { GameScreen(navigationState) { gameOut() } },
-            make10ScreenContent = { GameScreen(navigationState) { gameOut() } },
-            breakTheBlockScreenContent = { GameScreen(navigationState) { gameOut() } },
-            hexaChainScreenContent = { GameScreen(navigationState) { gameOut() } },
-            colorSwitchScreenContent = { GameScreen(navigationState) { gameOut() } }
+            flickMasterScreenContent =       { GameScreen(navigationState) },
+            additionAddictionScreenContent = { GameScreen(navigationState) },
+            reflectionScreenContent =        { GameScreen(navigationState) },
+            pathToSafetyScreenContent =      { GameScreen(navigationState) },
+            rapidSortingScreenContent =      { GameScreen(navigationState) },
+            make10ScreenContent =            { GameScreen(navigationState) },
+            breakTheBlockScreenContent =     { GameScreen(navigationState) },
+            hexaChainScreenContent =         { GameScreen(navigationState) },
+            colorSwitchScreenContent =       { GameScreen(navigationState) }
         )
     }
+    /* ########################################################################################## */
 
 }
 
-
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
 //region GameScreenInitialContent
 @Composable
 private fun GameScreenInitialContent(
+    viewModel: GameMainScreenViewModel,
     paddingValuesParent: PaddingValues,
     items: List<GamesNavigationItem>,
     navigationState: NavigationState
 ) {
 
-    // Для проигрывания звуков
-    val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
-
-    // Ждем прогрузки анимации
-    val animLoadState by GlobalStates.animLoadState.collectAsState()
-    GlobalStates.AnimLoadState(400){}
+    val context = LocalContext.current                                  // Для проигрывания звуков
+    val animLoadState by GlobalStates.animLoadState.collectAsState()    // Ждем прогрузки анимации
+    viewModel.StartAnimLoadState()
 
     Box(
         modifier = Modifier
@@ -123,32 +111,19 @@ private fun GameScreenInitialContent(
         LazyVerticalGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 10.dp)
-                .background(color = BackgroundAppColor),
-            columns = GridCells
-                .Adaptive(minSize = 100.dp)
+            modifier = Modifier.fillMaxSize().padding(top = 10.dp).background(color = BackgroundAppColor),
+            columns = GridCells.Adaptive(minSize = 100.dp)
         ) {
             items(items.size) { position ->
                 GameCard(
-                    dynamicFontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 11f),
+                    dynamicFontSize = DynamicFontSize(LocalConfiguration.current.screenWidthDp, 11f),
                     sectionName = items[position].sectionName,
                     miniatureGameImage = items[position].miniatureGameImage
                 ) {
                     if (animLoadState) {
-                        GlobalStates.putScreenState("runGameScreenState", true)
-                        musicScope.launch {
-                            MusicPlayer(context = context).run {
-                                playChoiceClick()
-                                delay(3000)
-                                release()
-                            }
-                        }
-                        CoroutineScope(Dispatchers.Main).launch {
-                            delay(75)
-                            navigationState.navigateTo(items[position].screen.route)
-                        }
+                        viewModel.setRunGameScreenState(true)
+                        MusicPlayer(context = context).playChoiceClick()
+                        viewModel.navigateWithDelay(navigationState, items[position].screen.route)
                     }
                 }
             }
@@ -172,10 +147,7 @@ fun GameCard(
     ) {
         AssetImage(
             fileName = miniatureGameImage,
-            modifier = Modifier
-                .size(100.dp)
-                .clip(RoundedCornerShape(10))
-                .background(color = Color.White)
+            modifier = Modifier.size(100.dp).clip(RoundedCornerShape(10)).background(color = Color.White)
                 .border(width = 1.dp, shape = RoundedCornerShape(10), color = Color.White)
                 .then(Modifier.padding(5.dp))
         )
@@ -183,4 +155,5 @@ fun GameCard(
     }
 }
 //endregion
+/* ########################################################################################## */
 

@@ -39,6 +39,7 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.Avatar
 import com.kuvalin.brainstorm.presentation.viewmodels.main.WarViewModel
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -171,7 +172,7 @@ fun WarGameResult(
             }
 
             //endregion
-            Text(text = "VS", fontSize = 30.sp, color = Color(0xFF373737))
+            Text(text = "VS", fontSize = 30.sp, color = LinearTrackColor)
             //region PinkUser
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -3,17 +3,6 @@ package com.kuvalin.brainstorm.ui.theme
 import androidx.compose.ui.graphics.Color
 
 
-/**
- * 🎨
- * Используй инструменты для генерации цветовых палитр и проверки доступности.
- *
- * Например:
- * ColorZilla, Color Contrast Checker
- */
-
-
-
-
 // Default
 val Purple80 = Color(0xFFD0BCFF) // Light Purple
 val PurpleGrey80 = Color(0xFFCCC2DC) // Light Purple Grey

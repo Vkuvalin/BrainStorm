@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -52,7 +51,9 @@ import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.warGameResult.WarGameResult
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.warGameScreen.WarGameScreen
 import com.kuvalin.brainstorm.presentation.viewmodels.main.WarViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlin.math.abs
 
@@ -263,7 +264,7 @@ private fun PreparingForTheGame(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
     ) {
 
         // Область с отображением кругового индикатора
@@ -292,7 +293,7 @@ private fun PreparingForTheGame(
 
                 Text(
                     text = "Games",
-                    color = Color(0xFF373737),
+                    color = LinearTrackColor,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.W400,
                     modifier = Modifier.padding(bottom = 20.dp)
@@ -347,13 +348,13 @@ private fun RoundCircleIndicator(
                 .clip(CircleShape)
                 .background(color = Color(0xFF00BAB9)),
             strokeWidth = 10.dp,
-            color = Color(0xFF373737),
+            color = LinearTrackColor,
         )
         Box(
             modifier = Modifier
                 .size(110.dp)
                 .clip(CircleShape)
-                .background(color = Color(0xFFE6E6E6))
+                .background(color = BackgroundAppColor)
         )
 
         Column(
@@ -363,13 +364,13 @@ private fun RoundCircleIndicator(
                 text = "ROUND",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W400,
-                color = Color(0xFF373737)
+                color = LinearTrackColor
             )
             Text(
                 text = "$round",
                 fontSize = 40.sp,
                 fontWeight = FontWeight.W400,
-                color = Color(0xFF373737)
+                color = LinearTrackColor
             )
         }
     }
@@ -389,12 +390,7 @@ fun GameProgressIndicator(
             .fillMaxWidth()
             .height(height.dp)
     )
-    Spacer(
-        modifier = Modifier
-            .height(0.5.dp)
-            .fillMaxWidth()
-            .background(color = Color(0xFF373737))
-    )
+    Spacer( modifier = Modifier.height(0.5.dp).fillMaxWidth().background(color = LinearTrackColor) )
 }
 //endregion
 //region GameCard

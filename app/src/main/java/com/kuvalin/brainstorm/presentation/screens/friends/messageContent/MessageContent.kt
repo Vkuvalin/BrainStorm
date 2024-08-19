@@ -22,7 +22,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.screens.friends.UserInfoDialog
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.MessageContentViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -39,6 +40,8 @@ fun MessageContent(
     val component = getApplicationComponent()
     val viewModel: MessageContentViewModel = viewModel(factory = component.getViewModelFactory())
 
+    // Анимация мозга
+    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
     // Список друзей
     val listFriendsUserInfo by viewModel.listFriendsUserInfo.collectAsState()
@@ -84,10 +87,10 @@ fun MessageContent(
                     viewModel.onChatClosed()
                 }
             } else {
-                if (listFriendsUserInfo.isNotEmpty()){
+                if (listFriendsUserInfo.isNotEmpty() && !animBrainLoadState){
                     DisplayListChats(chatClose, listFriendsUserInfo, viewModel)
                 }else {
-                    MessagesNotFound()
+                    if (!animBrainLoadState){ MessagesNotFound() }
                 }
             }
 
@@ -138,7 +141,7 @@ private fun MessagesNotFound() {
     ) {
         Text(
             text = "No new requests have been received.",
-            fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f)
+            fontSize = DynamicFontSize(LocalConfiguration.current.screenWidthDp, 20f)
         )
     }
 }

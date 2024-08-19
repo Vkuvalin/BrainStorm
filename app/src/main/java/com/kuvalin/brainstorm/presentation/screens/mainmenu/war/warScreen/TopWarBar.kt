@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 
 
@@ -35,10 +35,7 @@ fun TopWarBar(
     ratio: Float
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(topBarHeight.dp)
-            .background(color = Color(0xFF373737))
+        modifier = Modifier.fillMaxWidth().height(topBarHeight.dp).background(color = LinearTrackColor)
     ) {
 
         Row(

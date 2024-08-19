@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-
+import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 
 
 @Composable
@@ -32,10 +32,10 @@ fun WarScreenButton(
         modifier = Modifier
             .width(100.dp)
             .clip(RoundedCornerShape(14))
-            .background(color = if (type == "Home") Color(0xFF373737) else CyanAppColor)
+            .background(color = if (type == "Home") LinearTrackColor else CyanAppColor)
             .border(
                 width = 1.dp,
-                color = if (type == "Home") Color(0xFF373737) else CyanAppColor,
+                color = if (type == "Home") LinearTrackColor else CyanAppColor,
                 shape = RoundedCornerShape(14)
             )
             .noRippleClickable { onPressButton() }

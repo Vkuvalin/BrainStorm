@@ -37,7 +37,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.statistics.StatisticsViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlin.math.roundToInt
@@ -88,7 +89,7 @@ fun WarsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
             .padding(top = paddingParent.calculateTopPadding())
             .padding(horizontal = 30.dp)
     ) {
@@ -148,7 +149,7 @@ private fun RoundCircleIndicator(
             modifier = Modifier
                 .size((110*scale).dp)
                 .clip(CircleShape)
-                .background(color = Color(0xFFE6E6E6))
+                .background(color = BackgroundAppColor)
         )
 
         Column(

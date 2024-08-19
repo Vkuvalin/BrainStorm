@@ -186,8 +186,7 @@ fun BrainLoading() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ){
         Column(
             modifier = Modifier
@@ -198,9 +197,7 @@ fun BrainLoading() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                modifier = Modifier
-            ) {
+            Column() {
                 val correctionInCalculationsBrain = 7
 
                 YellowPartSmall(sizeAnimationYellowPart, correctionInCalculationsBrain, infiniteSizeAnimationYellowPart)

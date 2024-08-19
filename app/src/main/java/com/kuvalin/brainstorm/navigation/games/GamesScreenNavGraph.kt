@@ -3,7 +3,6 @@ package com.kuvalin.brainstorm.navigation.games
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,7 +13,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.kuvalin.brainstorm.navigation.staticsClasses.GamesScreen
-import kotlinx.coroutines.delay
 
 @Composable
 fun GamesScreenNavGraph(

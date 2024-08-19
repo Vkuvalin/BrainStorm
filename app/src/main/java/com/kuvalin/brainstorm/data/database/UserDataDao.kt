@@ -7,11 +7,11 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
+import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.FriendWithAllInfo
 import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.UserWithAllInfo

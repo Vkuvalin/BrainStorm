@@ -19,17 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 
@@ -49,7 +46,7 @@ fun FlickMaster(
         onBackButtonClick()
     }
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     // Настройки отображения стрелки
     var degrees by remember { mutableFloatStateOf(getRandomDegrees()) }
     var arrowFileName by remember { mutableStateOf(getRandomFileName()) }
@@ -63,7 +60,6 @@ fun FlickMaster(
     var countIncorrect = 0
 
     // Для проигрывания звуков
-    val musicScope = CoroutineScope(Dispatchers.Default)
     val context = LocalContext.current
     var countTimer = 1
 
@@ -73,7 +69,7 @@ fun FlickMaster(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
@@ -86,25 +82,13 @@ fun FlickMaster(
                         val result = gameResult(degrees, arrowFileName, lastX, offsetToDegrees, lastY)
 
                         if (result) {
-                            musicScope.launch {
-                                MusicPlayer(context = context).run {
-                                    playSuccessInGame()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playSuccessInGame()
                             countCorrect++
                             putActualScope(53) // TODO Пока костыль для экономии времени ТОЧКА-2
                             // Происходит почему-то двойная рекомпозиция TODO - искать
                         }
                         else {
-                            musicScope.launch {
-                                MusicPlayer(context = context).run {
-                                    playErrorInGame()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playErrorInGame()
                             countIncorrect++
                             putActualScope(-22) // TODO Пока костыль для экономии времени ТОЧКА-2
                         }
@@ -131,23 +115,11 @@ fun FlickMaster(
         LaunchedEffect(Unit) {
             delay(10000)
             while (countTimer <= 10){
-                musicScope.launch {
-                    MusicPlayer(context = context).run {
-                        playTimer()
-                        delay(3000)
-                        release()
-                    }
-                }
+                MusicPlayer(context = context).playTimer()
                 delay(1000)
                 countTimer++
             }
-            musicScope.launch {
-                MusicPlayer(context = context).run {
-                    playEndOfTheGame()
-                    delay(3000)
-                    release()
-                }
-            }
+            MusicPlayer(context = context).playEndOfTheGame()
 
             putGameResult(
                 countCorrect,

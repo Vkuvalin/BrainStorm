@@ -16,7 +16,6 @@ import com.kuvalin.brainstorm.domain.usecase.SingUpUseCase
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,7 +35,7 @@ class MenuViewModel @Inject constructor(
 ): ViewModel() {
 
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
     private val _appSettings = MutableStateFlow(AppSettings(musicState = true, vibrateState = true))
     val appSettings: StateFlow<AppSettings> = _appSettings
@@ -79,7 +78,7 @@ class MenuViewModel @Inject constructor(
 
 
 
-    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
 
     // Settings
     fun updateAppSettings(
@@ -137,17 +136,13 @@ class MenuViewModel @Inject constructor(
 
 
 
-    /* ################################# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ################################ */
+    /* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
     fun updateUserEmail(email: String) { _userEmail.value = email }
     fun updateUserPassword(password: String) { _userPassword.value = password }
 
     fun playChoiceClickSound(context: Context) {
         viewModelScope.launch(Dispatchers.Default) {
-            MusicPlayer(context = context).run {
-                playChoiceClick()
-                delay(3000)
-                release()
-            }
+            MusicPlayer(context = context).playChoiceClick()
         }
     }
     /* ########################################################################################## */

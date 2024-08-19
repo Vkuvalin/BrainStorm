@@ -1,12 +1,13 @@
 package com.kuvalin.brainstorm.di
 
 import androidx.lifecycle.ViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GamesResultViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.statistics.StatisticsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsContentViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.MessageContentViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.RequestContentViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameMainScreenViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.BrainStormMainViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MainMenuViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
@@ -106,9 +107,15 @@ interface ViewModelModule {
 
     // ###################### Games
     @IntoMap
-    @ViewModelKey(GamesViewModel::class)
+    @ViewModelKey(GamesResultViewModel::class)
     @Binds
-    fun bindGamesViewModel(viewModel: GamesViewModel): ViewModel
+    fun bindGamesViewModel(viewModel: GamesResultViewModel): ViewModel
+
+
+    @IntoMap
+    @ViewModelKey(GameMainScreenViewModel::class)
+    @Binds
+    fun bindGameMainScreenViewModel(viewModel: GameMainScreenViewModel): ViewModel
     // ######################
 
 

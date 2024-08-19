@@ -27,9 +27,7 @@ class ProfileViewModel @Inject constructor(
     private val getSocialDataUseCase: GetSocialDataUseCase
 ): ViewModel() {
 
-
-
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     private val _userName = MutableStateFlow("")
     val userName: StateFlow<String> = _userName
 
@@ -55,7 +53,7 @@ class ProfileViewModel @Inject constructor(
 
 
 
-    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     // Первичная загрузка данных
     init { viewModelScope.launch { loadUserInfo() } }
     private suspend fun loadUserInfo() {

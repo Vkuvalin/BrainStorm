@@ -40,30 +40,25 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.ShareCompany
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @Composable
-fun AddFriendsButtonContent(
-    onClickDismiss: () -> Unit
-){
+fun AddFriendsButtonContent( onClickDismiss: () -> Unit ){
+
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+
     // Для проигрывания звуков
     val context = LocalContext.current
 
     Dialog(
-        onDismissRequest = {
-            playSoundAndDismiss(context, onClickDismiss)
-        },
+        onDismissRequest = { playSoundAndDismiss(context, onClickDismiss) },
         content = {
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .background(color = Color(0xFFE6E6E6))
+                modifier = Modifier.background(color = BackgroundAppColor)
             ) {
                 //region Крестик
                 AssetImage(
@@ -86,18 +81,19 @@ fun AddFriendsButtonContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
+                    //region Текст + поле вводда
                     AddFriendsButtonLabel()
                     Text(text = "Enter your friend's User Code", modifier = Modifier.offset(y = (-10).dp))
                     Text(text = "Your code is CTS7551", modifier = Modifier.offset( y = (-10).dp))
                     Row(
                         horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp)
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
                     ) {
                         CustomTextFieldFiendsScreen()
                     }
+                    //endregion
                     Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
+                    //region Строка с ShareCompany
                     Row(
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -107,15 +103,19 @@ fun AddFriendsButtonContent(
                         Spacer(modifier = Modifier.width(10.dp))
                         ShareCompany(fileName = "ic_twitter.png", companyName = "Twitter")
                     }
+                    //endregion
+
                 }
             }
 
         },
     )
+    /* ########################################################################################## */
+
 }
 
 
-
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
 //region ShareLabel
 @Composable
 private fun AddFriendsButtonLabel() {
@@ -180,15 +180,10 @@ private fun CustomTextFieldFiendsScreen(placeholder: String = "Enter Code") {
 //endregion
 //region playSoundAndDismiss
 private fun playSoundAndDismiss(context: Context, onClickDismiss: () -> Unit) {
-    CoroutineScope(Dispatchers.Default).launch {
-        MusicPlayer(context = context).run {
-            playChoiceClick()
-            delay(3000)
-            release()
-        }
-    }
+    MusicPlayer(context = context).playChoiceClick()
     onClickDismiss()
 }
 //endregion
+/* ########################################################################################## */
 
 

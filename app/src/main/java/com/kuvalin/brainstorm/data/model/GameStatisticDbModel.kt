@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.data.model
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "games_statistics", primaryKeys = ["uid", "gameName"])

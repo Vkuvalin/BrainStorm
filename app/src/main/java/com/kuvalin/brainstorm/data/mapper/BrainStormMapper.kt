@@ -4,26 +4,25 @@ import android.net.Uri
 import android.util.Log
 import com.kuvalin.brainstorm.data.model.AppCurrencyDbModel
 import com.kuvalin.brainstorm.data.model.AppSettingsDbModel
+import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.FriendInfoDbModel
 import com.kuvalin.brainstorm.data.model.GameResultDbModel
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
-import com.kuvalin.brainstorm.data.model.ChatInfoDbModel
 import com.kuvalin.brainstorm.data.model.SocialDataDbModel
 import com.kuvalin.brainstorm.data.model.UserInfoDbModel
 import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
 import com.kuvalin.brainstorm.domain.entity.AppSettings
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
 import javax.inject.Inject
-
 
 
 class BrainStormMapper @Inject constructor() {

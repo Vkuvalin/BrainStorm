@@ -54,7 +54,10 @@ class MessageContentViewModel @Inject constructor(
     private fun loadFriendsAndChatDecorator(){
         viewModelScope.launch {
             UniversalDecorator().executeAsync(
-                mainFunc = { loadFriendsAndChats() },
+                mainFunc = {
+                    loadFriendsAndChats()
+                    delay(2000)
+                },
                 beforeActions = listOf(Action.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
                 afterActions = listOf(Action.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
             )

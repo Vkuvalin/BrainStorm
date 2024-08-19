@@ -2,15 +2,14 @@ package com.kuvalin.brainstorm.data.firebase
 
 import com.kuvalin.brainstorm.data.model.GameStatisticDbModel
 import com.kuvalin.brainstorm.domain.entity.AppCurrency
+import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.Friend
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
-import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.domain.entity.SocialData
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.entity.UserRequest
 import com.kuvalin.brainstorm.domain.entity.WarStatistics
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 

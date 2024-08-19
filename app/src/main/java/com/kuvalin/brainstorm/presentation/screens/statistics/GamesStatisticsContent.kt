@@ -34,9 +34,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
-import com.kuvalin.brainstorm.presentation.viewmodels.StatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.statistics.StatisticsViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 
 @SuppressLint("MutableCollectionMutableState")
@@ -77,7 +78,7 @@ fun GamesStatisticsContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingParent.calculateTopPadding())
-                .background(color = Color(0xFFE6E6E6))
+                .background(color = BackgroundAppColor)
                 .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp))
             ,
             columns = GridCells.Fixed(2)
@@ -145,7 +146,7 @@ fun GamesStatisticsItem(
         ) {
             Text(
                 text = gamesInfo.sectionName,
-                fontSize = dynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
+                fontSize = DynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
                 color = Color.DarkGray
             )
             Row(
@@ -155,13 +156,13 @@ fun GamesStatisticsItem(
             ) {
                 Text(
                     text = "${gameStatistic?.maxGameScore ?: 0}",
-                    fontSize = dynamicFontSize(screenWidth, if (type == "games") 16f else 12f),
+                    fontSize = DynamicFontSize(screenWidth, if (type == "games") 16f else 12f),
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Avg. ${gameStatistic?.avgGameScore ?: 0}",
-                    fontSize = dynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
+                    fontSize = DynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
                     color = Color.Gray
                 )
             }

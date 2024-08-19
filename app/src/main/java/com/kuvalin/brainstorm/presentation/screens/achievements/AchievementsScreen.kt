@@ -39,21 +39,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun AchievementsScreen(
     paddingParent: PaddingValues
 ) {
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
     // Вот эта срань позде переедет в базу
     val achievementsList = mutableListOf(
@@ -82,7 +79,7 @@ fun AchievementsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingParent.calculateTopPadding())
-                .background(color = Color(0xFFE6E6E6)),
+                .background(color = BackgroundAppColor),
             columns = GridCells.Fixed(2) // .Adaptive(minSize = 100.dp)
         ) {
             items(achievementsList.size) { position ->
@@ -102,7 +99,6 @@ private fun AchievementsItem(
 ) {
 
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
     var clickOnAchievementState by remember { mutableStateOf(false) }
 
     if (clickOnAchievementState){
@@ -118,10 +114,10 @@ private fun AchievementsItem(
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(20))
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
             .padding(25.dp)
             .noRippleClickable {
-                scope.launch { MusicPlayer(context).playChoiceClick() }
+                MusicPlayer(context).playChoiceClick()
                 clickOnAchievementState = true
             },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -139,7 +135,7 @@ private fun AchievementsItem(
             text = achievementsList[position][1],
             color = CyanAppColor,
             fontWeight = FontWeight.W500,
-            fontSize = dynamicFontSize(LocalConfiguration.current.screenWidthDp, 16f),
+            fontSize = DynamicFontSize(LocalConfiguration.current.screenWidthDp, 16f),
             modifier = Modifier.alpha(if(isActive) 0.5f else 1f)
         )
     }
@@ -156,7 +152,6 @@ fun AchievementsItemContent(
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenWidthDp
@@ -164,13 +159,7 @@ fun AchievementsItemContent(
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context = context).run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
+            MusicPlayer(context = context).playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -178,7 +167,7 @@ fun AchievementsItemContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xFFE6E6E6))
+                    .background(color = BackgroundAppColor)
                     .height(screenHeight.dp),
             ) {
 
@@ -193,13 +182,7 @@ fun AchievementsItemContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playChoiceClick()
                             onClickDismiss()
                         }
                 )

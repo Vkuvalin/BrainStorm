@@ -53,6 +53,7 @@ import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.main.ProfileViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import com.kuvalin.brainstorm.ui.theme.checkedBorderColor
@@ -79,10 +80,11 @@ fun ProfileScreenContent(
     paddingValues: PaddingValues
 ) {
 
-
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
-    // init
+    /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
     GlobalStates.AnimLoadState(350){}
+    /* ########################################################################################## */
+
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
     // Базовые
     val component = getApplicationComponent()
@@ -119,7 +121,7 @@ fun ProfileScreenContent(
 
 
 
-    /* #################################### ОСНОВНЫЕ ФУНКЦИИ #################################### */
+    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
     Column(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
     ) {
@@ -161,7 +163,7 @@ fun ProfileScreenContent(
 
 
 
-/* ################################# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ################################ */
+/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
 
 //region AvatarBox
 @Composable
@@ -233,7 +235,7 @@ fun ProfileContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6)),
+            .background(color = BackgroundAppColor),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

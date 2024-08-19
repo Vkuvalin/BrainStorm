@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.game.games
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,8 +49,7 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -118,7 +113,7 @@ fun PathToSafety(
         onBackButtonClick()
     }
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     val coroutineScope = rememberCoroutineScope()
 
     // Генерация игрового поля
@@ -151,7 +146,6 @@ fun PathToSafety(
     // Для проигрывания звуков
     val context = LocalContext.current
     var countTimer = 1
-    val musicScope = CoroutineScope(Dispatchers.Default)
     /* ########################################################################################## */
 
 
@@ -179,7 +173,7 @@ fun PathToSafety(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
     ) {
         LazyVerticalGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -240,13 +234,7 @@ fun PathToSafety(
 
                         if (listClickableIndexes.count { it == 1 } < 2 && startStage) {
                             resultsList.add(-1)
-                            musicScope.launch {
-                                MusicPlayer(context = context).run {
-                                    playErrorInGame()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playErrorInGame()
 
                             movingState = false
                             currentCell = -1
@@ -274,31 +262,13 @@ fun PathToSafety(
 
                             if (listClickableIndexes.count { it == 1 } >= 2) {
                                 if (3 in listClickableIndexes) {
-                                    musicScope.launch {
-                                        MusicPlayer(context = context).run {
-                                            playErrorInGame()
-                                            delay(3000)
-                                            release()
-                                        }
-                                    }
+                                    MusicPlayer(context = context).playErrorInGame()
                                     resultsList.add(-1)
                                 } else if (2 in listClickableIndexes) {
-                                    musicScope.launch {
-                                        MusicPlayer(context = context).run {
-                                            playSuccessInGame()
-                                            delay(3000)
-                                            release()
-                                        }
-                                    }
+                                    MusicPlayer(context = context).playSuccessInGame()
                                     resultsList.add(3)
                                 } else {
-                                    musicScope.launch {
-                                        MusicPlayer(context = context).run {
-                                            playSuccessInGame()
-                                            delay(3000)
-                                            release()
-                                        }
-                                    }
+                                    MusicPlayer(context = context).playSuccessInGame()
                                     resultsList.add(2)
                                 }
 
@@ -376,23 +346,11 @@ fun PathToSafety(
     LaunchedEffect(Unit) {
         delay(10000)
         while (countTimer <= 10){
-            musicScope.launch {
-                MusicPlayer(context = context).run {
-                    playTimer()
-                    delay(3000)
-                    release()
-                }
-            }
+            MusicPlayer(context = context).playTimer()
             delay(1000)
             countTimer++
         }
-        musicScope.launch {
-            MusicPlayer(context = context).run {
-                playEndOfTheGame()
-                delay(3000)
-                release()
-            }
-        }
+        MusicPlayer(context = context).playEndOfTheGame()
 
         resultsList.forEach {
             if (it > 0){

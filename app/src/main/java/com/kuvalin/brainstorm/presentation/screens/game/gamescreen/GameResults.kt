@@ -45,16 +45,13 @@ import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.GameResult
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.viewmodels.GamesViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GamesResultViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 // С масштабированием в приложении снова проблемы, но переписать части сейчас не видится проблемой
@@ -81,17 +78,16 @@ fun GameResults(
 
 
 
-    /* ####################################### ПЕРЕМЕННЫЕ ####################################### */
+    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
     // Для проигрывания звуков
     val context = LocalContext.current
-    val musicScope = CoroutineScope(Dispatchers.Default)
 
     // Отрисовка элементов
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    val dynamicFontSize1 = dynamicFontSize(screenWidth, 20f)
-    val dynamicFontSize2 = dynamicFontSize(screenWidth, 16f)
-    val dynamicFontSize3 = dynamicFontSize(screenWidth, 13f)
+    val dynamicFontSize1 = DynamicFontSize(screenWidth, 20f)
+    val dynamicFontSize2 = DynamicFontSize(screenWidth, 16f)
+    val dynamicFontSize3 = DynamicFontSize(screenWidth, 13f)
 
     // Подсчет статистики
     val finalAccuracy = (accuracy * 1000).roundToInt() / 10.0f
@@ -101,7 +97,7 @@ fun GameResults(
 
     // Работа с базой (GameStatistic)
     val component = getApplicationComponent()
-    val viewModel: GamesViewModel = viewModel(factory = component.getViewModelFactory())
+    val viewModel: GamesResultViewModel = viewModel(factory = component.getViewModelFactory())
     val userUid = Firebase.auth.uid ?: "zero_user_uid"
 
     /* ########################################################################################## */
@@ -124,7 +120,7 @@ fun GameResults(
 
     Column(
         modifier = Modifier
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
             .padding(horizontal = 20.dp)
             .fillMaxSize()
             .wrapContentHeight(align = Alignment.CenterVertically),
@@ -198,7 +194,7 @@ fun GameResults(
                     modifier = Modifier
                         .size(110.dp)
                         .clip(CircleShape)
-                        .background(color = Color(0xFFE6E6E6))
+                        .background(color = BackgroundAppColor)
                 )
 
                 Column(
@@ -332,13 +328,7 @@ fun GameResults(
                     buttonSize = 24,
                     color = Color(0xFFFF7700)
                 ){
-                    musicScope.launch {
-                        MusicPlayer(context = context).run {
-                            playChoiceClick()
-                            delay(3000)
-                            release()
-                        }
-                    }
+                    MusicPlayer(context = context).playChoiceClick()
                     onRetryButtonClick()
                 }
             }
@@ -349,13 +339,7 @@ fun GameResults(
                     buttonSize = 24,
                     color = CyanAppColor
                 ){
-                    musicScope.launch {
-                        MusicPlayer(context = context).run {
-                            playChoiceClick()
-                            delay(3000)
-                            release()
-                        }
-                    }
+                    MusicPlayer(context = context).playChoiceClick()
                     onBackButtonClick()
                 }
             }

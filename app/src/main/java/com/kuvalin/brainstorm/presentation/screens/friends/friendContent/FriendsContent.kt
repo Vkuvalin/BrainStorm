@@ -32,12 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.globalClasses.dynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.screens.friends.AddFriendsButtonContent
 import com.kuvalin.brainstorm.presentation.screens.friends.UserInfoDialog
 import com.kuvalin.brainstorm.presentation.screens.friends.UserRequestOrFriendPanel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsContentViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 
 @Composable
@@ -62,6 +64,8 @@ fun FriendsContent(
     var onClickButtonState by remember { mutableStateOf(false) }
     if (onClickButtonState){ AddFriendsButtonContent(){ onClickButtonState = false } }
 
+    // Анимация мозга
+    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
     // Список друзей
     val listFriendsUserInfo by viewModel.listFriendsUserInfo.collectAsState()
@@ -82,14 +86,12 @@ fun FriendsContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = paddingValues.calculateTopPadding())
-            .background(color = Color(0xFFE6E6E6))
+            .background(color = BackgroundAppColor)
     ) {
 
-        if (listFriendsUserInfo.isNotEmpty()){
+        if (listFriendsUserInfo.isNotEmpty() && !animBrainLoadState){
             //region Список друзей
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
+            LazyColumn( modifier = Modifier.fillMaxSize()) {
                 items(
                     items = listFriendsUserInfo,
                     key = { it.uid } // Используем уникальный идентификатор пользователя как ключ
@@ -99,31 +101,18 @@ fun FriendsContent(
                     }
                 }
             }
-            //region Старая версия
-            /*
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                listFriendsUserInfo?.let { list ->
-                    items(list.size) { position ->
-                        UserRequestOrFriendPanel(userInfo = list[position]) {
-                            viewModel.onUserRequestPanelClick(list[position])
-                        }
-                    }
-                }
-            }
-            */
-            //endregion
             //endregion
         }else {
-            AddFriendButton(screenWidth, dynamicRowWidth){ onClickButtonState = true }
+            if (!animBrainLoadState){
+                AddFriendButton(screenWidth, dynamicRowWidth){ onClickButtonState = true }
+            }
         }
 
     }
     /* ########################################################################################## */
 
-
 }
+
 
 /* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
 //region Кнопка добавления
@@ -134,14 +123,12 @@ private fun AddFriendButton(
     onClickButtonState: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentSize(align = Alignment.Center),
+        modifier = Modifier.fillMaxSize().wrapContentSize(align = Alignment.Center),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Challenge your friends!",
-            fontSize = dynamicFontSize(screenWidth, 20f)
+            fontSize = DynamicFontSize(screenWidth, 20f)
         )
         Row(
             horizontalArrangement = Arrangement.Center,

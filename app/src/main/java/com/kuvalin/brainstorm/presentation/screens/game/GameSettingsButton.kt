@@ -31,11 +31,8 @@ import androidx.compose.ui.window.Dialog
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -44,7 +41,6 @@ fun GameSettingsButton(
 ){
     // Для проигрывания звуков
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
     // Должно перекачевать в базу
     var selectSButtonState by remember { mutableStateOf(false) }
@@ -54,13 +50,7 @@ fun GameSettingsButton(
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                MusicPlayer(context = context).run {
-                    playChoiceClick()
-                    delay(3000)
-                    release()
-                }
-            }
+            MusicPlayer(context = context).playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -68,7 +58,7 @@ fun GameSettingsButton(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .background(color = Color(0xFFE6E6E6))
+                    .background(color = BackgroundAppColor)
             ) {
                 //region Крестик
                 AssetImage(
@@ -81,13 +71,7 @@ fun GameSettingsButton(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            scope.launch {
-                                MusicPlayer(context = context).run {
-                                    playChoiceClick()
-                                    delay(3000)
-                                    release()
-                                }
-                            }
+                            MusicPlayer(context = context).playChoiceClick()
                             onClickDismiss()
                         }
                 )

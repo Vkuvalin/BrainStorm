@@ -38,9 +38,7 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -71,7 +69,6 @@ fun GameDialogAndStart(
 
     // Проигрывание музыки
     val context = LocalContext.current
-    val scope = CoroutineScope(Dispatchers.Default)
 
 
     // Получаем нужные размеры экрана
@@ -108,7 +105,7 @@ fun GameDialogAndStart(
                     modifier = Modifier
                         .height(screenWidth.dp)
                         .clip(RoundedCornerShape(3))
-                        .background(color = Color(0xFFE6E6E6))
+                        .background(color = BackgroundAppColor)
                 ) {
 
                     Text(
@@ -154,7 +151,7 @@ fun GameDialogAndStart(
                             shape = RoundedCornerShape(14)
                         )
                         .noRippleClickable {
-                            scope.launch { MusicPlayer(context).playChoiceStartGame() }
+                            MusicPlayer(context).playChoiceStartGame()
                             onStartButtonClick()
                         }
                 ) {
