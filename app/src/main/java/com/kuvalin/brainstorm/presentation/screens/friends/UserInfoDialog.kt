@@ -128,7 +128,6 @@ fun UserInfoDialog(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-//                        .height((screenWidth * 1.2).dp) // TODO TODO TODO TODO TODO TODO TODO TODO
                         .clip(RoundedCornerShape(3))
                         .background(color = BackgroundAppColor)
                 ) {

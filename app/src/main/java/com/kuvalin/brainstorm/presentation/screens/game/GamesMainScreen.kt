@@ -68,7 +68,7 @@ fun GamesMainScreen( paddingValuesParent: PaddingValues ) {
             navHostController = navigationState.navHostController,
             gameInitialScreenContent = {
                 if (!runGameScreenState) {
-                    viewModel.setRunGameScreenState(false)
+                    GlobalStates.putScreenState("runGameScreenState", false)
                     GameScreenInitialContent(viewModel, paddingValuesParent, items, navigationState)
                 }
             },
@@ -97,9 +97,12 @@ private fun GameScreenInitialContent(
     navigationState: NavigationState
 ) {
 
-    val context = LocalContext.current                                  // Для проигрывания звуков
+
+    GlobalStates.AnimLoadState(400){}
     val animLoadState by GlobalStates.animLoadState.collectAsState()    // Ждем прогрузки анимации
-    viewModel.StartAnimLoadState()
+
+    val context = LocalContext.current
+
 
     Box(
         modifier = Modifier
@@ -121,7 +124,7 @@ private fun GameScreenInitialContent(
                     miniatureGameImage = items[position].miniatureGameImage
                 ) {
                     if (animLoadState) {
-                        viewModel.setRunGameScreenState(true)
+                        GlobalStates.putScreenState("runGameScreenState", true)
                         MusicPlayer(context = context).playChoiceClick()
                         viewModel.navigateWithDelay(navigationState, items[position].screen.route)
                     }
