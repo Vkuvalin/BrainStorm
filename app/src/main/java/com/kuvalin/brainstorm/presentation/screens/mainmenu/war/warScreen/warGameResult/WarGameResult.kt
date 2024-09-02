@@ -38,6 +38,7 @@ import com.kuvalin.brainstorm.domain.entity.WarResult
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.Avatar
 import com.kuvalin.brainstorm.presentation.viewmodels.main.WarViewModel
+import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
@@ -121,7 +122,7 @@ fun WarGameResult(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xE6E6E6E6))
+            .background(color = BackgroundAppColor)
             .padding(horizontal = 20.dp)
     ) {
 

@@ -484,8 +484,7 @@ fun AccountContent(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .background(color = Color(0xE6E6E6E6))
+                modifier = Modifier.background(color = BackgroundAppColor)
             ) {
                 //region Крестик
                 AssetImage(

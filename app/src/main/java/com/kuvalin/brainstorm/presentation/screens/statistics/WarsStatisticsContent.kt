@@ -19,11 +19,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,10 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.presentation.viewmodels.statistics.StatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.statistics.WarsStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
@@ -45,45 +40,38 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun WarsContent(
+fun WarsStatisticsContent(
     paddingParent: PaddingValues,
     uid: String? = null,
-    parentWidth: Int? = null,
+    parentWidth: Int? = null
 ) {
 
-    // Компонент
-    val component = getApplicationComponent()
-    val viewModel: StatisticsViewModel = viewModel(factory = component.getViewModelFactory())
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
-    val userUid = uid ?: Firebase.auth.uid ?: "zero_user_uid"
+    // ViewModel
+    val viewModel: WarsStatisticsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
 
-
-    var wins by remember { mutableIntStateOf(0) }
-    var losses by remember { mutableIntStateOf(0) }
-    var draws by remember { mutableIntStateOf(0) }
-    var highestScore by remember { mutableIntStateOf(0) }
-    var winRate by remember { mutableFloatStateOf(0f) }
-
-
+    // Загрузка статистики пользователя
     LaunchedEffect(Unit) {
-        viewModel.getWarStatistic.invoke(userUid)?.let {warStatistics ->
-            wins = warStatistics.wins
-            losses = warStatistics.losses
-            draws = warStatistics.draws
-
-            winRate = (wins/(wins+losses).toFloat())
-            highestScore = warStatistics.highestScore
-        }
+        val currentUserUid = uid ?: viewModel.getUserUid.invoke()
+        viewModel.loadWarStatistics(currentUserUid)
     }
 
+    // Подписка на изменения в ViewModel
+    val wins by viewModel.wins.collectAsState()
+    val losses by viewModel.losses.collectAsState()
+    val draws by viewModel.draws.collectAsState()
+    val highestScore by viewModel.highestScore.collectAsState()
+    val winRate by viewModel.winRate.collectAsState()
+
+    // Получение размеров экрана и расчет коэффициента масштабирования
     val configuration = LocalConfiguration.current
     val screenWidth = parentWidth ?: configuration.screenWidthDp
-    val compressionRatio = (screenWidth/393.toFloat())
-    // 393 - величина ширины экрана устройства, на котором разрабатывался (высота не учтена - это плохо)
-    // TODO нужна универсальная функция AdaptiveBoxContent, которая будет учитывать несколько парам.
-    // Посмотреть, какие вообще практики есть
+    val compressionRatio = calculateCompressionRatio(screenWidth)
 
+    //endregion ################################################################################# */
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,8 +103,11 @@ fun WarsContent(
         AdaptiveBoxContent(compressionRatio){ HighestScoreBoxContent(highestScore, compressionRatio) }
 
     }
+    //endregion ################################################################################## */
 
 }
+
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 
 @Composable
 private fun AdaptiveBoxContent(scale: Float, content: @Composable () -> Unit) {
@@ -224,8 +215,11 @@ private fun HighestScoreBoxContent(value: Int, scale: Float) {
 }
 //endregion
 
+// Вспомогательная функция для расчета коэффициента сжатия экрана
+private fun calculateCompressionRatio(screenWidth: Int): Float {
+    return screenWidth / 393.toFloat()
+}
 
-
-
+//endregion ################################################################################## */
 
 

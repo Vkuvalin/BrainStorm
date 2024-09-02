@@ -158,7 +158,7 @@ fun GameSettingsSubButton(
         Text(
             text = buttonName,
             fontSize = 20.sp,
-            color = if(selectState) Color.White else Color(0xE6E6E6E6),
+            color = if(selectState) Color.White else BackgroundAppColor,
             fontWeight = FontWeight.W400,
             textAlign = TextAlign.Center,
             modifier = Modifier

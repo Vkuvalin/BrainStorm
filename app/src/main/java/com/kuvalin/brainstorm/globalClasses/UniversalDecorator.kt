@@ -53,10 +53,10 @@ import kotlinx.coroutines.delay
  * @param measureMainFunctionTime Замер времени основной функции.
  * @param measureAllActionsTime Замер времени всех действий (включая before и after).
  *
- * @see [com.kuvalin.brainstorm.globalClasses.Action]
+ * @see [com.kuvalin.brainstorm.globalClasses.DecAction]
  */
 class UniversalDecorator(
-    private val baseLogTag: String = "UniversalDecorator",
+    private val baseLogTag: String = "DecLog",
     private val measureMainFunctionTime: Boolean = false,
     private val measureAllActionsTime: Boolean = false
 ) {
@@ -66,6 +66,18 @@ class UniversalDecorator(
      */
     enum class LogLevel {
         DEBUG, INFO, WARN
+    }
+
+
+    fun logOutput(
+        action: DecAction.Log,
+        subLogTag: String? = null
+    ){
+        val fullLogTag = buildString {
+            append(baseLogTag)
+            subLogTag?.let { append("-$it") }
+        }
+        logMessage(fullLogTag, action.message, action.logLevel)
     }
 
 
@@ -82,9 +94,8 @@ class UniversalDecorator(
     //region fun <T> execute
     fun <T> execute(
         mainFunc: () -> T,
-        beforeActions: List<Action>? = null,
-        afterActions: List<Action>? = null,
-        logLevel: LogLevel = LogLevel.INFO,
+        beforeActions: List<DecAction>? = null,
+        afterActions: List<DecAction>? = null,
         subLogTag: String? = null
     ): T {
         val fullLogTag = buildString {
@@ -97,7 +108,7 @@ class UniversalDecorator(
 
         // Выполнение всех действий до вызова основной функции
         beforeActions?.forEach { action ->
-            executeSyncAction(action, fullLogTag, logLevel)
+            executeSyncAction(action, fullLogTag)
         }
 
         // Замер времени основной функции
@@ -109,18 +120,18 @@ class UniversalDecorator(
         // Логирование времени выполнения основной функции
         if (measureMainFunctionTime) {
             val endTime = System.currentTimeMillis()
-            logMessage(fullLogTag, "Main function execution time: ${endTime - startTime} ms", logLevel)
+            logMessage(fullLogTag, "Main function execution time: ${endTime - startTime} ms", LogLevel.INFO)
         }
 
         // Выполнение всех действий после вызова основной функции
         afterActions?.forEach { action ->
-            executeSyncAction(action, fullLogTag, logLevel)
+            executeSyncAction(action, fullLogTag)
         }
 
         // Логирование общего времени выполнения всех действий
         if (measureAllActionsTime) {
             val totalEndTime = System.currentTimeMillis()
-            logMessage(fullLogTag, "Total execution time (all actions): ${totalEndTime - totalStartTime} ms", logLevel)
+            logMessage(fullLogTag, "Total execution time (all actions): ${totalEndTime - totalStartTime} ms", LogLevel.INFO)
         }
 
         return result
@@ -141,9 +152,8 @@ class UniversalDecorator(
     //region suspend fun <T> executeAsync
     suspend fun <T> executeAsync(
         mainFunc: suspend () -> T,
-        beforeActions: List<Action>? = null,
-        afterActions: List<Action>? = null,
-        logLevel: LogLevel = LogLevel.INFO,
+        beforeActions: List<DecAction>? = null,
+        afterActions: List<DecAction>? = null,
         subLogTag: String? = null
     ): T {
         val fullLogTag = buildString {
@@ -156,7 +166,7 @@ class UniversalDecorator(
 
         // Выполнение всех действий до вызова основной функции
         beforeActions?.forEach { action ->
-            executeAsyncAction(action, fullLogTag, logLevel)
+            executeAsyncAction(action, fullLogTag)
         }
 
         // Замер времени основной функции
@@ -168,18 +178,18 @@ class UniversalDecorator(
         // Логирование времени выполнения основной функции
         if (measureMainFunctionTime) {
             val endTime = System.currentTimeMillis()
-            logMessage(fullLogTag, "Main function execution time: ${endTime - startTime} ms", logLevel)
+            logMessage(fullLogTag, "Main function execution time: ${endTime - startTime} ms", LogLevel.INFO)
         }
 
         // Выполнение всех действий после вызова основной функции
         afterActions?.forEach { action ->
-            executeAsyncAction(action, fullLogTag, logLevel)
+            executeAsyncAction(action, fullLogTag)
         }
 
         // Логирование общего времени выполнения всех действий
         if (measureAllActionsTime) {
             val totalEndTime = System.currentTimeMillis()
-            logMessage(fullLogTag, "Total execution time (all actions): ${totalEndTime - totalStartTime} ms", logLevel)
+            logMessage(fullLogTag, "Total execution time (all actions): ${totalEndTime - totalStartTime} ms", LogLevel.INFO)
         }
 
         return result
@@ -210,12 +220,12 @@ class UniversalDecorator(
      * @param logTag Тег для логирования.
      * @param logLevel Уровень логирования.
      */
-    private fun executeSyncAction(action: Action, logTag: String, logLevel: LogLevel) {
+    private fun executeSyncAction(action: DecAction, logTag: String) {
         when (action) {
-            is Action.Log -> logMessage(logTag, action.message, logLevel)
-            is Action.Execute -> action.function(logTag)
-            is Action.MeasureTime -> Unit // Замер времени выполняется в основном коде
-            is Action.Delay -> {} // Delay здесь не поддерживается
+            is DecAction.Log -> logMessage(logTag, action.message, action.logLevel)
+            is DecAction.Execute -> action.function(logTag)
+            is DecAction.MeasureTime -> Unit // Замер времени выполняется в основном коде
+            is DecAction.Delay -> {} // Delay здесь не поддерживается
         }
     }
 
@@ -227,12 +237,12 @@ class UniversalDecorator(
      * @param logTag Тег для логирования.
      * @param logLevel Уровень логирования.
      */
-    private suspend fun executeAsyncAction(action: Action, logTag: String, logLevel: LogLevel) {
+    private suspend fun executeAsyncAction(action: DecAction, logTag: String) {
         when (action) {
-            is Action.Log -> logMessage(logTag, action.message, logLevel)
-            is Action.Execute -> action.function(logTag)
-            is Action.MeasureTime -> Unit // Замер времени выполняется в основном коде
-            is Action.Delay -> delay(action.millis)
+            is DecAction.Log -> logMessage(logTag, action.message, action.logLevel)
+            is DecAction.Execute -> action.function(logTag)
+            is DecAction.MeasureTime -> Unit // Замер времени выполняется в основном коде
+            is DecAction.Delay -> delay(action.millis)
         }
     }
 
@@ -241,14 +251,17 @@ class UniversalDecorator(
 /**
  * Sealed class, представляющий возможные действия для декоратора.
  */
-sealed class Action {
+sealed class DecAction {
     /**
      * Логирование сообщения.
      *
      * @param message Сообщение, которое нужно залогировать.
      * @param logLevel Уровень логирования (DEBUG, INFO, WARN).
      */
-    class Log(val message: String, val logLevel: UniversalDecorator.LogLevel = UniversalDecorator.LogLevel.INFO) : Action()
+    class Log(
+        val message: String,
+        val logLevel: UniversalDecorator.LogLevel = UniversalDecorator.LogLevel.INFO
+    ) : DecAction()
 
 
     /**
@@ -256,13 +269,13 @@ sealed class Action {
      *
      * @param function Функция, которую нужно выполнить.
      */
-    class Execute(val function: (String) -> Unit) : Action()
+    class Execute(val function: (String) -> Unit) : DecAction()
 
 
     /**
      * Замер времени выполнения основной функции.
      */
-    object MeasureTime : Action()
+    object MeasureTime : DecAction()
 
 
     /**
@@ -270,5 +283,5 @@ sealed class Action {
      *
      * @param millis Задержка в миллисекундах.
      */
-    class Delay(val millis: Long) : Action()
+    class Delay(val millis: Long) : DecAction()
 }

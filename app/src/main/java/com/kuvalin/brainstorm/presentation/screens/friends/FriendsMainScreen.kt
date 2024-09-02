@@ -1,6 +1,7 @@
 package com.kuvalin.brainstorm.presentation.screens.friends
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.friends.FriendsNavigationItem
 import com.kuvalin.brainstorm.navigation.friends.FriendsScreenNavGraph
+import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
 import com.kuvalin.brainstorm.presentation.screens.friends.friendContent.FriendsContent
 import com.kuvalin.brainstorm.presentation.screens.friends.messageContent.MessageContent
@@ -63,7 +65,7 @@ fun FriendsMainScreen(
     paddingValuesParent: PaddingValues
 ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val navigationState = rememberNavigationState()
 
     // TopAppBar
@@ -82,116 +84,19 @@ fun FriendsMainScreen(
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
     /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
 
     Scaffold(
+        
         modifier = Modifier.padding(top = paddingValuesParent.calculateTopPadding()),
-
-        //region TopBar
         topBar = {
-
-            if (!runGameScreenState) {
-                Column(
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    BottomAppBar(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(appbarHeight.dp)
-                    ) {
-
-                        val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
-
-                        val items = listOf(
-                            FriendsNavigationItem.ListFriends,
-                            FriendsNavigationItem.Messages,
-                            FriendsNavigationItem.Requests
-                        )
-                        items.forEachIndexed { index, item ->
-
-                            val selected = navBackStackEntry?.destination?.hierarchy?.any {
-                                it.route == item.screen.route
-                            } ?: false
-
-                            //region NavigationBarItem
-                            NavigationBarItem(
-                                selected = selected,
-                                onClick = {},
-                                icon = {},
-                                label = {
-                                    BoxWithConstraints(
-                                        modifier = Modifier.offset(y = 16.dp), // Интересно даже...
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = item.sectionName,
-                                            color = if (selected) CyanAppColor else Color.White,
-                                            fontSize = 20.sp,
-                                            softWrap = false,
-                                            fontWeight = if (selected) FontWeight.W400 else FontWeight.W300,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier
-                                                .noRippleClickable {
-                                                    if (!selected) {
-                                                        if (animLoadState) {
-                                                            clickNavigation = true
-                                                            MusicPlayer(context).playChoiceClick()
-                                                            navigationState.navigateTo(item.screen.route)
-                                                        }
-                                                    }
-                                                }
-                                                .requiredWidth(maxWidth + 22.dp)
-                                                .requiredHeight(maxHeight + 10.dp)
-                                                .fillMaxHeight()
-                                                .background(color = if (selected) BackgroundAppColor else CyanAppColor)
-                                                .wrapContentWidth(unbounded = true)
-                                                .wrapContentHeight(Alignment.CenterVertically)
-                                                .zIndex(-1f)
-
-                                        )
-                                    }
-                                }
-                                ,
-                                colors = NavigationBarItemDefaults
-                                    .colors(
-                                        indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                            LocalAbsoluteTonalElevation.current
-                                        )
-                                    )
-                            )
-                            //endregion
-
-                            if (index < items.size - 1) {
-                                Column (
-                                    modifier = Modifier.zIndex(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .offset(y = (-2).dp)
-                                            .fillMaxHeight()
-                                            .width(9.dp)
-                                            .background(BackgroundAppColor)
-                                            .border((3.5).dp, color = CyanAppColor)
-                                            .requiredHeight(50.dp)
-
-                                    )
-                                }
-                            }
-
-                        }
-                    }
-                }
-            }
-
-
+            FriendTopBar( runGameScreenState, appbarHeight, navigationState, 
+                animLoadState, context ){ clickNavigation = it }
         }
-        //endregion
-
+        
     ) { paddingValues ->
 
         FriendsScreenNavGraph(
@@ -206,5 +111,128 @@ fun FriendsMainScreen(
 
 
 }
+
+//region FriendTopBar
+@Composable
+private fun FriendTopBar(
+    runGameScreenState: Boolean,
+    appbarHeight: Int,
+    navigationState: NavigationState,
+    animLoadState: Boolean,
+    context: Context,
+    clickNavigation: (Boolean) -> Unit
+) {
+    if (!runGameScreenState) {
+        Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+
+            BottomAppBar(modifier = Modifier.fillMaxWidth().height(appbarHeight.dp)) {
+
+                val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+
+                val items = listOf(
+                    FriendsNavigationItem.ListFriends,
+                    FriendsNavigationItem.Messages,
+                    FriendsNavigationItem.Requests
+                )
+                items.forEachIndexed { index, item ->
+
+                    val selected = navBackStackEntry?.destination?.hierarchy?.any {
+                        it.route == item.screen.route
+                    } ?: false
+
+                    //region NavigationBarItem
+                    NavigationBarItem(
+                        selected = selected,
+                        onClick = {},
+                        icon = {},
+                        label = {
+                            CustomNavigationBarItem( item, selected, animLoadState, 
+                                clickNavigation, context, navigationState )
+                        },
+                        colors = NavigationBarItemDefaults
+                            .colors(
+                                indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    LocalAbsoluteTonalElevation.current
+                                )
+                            )
+                    )
+                    //endregion
+
+                    Separator(index, items)
+                }
+            }
+        }
+    }
+}
+
+
+//region CustomNavigationBarItem
+@Composable
+private fun CustomNavigationBarItem(
+    item: FriendsNavigationItem,
+    selected: Boolean,
+    animLoadState: Boolean,
+    clickNavigation: (Boolean) -> Unit,
+    context: Context,
+    navigationState: NavigationState
+) {
+    BoxWithConstraints(
+        modifier = Modifier.offset(y = 16.dp), // Интересно даже...
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = item.sectionName,
+            color = if (selected) CyanAppColor else Color.White,
+            fontSize = 20.sp,
+            softWrap = false,
+            fontWeight = if (selected) FontWeight.W400 else FontWeight.W300,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .noRippleClickable {
+                    if (!selected) {
+                        if (animLoadState) {
+                            clickNavigation(true)
+                            MusicPlayer(context).playChoiceClick()
+                            navigationState.navigateTo(item.screen.route)
+                        }
+                    }
+                }
+                .requiredWidth(maxWidth + 22.dp)
+                .requiredHeight(maxHeight + 10.dp)
+                .fillMaxHeight()
+                .background(color = if (selected) BackgroundAppColor else CyanAppColor)
+                .wrapContentWidth(unbounded = true)
+                .wrapContentHeight(Alignment.CenterVertically)
+                .zIndex(-1f)
+
+        )
+    }
+}
+//endregion
+//region Separator
+@Composable
+private fun Separator(
+    index: Int,
+    items: List<FriendsNavigationItem>
+) {
+    if (index < items.size - 1) {
+        Column(
+            modifier = Modifier.zIndex(1f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .offset(y = (-2).dp)
+                    .fillMaxHeight()
+                    .width(8.dp)
+                    .background(BackgroundAppColor)
+                    .border((3.5).dp, color = CyanAppColor)
+                    .requiredHeight(50.dp)
+
+            )
+        }
+    }
+}
+//endregion
+//endregion
 
 

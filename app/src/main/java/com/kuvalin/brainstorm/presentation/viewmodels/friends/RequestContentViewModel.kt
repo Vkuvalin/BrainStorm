@@ -13,7 +13,7 @@ import com.kuvalin.brainstorm.domain.usecase.GetGameStatisticsFBUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetUserInfoFBUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetUserRequestsUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetWarStatisticFBUseCase
-import com.kuvalin.brainstorm.globalClasses.Action
+import com.kuvalin.brainstorm.globalClasses.DecAction
 import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates.putScreenState
 import kotlinx.coroutines.delay
@@ -54,8 +54,8 @@ class RequestContentViewModel @Inject constructor(
                     loadUserRequests()
                     delay(1000)
                 },
-                beforeActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", true) }),
-                afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
+                beforeActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", true) }),
+                afterActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", false) })
             )
         }
     }

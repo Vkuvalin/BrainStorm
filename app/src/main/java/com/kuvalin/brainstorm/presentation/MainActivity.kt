@@ -3,7 +3,6 @@ package com.kuvalin.brainstorm.presentation
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -23,7 +22,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.kuvalin.brainstorm.R
-import com.kuvalin.brainstorm.globalClasses.Action
+import com.kuvalin.brainstorm.globalClasses.DecAction
 import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.populateResultPaths
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
@@ -32,10 +31,7 @@ import com.kuvalin.brainstorm.presentation.animation.BrainLoading
 import com.kuvalin.brainstorm.presentation.screens.BrainStormMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -88,7 +84,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 UniversalDecorator().execute(
                     mainFunc = { populateResultPaths(context) },
-                    afterActions = listOf(Action.Log("$resultPaths")),
+                    afterActions = listOf(DecAction.Log("$resultPaths")),
                     subLogTag = "Main"
                 )
             }

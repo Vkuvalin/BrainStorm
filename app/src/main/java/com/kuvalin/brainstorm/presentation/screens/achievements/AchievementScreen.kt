@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,38 +38,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.domain.entity.Achievement
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.presentation.viewmodels.achievement.AchievementsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 
 @Composable
-fun AchievementsScreen(
+fun AchievementScreen(
     paddingParent: PaddingValues
 ) {
 
     /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
-
-    // Вот эта срань позде переедет в базу
-    val achievementsList = mutableListOf(
-        mutableListOf("ic_3000 points.png", "3000 баллов", "Наберите более 3000 баллов за одну игру."),
-        mutableListOf("ic_knowledge_base.png", "База знаний", "Достигните более 950 очков навыка 'память'."),
-        mutableListOf("ic_accuracy.png", "Не промахнусь", "Достигните более 950 очков навыка 'точность'."),
-        mutableListOf("ic_thinking.png", "Сама логика", "Достигните более 950 очков навыка 'суждение'."),
-        mutableListOf("ic_calculate.png", "Калькулятор", "Достигните более 950 очков навыка 'вычисление'."),
-        mutableListOf("ic_deft.png", "Не уйдешь", "5 раз вырвите победу в последней игре."),
-        mutableListOf("ic_invincible.png", "Непобедимый", "Выиграйте 10 игр подряд."),
-        mutableListOf("ic_observation.png", "Не скроешься", "Достигните более 950 очков навыка 'наблюдательность'."),
-        mutableListOf("ic_conqueror.png", "Покоритель", "Доберитесь до S лиги."),
-        mutableListOf("ic_speed.png", "Флеш не ровня", "Достигните более 950 очков навыка 'скорость'."),
-        mutableListOf("ic_top_1.png", "Топ 1", "Займите 1-е место в лиге.")
-    )
-    val achievementsActiveState = mutableListOf(
-        true, false, false, false, true, false, true, false, false, true, false
-    )
+    val component = getApplicationComponent()
+    val viewModel: AchievementsViewModel = viewModel(factory = component.getViewModelFactory())
+    val achievementList by viewModel.achievementList.collectAsState()
     /* ########################################################################################## */
 
 
@@ -80,37 +71,36 @@ fun AchievementsScreen(
                 .fillMaxSize()
                 .padding(top = paddingParent.calculateTopPadding())
                 .background(color = BackgroundAppColor),
-            columns = GridCells.Fixed(2) // .Adaptive(minSize = 100.dp)
+            columns = GridCells.Fixed(2)
         ) {
-            items(achievementsList.size) { position ->
-                AchievementsItem(achievementsList, position, achievementsActiveState)
+            items(achievementList.size) { position ->
+                AchievementItem(achievementList, position)
             }
         }
     }
 
 }
 
-//region AchievementsItem
+//region AchievementItem
 @Composable
-private fun AchievementsItem(
-    achievementsList: MutableList<MutableList<String>>,
-    position: Int,
-    activeStateList: List<Boolean>
+private fun AchievementItem(
+    achievementList: List<Achievement>,
+    position: Int
 ) {
 
     val context = LocalContext.current
     var clickOnAchievementState by remember { mutableStateOf(false) }
 
     if (clickOnAchievementState){
-        AchievementsItemContent(
-            fileName = achievementsList[position][0],
-            achievementName = achievementsList[position][1],
-            description = achievementsList[position][2]
+        AchievementItemContent(
+            fileName = achievementList[position].icon,
+            achievementName = achievementList[position].title,
+            description = achievementList[position].description
         ){ clickOnAchievementState = false }
     }
 
 
-    val isActive = activeStateList[position]
+    val isActive = achievementList[position].activeState
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(20))
@@ -123,7 +113,7 @@ private fun AchievementsItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            bitmap = GetAssetBitmap(fileName = achievementsList[position][0]),
+            bitmap = GetAssetBitmap(fileName = achievementList[position].icon),
             contentDescription = null,
             tint = Color.Unspecified,
             modifier = Modifier
@@ -132,7 +122,7 @@ private fun AchievementsItem(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = achievementsList[position][1],
+            text = achievementList[position].title,
             color = CyanAppColor,
             fontWeight = FontWeight.W500,
             fontSize = DynamicFontSize(LocalConfiguration.current.screenWidthDp, 16f),
@@ -141,18 +131,20 @@ private fun AchievementsItem(
     }
 }
 //endregion
-//region AchievementsItemContent
+//region AchievementItemContent
 @Composable
-fun AchievementsItemContent(
+fun AchievementItemContent(
     fileName: String,
     achievementName: String,
     description: String,
     onClickDismiss: () -> Unit
 ) {
 
+
     // Для проигрывания звуков
     val context = LocalContext.current
 
+    // Немного странно тут считает размер, поэтому беру высоту.
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenWidthDp
 
@@ -163,19 +155,15 @@ fun AchievementsItemContent(
             onClickDismiss()
         },
         content = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .background(color = BackgroundAppColor)
-                    .height(screenHeight.dp),
-            ) {
+
+            Column() {
 
                 //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
                     modifier = Modifier
-                        .offset(x = (10).dp, y = (-10).dp)
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
                         .size(30.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
@@ -187,35 +175,36 @@ fun AchievementsItemContent(
                         }
                 )
                 //endregion
-                AchievementsItemLabel(achievementName)
-                Spacer(modifier = Modifier.height(10.dp))
 
-                AssetImage(
-                    fileName = fileName,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(5))
-                        .border(
-                            width = 0.01.dp,
-                            color = Color(0xE6E6E6),
-                            shape = RoundedCornerShape(5)
-                        )
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(
-                    fontSize = 18.sp,
-                    text = description,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                )
+                        .fillMaxWidth()
+                        .height(screenHeight.dp)
+                        .clip(RoundedCornerShape(3))
+                        .background(color = BackgroundAppColor)
+                ) {
+                    AchievementItemLabel(achievementName)
 
+                    AssetImage(fileName = fileName)
+                    Text(
+                        fontSize = 18.sp,
+                        text = description,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 20.dp)
+                    )
+                }
             }
+
         },
     )
+
 }
 //endregion
-//region AchievementsItemLabel
+//region AchievementItemLabel
 @Composable
-private fun AchievementsItemLabel(text: String) {
+private fun AchievementItemLabel(text: String) {
     Text(
         text = text,
         color = CyanAppColor,
@@ -223,13 +212,15 @@ private fun AchievementsItemLabel(text: String) {
         softWrap = false,
         fontWeight = FontWeight.W400,
         textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(Alignment.Top)
-            .offset(y = -(20).dp)
+        modifier = Modifier.padding(top = 20.dp)
+
     )
 }
 //endregion
+
+
+
+
 
 
 

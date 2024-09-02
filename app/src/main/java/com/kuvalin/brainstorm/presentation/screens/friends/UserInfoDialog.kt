@@ -83,8 +83,8 @@ fun UserInfoDialog(
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val dialogHeight = DynamicSize(screenWidth = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
-    val panelHeight = DynamicSize(screenWidth = screenWidth, desiredSize = (screenWidth/4).toFloat())
+    val dialogHeight = DynamicSize(baseDimension = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
+    val panelHeight = DynamicSize(baseDimension = screenWidth, desiredSize = (screenWidth/4).toFloat())
 
 
     // Функция добавления/удаления в друзья

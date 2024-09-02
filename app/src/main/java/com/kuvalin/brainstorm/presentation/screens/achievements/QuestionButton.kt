@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +27,9 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -40,23 +43,29 @@ fun QuestionButton(
     // Для проигрывания звуков
     val context = LocalContext.current
 
+    // Высота Dialog ()
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val dialogHeight = DynamicSize(baseDimension = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
+
     Dialog(
         onDismissRequest = {
             MusicPlayer(context = context).playChoiceClick()
             onClickDismiss()
         },
         content = {
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .background(color = BackgroundAppColor)
+                modifier = Modifier.height(dialogHeight)
             ) {
+
                 //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
                     modifier = Modifier
-                        .offset(x = (10).dp, y = (-10).dp)
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
                         .size(30.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
@@ -69,43 +78,45 @@ fun QuestionButton(
                 )
                 //endregion
 
-                QuestionLabel()
-                Spacer(modifier = Modifier.height(10.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(3))
+                        .background(color = BackgroundAppColor)
+                ) {
 
-                AssetImage(
-                    fileName = "ic_achievement_button.png",
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(5))
-                        .border(
-                            width = 0.01.dp,
-                            color = Color(0xE6E6E6),
-                            shape = RoundedCornerShape(5)
-                        )
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(
-                    fontSize = 18.sp,
-                    style = TextStyle(textIndent = TextIndent(10.sp)),
-                    text = "Достигайте новых высот и открывайте награды, что будут напоминать о боевых победах и радовать вас!",
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .padding(top = 10.dp)
-                )
-                Spacer(modifier = Modifier.height(1.dp))
-                Text(
-                    fontSize = 18.sp,
-                    style = TextStyle(textIndent = TextIndent(10.sp)),
-                    text = "После взятия необходимого рубежа они нальются цветом и предстанут перед вами во всей красе!",
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 10.dp)
-                )
+                    QuestionLabel()
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    AssetImage( fileName = "ic_achievement_button.png", )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Discription(text = "Достигайте новых высот и открывайте награды, " +
+                            "что будут напоминать о боевых победах и радовать вас!")
+                    Spacer(modifier = Modifier.height(1.dp))
+                    Discription(text = "После взятия необходимого рубежа они нальются " +
+                            "цветом и предстанут перед вами во всей красе!")
+
+                }
 
             }
+
         },
     )
 }
 
+//region Discription
+@Composable
+private fun Discription(text: String) {
+    Text(
+        fontSize = 18.sp,
+        style = TextStyle(textIndent = TextIndent(10.sp)),
+        text = text,
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 10.dp)
+    )
+}
+//endregion
 //region QuestionLabel
 @Composable
 private fun QuestionLabel() {
@@ -117,9 +128,9 @@ private fun QuestionLabel() {
         fontWeight = FontWeight.W400,
         textAlign = TextAlign.Center,
         modifier = Modifier
+            .padding(top = 10.dp)
             .fillMaxWidth()
             .wrapContentHeight(Alignment.Top)
-            .offset(y = -(20).dp)
     )
 }
 //endregion

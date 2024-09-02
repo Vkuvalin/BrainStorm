@@ -26,11 +26,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,21 +58,19 @@ import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.viewmodels.statistics.StatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.statistics.FriendsStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun FriendsStatisticsContent(paddingParent: PaddingValues) {
+fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
 
-
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
-
-    // Компонент
-    val component = getApplicationComponent()
-    val viewModel: StatisticsViewModel = viewModel(factory = component.getViewModelFactory())
+    // ViewModel
+    val viewModel: FriendsStatisticsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
 
     // Список друзей
     val friendsList by viewModel.friendList.collectAsState()
@@ -83,31 +79,22 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val dynamicFontSize = DynamicFontSize(screenWidth, 20f)
-    // TODO Придумать позже универсальную функцию, что будет принимать screenWidth и желаемый результат
 
-//    LaunchedEffect(Unit) {
-//        val temporaryList = mutableStateListOf<Friend>()
-//        viewModel.getFriendList.invoke()?.map { temporaryList.add(it) }
-//        friendsList = temporaryList
-//    }
-
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = paddingParent.calculateTopPadding())
             .background(BackgroundAppColor)
     ){
-
         if (friendsList.isNotEmpty()){
             LazyVerticalGrid(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = BackgroundAppColor)
+                modifier = Modifier.fillMaxSize().background(BackgroundAppColor)
                     .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp))
                 ,
                 columns = GridCells.Adaptive(100.dp)
@@ -128,10 +115,11 @@ fun FriendsStatisticsContent(paddingParent: PaddingValues) {
         }
 
     }
+    //endregion ################################################################################## */
 
 }
 
-
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region RoundCircleIndicator
 @Composable
 private fun RoundCircleFriendsStatisticIndicator(
@@ -235,8 +223,8 @@ fun FriendStatDialog(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    val dialogHeight = DynamicSize(screenWidth = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
-    val lazyHeight = DynamicSize(screenWidth = screenWidth, desiredSize = (screenWidth*0.9).toFloat())
+    val dialogHeight = DynamicSize(baseDimension = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
+    val lazyHeight = DynamicSize(baseDimension = screenWidth, desiredSize = (screenWidth*0.9).toFloat())
 
     val localDensity = LocalDensity.current
     var parentWidth by remember { mutableIntStateOf(0) }
@@ -295,7 +283,7 @@ fun FriendStatDialog(
                                     .background(color = BackgroundAppColor)
                             ) {
                                 item { LabelText(text = "Wars", 20.sp, Color.DarkGray) }
-                                item{ WarsContent(PaddingValues(), friend.uid, parentWidth)}
+                                item { WarsStatisticsContent(PaddingValues(), friend.uid, parentWidth)}
                                 item { Spacer(modifier = Modifier.height(10.dp)) }
                                 item { Spacer(modifier = Modifier
                                     .height(2.dp)
@@ -308,7 +296,7 @@ fun FriendStatDialog(
                                         .fillMaxWidth()
                                         .height(lazyHeight) )
                                     {
-                                        GamesStatisticsContent(PaddingValues(), friend.uid, parentWidth, "friends")
+                                        GamesStatisticsContent(PaddingValues(), friend.uid, parentWidth, StatisticsType.FRIENDS)
                                     }
                                 }
 
@@ -339,8 +327,7 @@ private fun LabelText(text: String, fontSize: TextUnit, color: Color) {
     )
 }
 //endregion
-
-
+//endregion ################################################################################## */
 
 
 

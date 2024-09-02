@@ -19,11 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +33,7 @@ import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
-import com.kuvalin.brainstorm.presentation.viewmodels.statistics.StatisticsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.statistics.GamesStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 
@@ -46,32 +43,22 @@ fun GamesStatisticsContent(
     paddingParent: PaddingValues,
     uid: String = "",
     parentWidth: Int? = null,
-    type: String = "games", // TODO как лучше действовать в таких случаях?
+    statisticsType: StatisticsType = StatisticsType.GAMES
 ) {
 
-    // Компонент
-    val component = getApplicationComponent()
-    val viewModel: StatisticsViewModel = viewModel(factory = component.getViewModelFactory())
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
-    var gamesStatistics by remember { mutableStateOf(mutableStateListOf<GameStatistic>()) }
+    // ViewModel
+    val viewModel: GamesStatisticsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
+    LaunchedEffect(Unit) { viewModel.getListGamesStatistics(uid) }
 
     // Все игры
     val items = GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance }
 
-    LaunchedEffect(Unit) {
-        /* Данная конструкция решает сразу 2 задачи:
-        1. Нельзя сразу почему-то засунуть полученный список gamesStatistics;
-        2. Таким образом будет произведена лишь 1 рекомпозиция;
-        // TODO распространить на другие места, с подобной проблемой
-        */
-        val temporaryList = mutableStateListOf<GameStatistic>()
-        viewModel.getListGamesStatistics.invoke(uid).map { temporaryList.add(it) }
-        gamesStatistics = temporaryList
-    }
+    // endregion ################################################################################# */
 
-
-    Box(modifier = Modifier.fillMaxSize()
-    ){
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -79,53 +66,36 @@ fun GamesStatisticsContent(
                 .fillMaxSize()
                 .padding(top = paddingParent.calculateTopPadding())
                 .background(color = BackgroundAppColor)
-                .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp))
-            ,
+                .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp)),
             columns = GridCells.Fixed(2)
         ) {
-
-            items(items.size ) { position ->
+            items(items.size) { position ->
                 val item = items[position]
-                var find = false
+                val gameStatistic = viewModel.getGameStatistic(item.sectionName)
 
-                for (game in gamesStatistics) {
-                    if (game.gameName == item.sectionName) {
-                        GamesStatisticsItem(
-                            gamesInfo = item,
-                            parentWidth = parentWidth,
-                            type = type,
-                            gameStatistic = game)
-                        find = true
-                        break
-                    }
-                }
-                if (!find) {
-                    GamesStatisticsItem(
+                GamesStatisticsItem(
                     gamesInfo = item,
                     parentWidth = parentWidth,
-                    type = type,
-                    gameStatistic = null)
-                }
+                    statisticsType = statisticsType,
+                    gameStatistic = gameStatistic
+                )
             }
-
         }
     }
+    //endregion ################################################################################## */
 
 }
 
-
-
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region GamesStatisticsItem
 @Composable
 fun GamesStatisticsItem(
     gamesInfo: GamesNavigationItem,
     parentWidth: Int?,
-    type: String, // TODO как лучше действовать в таких случаях?
+    statisticsType: StatisticsType,
     gameStatistic: GameStatistic?
 ) {
-
-    val screenWidth = parentWidth ?:  LocalConfiguration.current.screenWidthDp
-
+    val screenWidth = parentWidth ?: LocalConfiguration.current.screenWidthDp
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -146,7 +116,8 @@ fun GamesStatisticsItem(
         ) {
             Text(
                 text = gamesInfo.sectionName,
-                fontSize = DynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
+                fontSize = DynamicFontSize(screenWidth,
+                    if (statisticsType == StatisticsType.GAMES) 12f else 9f),
                 color = Color.DarkGray
             )
             Row(
@@ -156,13 +127,15 @@ fun GamesStatisticsItem(
             ) {
                 Text(
                     text = "${gameStatistic?.maxGameScore ?: 0}",
-                    fontSize = DynamicFontSize(screenWidth, if (type == "games") 16f else 12f),
+                    fontSize = DynamicFontSize(screenWidth,
+                        if (statisticsType == StatisticsType.GAMES) 16f else 12f),
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Avg. ${gameStatistic?.avgGameScore ?: 0}",
-                    fontSize = DynamicFontSize(screenWidth, if (type == "games") 12f else 9f),
+                    fontSize = DynamicFontSize(screenWidth,
+                        if (statisticsType == StatisticsType.GAMES) 12f else 9f),
                     color = Color.Gray
                 )
             }
@@ -170,3 +143,7 @@ fun GamesStatisticsItem(
     }
 }
 //endregion
+
+// Enum class для типа статистики
+enum class StatisticsType { GAMES, FRIENDS }
+//endregion ################################################################################## */

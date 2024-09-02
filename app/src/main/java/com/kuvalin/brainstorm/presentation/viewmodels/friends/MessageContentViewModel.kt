@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.kuvalin.brainstorm.domain.entity.ChatInfo
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.domain.usecase.GetFriendsListUseCase
-import com.kuvalin.brainstorm.globalClasses.Action
+import com.kuvalin.brainstorm.globalClasses.DecAction
 import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import kotlinx.coroutines.delay
@@ -58,8 +58,8 @@ class MessageContentViewModel @Inject constructor(
                     loadFriendsAndChats()
                     delay(2000)
                 },
-                beforeActions = listOf(Action.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
-                afterActions = listOf(Action.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
+                beforeActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
+                afterActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
             )
         }
     }

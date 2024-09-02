@@ -45,7 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.globalClasses.Action
+import com.kuvalin.brainstorm.globalClasses.DecAction
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.NoRippleInteractionSource
@@ -59,7 +59,7 @@ import com.kuvalin.brainstorm.navigation.mainmenu.NavigationItem
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 import com.kuvalin.brainstorm.navigation.staticsClasses.rememberNavigationState
-import com.kuvalin.brainstorm.presentation.screens.achievements.AchievementsScreen
+import com.kuvalin.brainstorm.presentation.screens.achievements.AchievementScreen
 import com.kuvalin.brainstorm.presentation.screens.achievements.QuestionButton
 import com.kuvalin.brainstorm.presentation.screens.friends.AddFriendsButtonContent
 import com.kuvalin.brainstorm.presentation.screens.friends.FriendsMainScreen
@@ -112,8 +112,6 @@ fun BrainStormMainScreen() {
         GlobalStates.AnimLoadState(400) { clickNavigation = false } // Было 350
     }
     //endregion ################################################################################# */
-
-
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Scaffold(
         modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor),
@@ -141,7 +139,7 @@ fun BrainStormMainScreen() {
             warScreenContent = { WarScreen(navigationState) },
 
             friendsScreenContent = { FriendsMainScreen(paddingValues) },
-            achievementsScreenContent = { AchievementsScreen(paddingValues) },
+            achievementsScreenContent = { AchievementScreen(paddingValues) },
             statisticScreenContent = { StatisticsMainScreen(paddingValues) },
             gamesScreenContent = { GamesMainScreen(paddingValues) }
         )
@@ -182,10 +180,7 @@ private fun TopAppBarLevel2(
     context: Context,
     clickNavigation: (Boolean) -> Unit
 ) {
-    BottomAppBar(
-        modifier = Modifier.height(appbarHeight.dp),
-        containerColor = BackgroundAppColor
-    ) {
+    BottomAppBar( modifier = Modifier.height(appbarHeight.dp), containerColor = BackgroundAppColor ) {
 
         // Получаем доступ к текущему файлу NavDestination (из доки)
         val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
@@ -221,47 +216,17 @@ private fun TopAppBarLevel2(
 
                 },
                 icon = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                        Icon(
-                            bitmap = GetAssetBitmap(fileName = item.iconFileName),
-                            contentDescription = null,
-                            tint = if (selected) Color(0xFF312D2D) else Color.Gray,
-                            modifier = Modifier
-                                .noRippleClickable {
-                                    onClickNavigationItem(
-                                        selected,
-                                        animLoadState,
-                                        item,
-                                        context,
-                                        navigationState
-                                    ) { clickNavigation(it) }
-                                }
-                                .zIndex(-1f)
-                                .size(viewModel.sizeIcon.dp)
-                                .padding(
-                                    top = viewModel.paddingTopIcon.dp,
-                                    bottom = viewModel.paddingBottomIcon.dp
-                                )
-                                .drawBehind {
-                                    if (selected) {
-                                        drawLine(
-                                            color = PinkAppColor,
-                                            strokeWidth = viewModel.strokeWidthIcon.dp.toPx(),
-                                            start = Offset(
-                                                0f,
-                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
-                                            ),
-                                            end = Offset(
-                                                viewModel.sizeIcon.dp.toPx(),
-                                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
-                                            )
-                                        )
-                                    }
-                                }
-                        )
+                    NavigationItemContent(
+                        item,
+                        selected,
+                        animLoadState,
+                        context,
+                        navigationState,
+                        clickNavigation,
+                        viewModel
+                    )
 
-                    }
                 },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = BackgroundAppColor)
             )
@@ -283,6 +248,57 @@ private fun TopAppBarLevel2(
         }
     }
 }
+
+
+//region NavigationItemContent
+@Composable
+private fun NavigationItemContent(
+    item: NavigationItem,
+    selected: Boolean,
+    animLoadState: Boolean,
+    context: Context,
+    navigationState: NavigationState,
+    clickNavigation: (Boolean) -> Unit,
+    viewModel: BrainStormMainViewModel
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            bitmap = GetAssetBitmap(fileName = item.iconFileName),
+            contentDescription = null,
+            tint = if (selected) Color(0xFF312D2D) else Color.Gray,
+            modifier = Modifier
+                .noRippleClickable {
+                    onClickNavigationItem(
+                        selected,
+                        animLoadState,
+                        item,
+                        context,
+                        navigationState
+                    ) { clickNavigation(it) }
+                }
+                .zIndex(-1f)
+                .size(viewModel.sizeIcon.dp)
+                .padding( top = viewModel.paddingTopIcon.dp, bottom = viewModel.paddingBottomIcon.dp )
+                .drawBehind {
+                    if (selected) {
+                        drawLine(
+                            color = PinkAppColor,
+                            strokeWidth = viewModel.strokeWidthIcon.dp.toPx(),
+                            start = Offset(
+                                0f,
+                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
+                            ),
+                            end = Offset(
+                                viewModel.sizeIcon.dp.toPx(),
+                                viewModel.sizeIcon.dp.toPx() + viewModel.correctionValueHeightBorder.dp.toPx()
+                            )
+                        )
+                    }
+                }
+        )
+    }
+}
+//endregion
 //endregion
 
 //region TopAppBarContent
@@ -387,8 +403,8 @@ private fun TopAppBarContent(
                         CoroutineScope(Dispatchers.Default).launch {
                             UniversalDecorator().executeAsync(
                                 mainFunc = { delay(3000) },
-                                beforeActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", true) }),
-                                afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
+                                beforeActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", true) }),
+                                afterActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", false) })
                             )
                         }
                         onClickNavigationButton()
@@ -434,8 +450,8 @@ private fun TopAppBarContent(
                         CoroutineScope(Dispatchers.Default).launch {
                             UniversalDecorator().executeAsync(
                                 mainFunc = { delay(3000) },
-                                beforeActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", true) }),
-                                afterActions = listOf(Action.Execute{ putScreenState("animBrainLoadState", false) })
+                                beforeActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", true) }),
+                                afterActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", false) })
                             )
                         }
                         MusicPlayer(context = context).playChoiceClick()
