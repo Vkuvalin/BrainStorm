@@ -52,7 +52,7 @@ class RequestContentViewModel @Inject constructor(
             UniversalDecorator().executeAsync(
                 mainFunc = {
                     loadUserRequests()
-                    delay(1000)
+                    delay(400)
                 },
                 beforeActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", true) }),
                 afterActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", false) })
@@ -119,3 +119,11 @@ class RequestContentViewModel @Inject constructor(
         }
     }
 }
+
+
+
+
+
+
+
+

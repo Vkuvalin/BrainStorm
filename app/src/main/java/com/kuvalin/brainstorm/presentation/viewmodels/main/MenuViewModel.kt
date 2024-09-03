@@ -35,7 +35,7 @@ class MenuViewModel @Inject constructor(
 ): ViewModel() {
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     private val _appSettings = MutableStateFlow(AppSettings(musicState = true, vibrateState = true))
     val appSettings: StateFlow<AppSettings> = _appSettings
@@ -51,7 +51,7 @@ class MenuViewModel @Inject constructor(
 
     private val _authState = MutableStateFlow(false)
     val authState: StateFlow<Boolean> = _authState
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
@@ -74,11 +74,11 @@ class MenuViewModel @Inject constructor(
             _userName.value = getUserInfoUseCase.invoke()?.name ?: ""
         }
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     // Settings
     fun updateAppSettings(
@@ -132,11 +132,11 @@ class MenuViewModel @Inject constructor(
         }
     }
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+    //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
     fun updateUserEmail(email: String) { _userEmail.value = email }
     fun updateUserPassword(password: String) { _userPassword.value = password }
 
@@ -145,7 +145,7 @@ class MenuViewModel @Inject constructor(
             MusicPlayer(context = context).playChoiceClick()
         }
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }
 

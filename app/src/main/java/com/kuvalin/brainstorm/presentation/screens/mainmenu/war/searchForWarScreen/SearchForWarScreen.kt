@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
@@ -44,12 +45,12 @@ fun SearchForWar(
     /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
     // Блокировка анимации при нажатии на навигационные кнопки и связанные с ней блоки
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
     LaunchedEffect(Unit) {
         GlobalStates.putScreenState("runGameScreenState", true)
         clickNavigation = true
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
@@ -59,11 +60,11 @@ fun SearchForWar(
         GlobalStates.putScreenState("runGameScreenState", false)
         clickNavigation = true
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     //region Переменные состояния
     val component = getApplicationComponent()
@@ -96,10 +97,10 @@ fun SearchForWar(
     )
     //endregion
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -147,7 +148,7 @@ fun SearchForWar(
     }
     //endregion
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 }

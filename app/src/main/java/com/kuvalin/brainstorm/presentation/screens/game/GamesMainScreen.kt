@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_400
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
@@ -46,8 +47,7 @@ import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 @Composable
 fun GamesMainScreen( paddingValuesParent: PaddingValues ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
-
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val navigationState = rememberNavigationState()
     val viewModel: GameMainScreenViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
 
@@ -56,11 +56,9 @@ fun GamesMainScreen( paddingValuesParent: PaddingValues ) {
 
     // Список объектов с информацией об играх
     val items = remember { GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance } }
+    //endregion ################################################################################# */
 
-    /* ########################################################################################## */
-
-
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Box(
         modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
     ) {
@@ -83,11 +81,11 @@ fun GamesMainScreen( paddingValuesParent: PaddingValues ) {
             colorSwitchScreenContent =       { GameScreen(navigationState) }
         )
     }
-    /* ########################################################################################## */
-
+    //endregion ################################################################################# */
 }
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region GameScreenInitialContent
 @Composable
 private fun GameScreenInitialContent(
@@ -97,12 +95,9 @@ private fun GameScreenInitialContent(
     navigationState: NavigationState
 ) {
 
-
-    GlobalStates.AnimLoadState(400){}
-    val animLoadState by GlobalStates.animLoadState.collectAsState()    // Ждем прогрузки анимации
-
+    GlobalStates.AnimLoadState(ANIMATION_DURATION_400){}
+    val animLoadState by GlobalStates.animLoadState.collectAsState()
     val context = LocalContext.current
-
 
     Box(
         modifier = Modifier
@@ -134,6 +129,7 @@ private fun GameScreenInitialContent(
     }
 }
 
+
 //endregion
 //region GameCard
 @Composable
@@ -158,5 +154,5 @@ fun GameCard(
     }
 }
 //endregion
-/* ########################################################################################## */
+//endregion ################################################################################# */
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -39,14 +40,14 @@ fun FlickMaster(
 ){
 
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
 
     BackHandler {
         clickNavigation = true
         onBackButtonClick()
     }
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Настройки отображения стрелки
     var degrees by remember { mutableFloatStateOf(getRandomDegrees()) }
     var arrowFileName by remember { mutableStateOf(getRandomFileName()) }
@@ -63,7 +64,7 @@ fun FlickMaster(
     val context = LocalContext.current
     var countTimer = 1
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
     Column(

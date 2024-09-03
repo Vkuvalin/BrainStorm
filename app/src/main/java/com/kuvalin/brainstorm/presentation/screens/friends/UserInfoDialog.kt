@@ -45,18 +45,18 @@ import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.domain.entity.UserInfo
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
-import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.DynamicSize
+import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.DrawingChart
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelAColorOrange
-import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelA
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ fun UserInfoDialog(
     onClickDismiss: () -> Unit
 ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val displayName by remember { derivedStateOf { userInfo.name ?: "Unknown" } } // Имя
     val uriAvatar by remember { derivedStateOf { userInfo.avatar } } // Аватар
 
@@ -95,10 +95,10 @@ fun UserInfoDialog(
             onClickDismiss()
         }
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = { onClickDismiss() },
         content = {
@@ -167,7 +167,7 @@ fun UserInfoDialog(
                                     .background(color = Color.White)
                                     .border(
                                         width = 3.dp,
-                                        color = GameLevelAColorOrange,
+                                        color = SelectedGameLevelA,
                                         shape = CircleShape
                                     ),
                                 contentAlignment = Alignment.Center
@@ -203,14 +203,14 @@ fun UserInfoDialog(
 
                             Text(
                                 text = "World Rank: 12,284th",
-                                color = GameLevelSColorPink,
+                                color = SelectedGameLevelS,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.W400
                             )
 
                             Text(
                                 text = "A-League: 1,574th",
-                                color = GameLevelAColorOrange,
+                                color = SelectedGameLevelA,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.W400
                             )
@@ -256,13 +256,13 @@ fun UserInfoDialog(
             }
         },
     )
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }
 
 
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region AddDeleteUserButton
 @Composable
 private fun AddDeleteUserButton(
@@ -516,4 +516,4 @@ private fun YesNoButton(
 
 }
 //endregion
-/* ########################################################################################## */
+//endregion ################################################################################# */

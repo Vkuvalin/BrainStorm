@@ -1,6 +1,5 @@
 package com.kuvalin.brainstorm.presentation.screens.game.gamescreen
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,8 +23,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,39 +36,31 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.kuvalin.brainstorm.domain.entity.GameResult
-import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
-import com.kuvalin.brainstorm.presentation.viewmodels.game.GamesResultViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameScreenViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import kotlin.math.roundToInt
+import com.kuvalin.brainstorm.ui.theme.MiniStatPanelBackground
+import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 
-// С масштабированием в приложении снова проблемы, но переписать части сейчас не видится проблемой
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun GameResults(
-    gameName: String,
-    miniatureGameImage: String,
-    correct: Int,
-    incorrect: Int,
-    scope: Int,
-    accuracy: Float,
+    viewModel: GameScreenViewModel,
     onRetryButtonClick: () -> Unit,
     onBackButtonClick: () -> Unit
 ){
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
 
     BackHandler {
         clickNavigation = true
@@ -77,8 +68,6 @@ fun GameResults(
     }
 
 
-
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
 
     // Для проигрывания звуков
     val context = LocalContext.current
@@ -89,35 +78,28 @@ fun GameResults(
     val dynamicFontSize2 = DynamicFontSize(screenWidth, 16f)
     val dynamicFontSize3 = DynamicFontSize(screenWidth, 13f)
 
-    // Подсчет статистики
-    val finalAccuracy = (accuracy * 1000).roundToInt() / 10.0f
-    val finalScope = if(scope == 0) ((correct*53)-(incorrect*22)) else (scope*53)-(scope*22)
-    var highestValue by remember { mutableIntStateOf(0) }
-    var averageValue by remember { mutableIntStateOf(0) }
 
-    // Работа с базой (GameStatistic)
-    val component = getApplicationComponent()
-    val viewModel: GamesResultViewModel = viewModel(factory = component.getViewModelFactory())
-    val userUid = Firebase.auth.uid ?: "zero_user_uid"
+    // Результаты игры и состояние
+    val gameName by viewModel.gameName.collectAsState()
+    val miniatureGameImage by viewModel.miniatureGameImage.collectAsState()
 
-    /* ########################################################################################## */
+    val correct by viewModel.correct.collectAsState()
+    val incorrect by viewModel.incorrect.collectAsState()
+    val accuracy by viewModel.accuracy.collectAsState()
+
+    val highestValue by viewModel.highestValue.collectAsState()
+    val averageValue by viewModel.averageValue.collectAsState()
+    val finalAccuracy by viewModel.finalAccuracy.collectAsState()
+    val finalScope by viewModel.finalScope.collectAsState()
+
 
     LaunchedEffect(Unit) {
-        viewModel.addGameResult.invoke(
-            GameResult(
-                uid = userUid,
-                gameName = gameName,
-                scope = finalScope,
-                accuracy = finalAccuracy
-            )
-        )
-
-        val gameStatistic = viewModel.getGameStatistic.invoke(uid = userUid, gameName = gameName)
-        highestValue = gameStatistic.maxGameScore
-        averageValue = gameStatistic.avgGameScore
+        viewModel.addGameResult()
+        viewModel.loadGameStatistic()
     }
+    //endregion ################################################################################# */
 
-
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier
             .background(color = BackgroundAppColor)
@@ -128,41 +110,8 @@ fun GameResults(
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
 
-        //region Title
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(6f)
-                    .wrapContentWidth(align = Alignment.End)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10))
-                        .background(color = Color.White)
-                        .then(Modifier.padding(3.dp))
-                ) {
-                    AssetImage(
-                        fileName = miniatureGameImage,
-                        modifier = Modifier.size(60.dp)
-                    )
-                }
-            }
-            Text(
-                text = gameName,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.W300,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .padding(start = 10.dp)
-                    .weight(12f)
-            )
-        }
-        //endregion
-        //region Statistics
+        TitleSection(miniatureGameImage, gameName)
+        //region Statistics section
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -170,56 +119,15 @@ fun GameResults(
                 .fillMaxWidth()
                 .wrapContentWidth(align = Alignment.CenterHorizontally),
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Incorrect", fontSize = 16.sp, fontWeight = FontWeight.W400, color = Color(0xFFE85B9D))
-                Text(text = "$incorrect", fontSize = 26.sp, fontWeight = FontWeight.W300)
-            }
-
-            Box(
-                modifier = Modifier,
-                contentAlignment = Alignment.Center
-            ){
-                CircularProgressIndicator(
-                    progress = if (accuracy == null) 0f else accuracy,
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .background(color = Color(0xFFE85B9D)),
-                    strokeWidth = 20.dp,
-                    color = Color(0xFF00BAB9),
-                )
-                Box(
-                    modifier = Modifier
-                        .size(110.dp)
-                        .clip(CircleShape)
-                        .background(color = BackgroundAppColor)
-                )
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = "Accuracy", fontSize = 16.sp, fontWeight = FontWeight.W400)
-                    Text(
-//                        text = "${(accuracy * 1000).roundToInt() / 10.0f}", // TODO убрать
-                        text = "$finalAccuracy",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.W300
-                    )
-                }
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Correct", fontSize = 16.sp, fontWeight = FontWeight.W400, color = Color(0xFF00BAB9))
-                Text(text = "$correct", fontSize = 26.sp, fontWeight = FontWeight.W300)
-            }
+            GameStatColumn("Incorrect", "$incorrect", PinkAppColor)
+            GameAccuracyIndicator(accuracy, finalAccuracy)
+            GameStatColumn("Correct", "$correct", CyanAppColor)
         }
         //endregion
+
         Spacer(modifier = Modifier.height(100.dp))
-        //region Statistics2
+
+        //region Additional Statistics section
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -228,6 +136,7 @@ fun GameResults(
                 .fillMaxWidth()
                 .wrapContentWidth(align = Alignment.CenterHorizontally)
         ) {
+            //region BattleRecordColumn
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
@@ -235,55 +144,19 @@ fun GameResults(
                     .weight(2f)
                     .height(100.dp)
                     .clip(RoundedCornerShape(10))
-                    .background(color = Color(0x80FFFFFF))
+                    .background(color = MiniStatPanelBackground)
                     .padding(horizontal = 15.dp, vertical = 5.dp)
             ) {
-                Text(
-                    text = "Battle Record",
-                    fontSize = dynamicFontSize2,
-                    fontWeight = FontWeight.W400,
-                    color = CyanAppColor,
+                BattleRecordColumnContent(
+                    dynamicFontSize2,
+                    dynamicFontSize3,
+                    highestValue,
+                    dynamicFontSize1,
+                    averageValue
                 )
-                Row {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Text(
-                            text = "Highest",
-                            fontSize = dynamicFontSize3,
-                            fontWeight = FontWeight.W400,
-                            color = Color.Black
-                        )
-                        Text(
-                            text = "$highestValue",
-                            fontSize = dynamicFontSize1,
-                            fontWeight = FontWeight.W400,
-                            color = Color.Black
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Text(
-                            text = "Average",
-                            fontSize = dynamicFontSize3,
-                            fontWeight = FontWeight.W400,
-                            color = Color.Black
-                        )
-                        Text(
-                            text = "$averageValue",
-                            fontSize = dynamicFontSize1,
-                            fontWeight = FontWeight.W400,
-                            color = Color.Black
-                        )
-                    }
-                }
             }
+            //endregion
+            //region GameScore
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
@@ -291,30 +164,15 @@ fun GameResults(
                     .weight(1f)
                     .height(100.dp)
                     .clip(RoundedCornerShape(10))
-                    .background(color = Color(0x80FFFFFF))
+                    .background(color = MiniStatPanelBackground)
                     .padding(horizontal = 15.dp, vertical = 5.dp)
             ) {
-                Text(
-                    text = "Score",
-                    fontSize = dynamicFontSize2,
-                    fontWeight = FontWeight.W400,
-                    color = CyanAppColor,
-                )
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    Text(
-                        text = "$finalScope",
-                        fontSize = dynamicFontSize1,
-                        fontWeight = FontWeight.W400,
-                        color = Color.Black
-                    )
-                }
+                GameScoreColumn(dynamicFontSize2, finalScope, dynamicFontSize1)
             }
+            //endregion
         }
         //endregion
-        //region Buttons
+        //region Buttons section
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -338,17 +196,178 @@ fun GameResults(
                     buttonText = "Back",
                     buttonSize = 24,
                     color = CyanAppColor
-                ){
-                    MusicPlayer(context = context).playChoiceClick()
-                    onBackButtonClick()
-                }
+                ){ onBackButtonClick() }
             }
         }
         //endregion
 
     }
+    //endregion ################################################################################# */
+
 }
 
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
+//region GameScoreColumn
+@Composable
+private fun GameScoreColumn(
+    dynamicFontSize2: TextUnit,
+    finalScope: Int,
+    dynamicFontSize1: TextUnit
+) {
+    Text(
+        text = "Score",
+        fontSize = dynamicFontSize2,
+        fontWeight = FontWeight.W400,
+        color = CyanAppColor,
+    )
+    Column(
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        Text(
+            text = "$finalScope",
+            fontSize = dynamicFontSize1,
+            fontWeight = FontWeight.W400,
+            color = Color.Black
+        )
+    }
+}
+//endregion
+//region BattleRecordColumnContent
+@Composable
+private fun BattleRecordColumnContent(
+    dynamicFontSize2: TextUnit,
+    dynamicFontSize3: TextUnit,
+    highestValue: Int,
+    dynamicFontSize1: TextUnit,
+    averageValue: Int
+) {
+    Text(
+        text = "Battle Record",
+        fontSize = dynamicFontSize2,
+        fontWeight = FontWeight.W400,
+        color = CyanAppColor,
+    )
+    Row {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            Text(
+                text = "Highest",
+                fontSize = dynamicFontSize3,
+                fontWeight = FontWeight.W400,
+                color = Color.Black
+            )
+            Text(
+                text = "$highestValue",
+                fontSize = dynamicFontSize1,
+                fontWeight = FontWeight.W400,
+                color = Color.Black
+            )
+        }
+        Spacer(modifier = Modifier.width(20.dp))
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            Text(
+                text = "Average",
+                fontSize = dynamicFontSize3,
+                fontWeight = FontWeight.W400,
+                color = Color.Black
+            )
+            Text(
+                text = "$averageValue",
+                fontSize = dynamicFontSize1,
+                fontWeight = FontWeight.W400,
+                color = Color.Black
+            )
+        }
+    }
+}
+//endregion
+//region TitleSection
+@Composable
+private fun TitleSection(miniatureGameImage: String, gameName: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(6f)
+                .wrapContentWidth(align = Alignment.End)
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10))
+                    .background(color = Color.White)
+                    .then(Modifier.padding(3.dp))
+            ) {
+                AssetImage(
+                    fileName = miniatureGameImage,
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+        }
+        Text(
+            text = gameName,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.W300,
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .weight(12f)
+        )
+    }
+}
+//endregion
+
+//region GameAccuracyIndicator
+@Composable
+private fun GameAccuracyIndicator(accuracy: Float, finalAccuracy: Float) {
+    Box(
+        modifier = Modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            progress = if (accuracy == null) 0f else accuracy,
+            modifier = Modifier
+                .size(150.dp)
+                .clip(CircleShape)
+                .background(color = PinkAppColor),
+            strokeWidth = 20.dp,
+            color = CyanAppColor,
+        )
+        Box(
+            modifier = Modifier
+                .size(110.dp)
+                .clip(CircleShape)
+                .background(color = BackgroundAppColor)
+        )
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Accuracy", fontSize = 16.sp, fontWeight = FontWeight.W400)
+            Text(text = "$finalAccuracy", fontSize = 26.sp, fontWeight = FontWeight.W300)
+        }
+    }
+}
+//endregion
+//region GameStatColumn
+@Composable
+fun GameStatColumn(label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = label, fontSize = 16.sp, fontWeight = FontWeight.W400, color = color)
+        Text(text = value, fontSize = 26.sp, fontWeight = FontWeight.W300)
+    }
+}
+//endregion
 //region StringButton
 @Composable
 private fun StringButton(
@@ -382,4 +401,7 @@ private fun StringButton(
     }
 }
 //endregion
+//endregion ################################################################################# */
+
+
 

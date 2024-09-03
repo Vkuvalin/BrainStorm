@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.statistics.WarsStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
@@ -56,6 +57,9 @@ fun WarsStatisticsContent(
         val currentUserUid = uid ?: viewModel.getUserUid.invoke()
         viewModel.loadWarStatistics(currentUserUid)
     }
+
+    // Анимация мозга
+    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
     // Подписка на изменения в ViewModel
     val wins by viewModel.wins.collectAsState()
@@ -82,25 +86,27 @@ fun WarsStatisticsContent(
             .padding(horizontal = 30.dp)
     ) {
 
-        AdaptiveBoxContent(compressionRatio){ RoundCircleIndicator(winRate, compressionRatio) }
-        Spacer(modifier = Modifier.height((50*compressionRatio).dp))
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            AdaptiveBoxContent(compressionRatio){
-                Box(modifier = Modifier.weight(1f)){StatisticBoxContent("WINS", wins, compressionRatio) }
-            }
+        if (!animBrainLoadState){
+            AdaptiveBoxContent(compressionRatio){ RoundCircleIndicator(winRate, compressionRatio) }
+            Spacer(modifier = Modifier.height((50*compressionRatio).dp))
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AdaptiveBoxContent(compressionRatio){
+                    Box(modifier = Modifier.weight(1f)){StatisticBoxContent("WINS", wins, compressionRatio) }
+                }
 
-            AdaptiveBoxContent(compressionRatio){
-                Box(modifier = Modifier.weight(1f)){ StatisticBoxContent("LOSSES", losses, compressionRatio) }
+                AdaptiveBoxContent(compressionRatio){
+                    Box(modifier = Modifier.weight(1f)){ StatisticBoxContent("LOSSES", losses, compressionRatio) }
+                }
+                AdaptiveBoxContent(compressionRatio){
+                    Box(modifier = Modifier.weight(1f)){StatisticBoxContent("DRAWS", draws, compressionRatio)}
+                }
             }
-            AdaptiveBoxContent(compressionRatio){
-                Box(modifier = Modifier.weight(1f)){StatisticBoxContent("DRAWS", draws, compressionRatio)}
-            }
+            AdaptiveBoxContent(compressionRatio){ Spacer(modifier = Modifier.height((50*compressionRatio).dp)) }
+            AdaptiveBoxContent(compressionRatio){ HighestScoreBoxContent(highestScore, compressionRatio) }
         }
-        AdaptiveBoxContent(compressionRatio){ Spacer(modifier = Modifier.height((50*compressionRatio).dp)) }
-        AdaptiveBoxContent(compressionRatio){ HighestScoreBoxContent(highestScore, compressionRatio) }
 
     }
     //endregion ################################################################################## */

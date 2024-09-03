@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -57,6 +58,7 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.viewmodels.statistics.FriendsStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -68,9 +70,11 @@ import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
     // ViewModel
     val viewModel: FriendsStatisticsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
+
+    // Анимация мозга
+    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
     // Список друзей
     val friendsList by viewModel.friendList.collectAsState()
@@ -90,28 +94,33 @@ fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
             .padding(top = paddingParent.calculateTopPadding())
             .background(BackgroundAppColor)
     ){
-        if (friendsList.isNotEmpty()){
+        if (friendsList.isNotEmpty() && !animBrainLoadState){
             LazyVerticalGrid(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize().background(BackgroundAppColor)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(BackgroundAppColor)
                     .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp))
                 ,
                 columns = GridCells.Adaptive(100.dp)
             ) {
 
                 items(friendsList.size) { position ->
-                    RoundCircleFriendsStatisticIndicator(friendsList[position], dynamicFontSize)
+                    RoundCircleFriendsStatisticIndicator(viewModel, friendsList[position], dynamicFontSize)
                 }
 
             }
         }else {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ){
-                Text("No information about friends.", fontSize = dynamicFontSize)
+            if (!animBrainLoadState){
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ){
+                    Text("No information about friends.", fontSize = dynamicFontSize)
+                }
             }
+
         }
 
     }
@@ -123,13 +132,12 @@ fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
 //region RoundCircleIndicator
 @Composable
 private fun RoundCircleFriendsStatisticIndicator(
+    viewModel: FriendsStatisticsViewModel,
     friend: Friend,
     dynamicFontSize: TextUnit
 ) {
 
-    val wins = friend.warStatistics?.wins ?: 0
-    val losses = friend.warStatistics?.losses ?: 0
-    val winRate = (wins/(wins+losses).toFloat())
+    val winRate = viewModel.calculateWinRate(friend)
 
     // Аватар //TODO не забыть подтянуть
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }

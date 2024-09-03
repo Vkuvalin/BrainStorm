@@ -7,7 +7,8 @@ import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.MessageContentViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.RequestContentViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.game.GameMainScreenViewModel
-import com.kuvalin.brainstorm.presentation.viewmodels.game.GamesResultViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameScreenViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameSettingsViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.BrainStormMainViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MainMenuViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
@@ -25,6 +26,7 @@ import dagger.multibindings.IntoMap
 // Урок - https://stepik.org/lesson/926374/step/1?unit=932257
 @Module
 interface ViewModelModule {
+
 
 
     // ###################### Home
@@ -131,17 +133,20 @@ interface ViewModelModule {
 
     // ###################### Games
     @IntoMap
-    @ViewModelKey(GamesResultViewModel::class)
-    @Binds
-    fun bindGamesViewModel(viewModel: GamesResultViewModel): ViewModel
-
-
-    @IntoMap
     @ViewModelKey(GameMainScreenViewModel::class)
     @Binds
     fun bindGameMainScreenViewModel(viewModel: GameMainScreenViewModel): ViewModel
-    // ######################
 
+    @IntoMap
+    @ViewModelKey(GameSettingsViewModel::class)
+    @Binds
+    fun bindGameSettingsViewModel(viewModel: GameSettingsViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(GameScreenViewModel::class)
+    @Binds
+    fun bindGameScreenViewModel(viewModel: GameScreenViewModel): ViewModel
+    // ######################
 
 
 

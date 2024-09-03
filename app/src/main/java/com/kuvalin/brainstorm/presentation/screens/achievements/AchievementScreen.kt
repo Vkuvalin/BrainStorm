@@ -56,13 +56,13 @@ fun AchievementScreen(
     paddingParent: PaddingValues
 ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val component = getApplicationComponent()
     val viewModel: AchievementsViewModel = viewModel(factory = component.getViewModelFactory())
     val achievementList by viewModel.achievementList.collectAsState()
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
-
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Box(modifier = Modifier.fillMaxSize()){
         LazyVerticalGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -78,9 +78,10 @@ fun AchievementScreen(
             }
         }
     }
-
+    //endregion ################################################################################## */
 }
 
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region AchievementItem
 @Composable
 private fun AchievementItem(
@@ -217,7 +218,7 @@ private fun AchievementItemLabel(text: String) {
     )
 }
 //endregion
-
+//endregion ################################################################################## */
 
 
 

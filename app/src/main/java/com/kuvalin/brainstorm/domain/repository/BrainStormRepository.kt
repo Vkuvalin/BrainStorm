@@ -51,7 +51,7 @@ interface BrainStormRepository {
 
     suspend fun getSocialData(uid: String): SocialData?
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
@@ -64,7 +64,7 @@ interface BrainStormRepository {
     suspend fun authorizationCheck(): Boolean
     suspend fun signOutFirebase()
     suspend fun getUserUid(): String
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
     /* ####################################### GET ############################################## */
     suspend fun getUserInfoFB(uid: String): UserInfo?
@@ -73,17 +73,17 @@ interface BrainStormRepository {
 
     suspend fun getUserRequestsFB(): List<UserRequest>?
     suspend fun getListMessages(chatId: String): StateFlow<List<Message>>
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
     /* ###################################### SEND ############################################## */
     suspend fun sendMessageToFirestore(message: Message, chatId: String)
     suspend fun updateUserRequestFB(uidFriend: String, friendState: Boolean)
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
     /* ##################################### DELETE ############################################# */
     suspend fun deleteUserRequestFB(uidFriend: String)
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
@@ -94,5 +94,5 @@ interface BrainStormRepository {
     suspend fun getActualOpponentScopeFromWarGame(sessionId: String, gameName: String): StateFlow<Int>
     suspend fun getScopeFromWarGame(sessionId: String, gameName: String, type: String): Int
     suspend fun addFriendInGame(sessionId: String)
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 }

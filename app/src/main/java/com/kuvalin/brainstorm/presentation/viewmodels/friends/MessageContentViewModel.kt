@@ -20,7 +20,7 @@ class MessageContentViewModel @Inject constructor(
 ): ViewModel() {
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     private val _listFriendsUserInfo = MutableStateFlow<List<UserInfo>>(emptyList())
     val listFriendsUserInfo: StateFlow<List<UserInfo>> = _listFriendsUserInfo
 
@@ -41,7 +41,7 @@ class MessageContentViewModel @Inject constructor(
 
     private val _dynamicChatInfo = MutableStateFlow(Pair(ChatInfo("",""), ""))
     val dynamicChatInfo: StateFlow<Pair<ChatInfo, String>> = _dynamicChatInfo
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
@@ -56,7 +56,7 @@ class MessageContentViewModel @Inject constructor(
             UniversalDecorator().executeAsync(
                 mainFunc = {
                     loadFriendsAndChats()
-                    delay(2000)
+                    delay(800)
                 },
                 beforeActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
                 afterActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
@@ -81,11 +81,11 @@ class MessageContentViewModel @Inject constructor(
             }
         }
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     fun onUserRequestPanelClick(userInfo: UserInfo) {
         _dynamicUserInfo.value = userInfo
         _clickUserRequestPanel.value = true
@@ -108,6 +108,6 @@ class MessageContentViewModel @Inject constructor(
             _chatClose.value = false
         }
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }

@@ -32,10 +32,14 @@ val TopAppBarBackgroundColor = Color(0xFF373737) // Dark Grey
 
 
 // Game Level
-val GameLevelSColorPink = Color(0xFFE85B9D)
-val GameLevelAColorOrange = Color(0xFFF28B01)
-val GameLevelBColorYellow = Color(0xFFF3CB00)
-val GameLevelCColorGreen = Color(0xFFBECF0D)
+val SelectedGameLevelS = Color(0xFFE85B9D)
+val NotSelectedGameLevelS = Color(0x59E85B9D)
+val SelectedGameLevelA = Color(0xFFF28B01)
+val NotSelectedGameLevelA = Color(0x59F28B01)
+val SelectedGameLevelB = Color(0xFFF3CB00)
+val NotSelectedGameLevelB = Color(0x59F3CB00)
+val SelectedGameLevelC = Color(0xFFBECF0D)
+val NotSelectedGameLevelC = Color(0x59BECF0D)
 
 
 // Crosshair
@@ -48,3 +52,7 @@ val SettingsButtonColorPink = Color(0xFFFE5FA6)
 val InformationButtonColorOrange = Color(0xFFFFAA01)
 val ContactUsButtonColorDarkGray = Color(0xFF595959)
 val AccountButtonColorTeal = Color(0xFF009688)
+
+
+// GameResult
+val MiniStatPanelBackground = Color(0x80FFFFFF)

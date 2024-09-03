@@ -32,6 +32,7 @@ import com.kuvalin.brainstorm.domain.entity.GameStatistic
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.presentation.viewmodels.statistics.GamesStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -52,6 +53,9 @@ fun GamesStatisticsContent(
     val viewModel: GamesStatisticsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
     LaunchedEffect(Unit) { viewModel.getListGamesStatistics(uid) }
 
+    // Анимация мозга
+    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
+
     // Все игры
     val items = GamesNavigationItem::class.sealedSubclasses.mapNotNull { it.objectInstance }
 
@@ -59,6 +63,7 @@ fun GamesStatisticsContent(
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Box(modifier = Modifier.fillMaxSize()) {
+
         LazyVerticalGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -69,18 +74,21 @@ fun GamesStatisticsContent(
                 .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp)),
             columns = GridCells.Fixed(2)
         ) {
-            items(items.size) { position ->
-                val item = items[position]
-                val gameStatistic = viewModel.getGameStatistic(item.sectionName)
+            if (!animBrainLoadState){
+                items(items.size) { position ->
+                    val item = items[position]
+                    val gameStatistic = viewModel.getGameStatistic(item.sectionName)
 
-                GamesStatisticsItem(
-                    gamesInfo = item,
-                    parentWidth = parentWidth,
-                    statisticsType = statisticsType,
-                    gameStatistic = gameStatistic
-                )
+                    GamesStatisticsItem(
+                        gamesInfo = item,
+                        parentWidth = parentWidth,
+                        statisticsType = statisticsType,
+                        gameStatistic = gameStatistic
+                    )
+                }
             }
         }
+
     }
     //endregion ################################################################################## */
 

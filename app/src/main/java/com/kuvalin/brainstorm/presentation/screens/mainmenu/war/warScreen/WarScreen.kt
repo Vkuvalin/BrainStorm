@@ -44,6 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
 import com.kuvalin.brainstorm.navigation.mainmenu.war.WarScreenState
@@ -71,8 +72,8 @@ fun WarScreen(
 
     /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
-    /* ########################################################################################## */
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
+    //endregion ################################################################################# */
 
 
 
@@ -89,11 +90,11 @@ fun WarScreen(
         onBackButtonClick = true
         clickNavigation = true
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     val component = getApplicationComponent()
     val viewModel: WarViewModel = viewModel(factory = component.getViewModelFactory())
@@ -145,11 +146,11 @@ fun WarScreen(
     val warScreenState by WarScreenState.warScreenState.collectAsState()
     // ########################
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     // Логика обновления scope оппонента
     if (gameState) {
@@ -245,12 +246,12 @@ fun WarScreen(
 
     }
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }
 
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region PreparingForTheGame
 @Composable
 private fun PreparingForTheGame(
@@ -437,7 +438,7 @@ private fun GameCard(
 }
 //endregion
 //endregion
-/* ########################################################################################## */
+//endregion ################################################################################# */
 
 
 

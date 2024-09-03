@@ -35,7 +35,7 @@ class FriendsViewModel @Inject constructor(
 
 ): ViewModel() {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val addMessageToFB = addMessageToFBUseCase
 
     private val addFriend = addFriendUseCase
@@ -43,11 +43,11 @@ class FriendsViewModel @Inject constructor(
     private val getWarStatisticFB = getWarStatisticFBUseCase
 
     val updateUserRequestFB = updateUserRequestFBUseCase
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     // UserInfoDialog
     fun addFriend(userInfo: UserInfo, chatId: String) {
@@ -93,7 +93,7 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
     /* ############# 🛑 ###################### ЧУЛАНЧИК ###################### 🛑 ############### */
@@ -106,7 +106,7 @@ class FriendsViewModel @Inject constructor(
 //        }
 
 //            state = listState, // TODO - почитать
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }
 

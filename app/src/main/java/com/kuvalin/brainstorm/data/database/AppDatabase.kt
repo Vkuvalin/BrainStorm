@@ -18,7 +18,8 @@ import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 import com.kuvalin.brainstorm.data.model.converters.ListStringConverter
 import com.kuvalin.brainstorm.data.model.converters.UriTypeConverter
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.UNDEFINED_ID
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

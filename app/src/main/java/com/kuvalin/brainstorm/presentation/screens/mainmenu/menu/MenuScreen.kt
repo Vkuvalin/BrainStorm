@@ -47,6 +47,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
@@ -83,13 +84,13 @@ fun MenuScreen(){
     /* ############# 🔄 ###################### BackHandler #################### 🔄 ############## */
     // Обработка (блокировка) анимационных кнопок
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
     BackHandler { clickNavigation = true }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Компонент и производные
     val component = getApplicationComponent()
     val viewModel: MenuViewModel = viewModel(factory = component.getViewModelFactory())
@@ -130,11 +131,11 @@ fun MenuScreen(){
         .border(width = 2.dp, color = Color.White, shape = CircleShape)
         .background(color = Color.White)
     //endregion
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     //region Кнопки меню
     Box(
         contentAlignment = Alignment.Center,
@@ -215,13 +216,13 @@ fun MenuScreen(){
 
     }
     //endregion
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }
 
 
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region MenuText
 @Composable
 private fun MenuText(
@@ -326,7 +327,7 @@ fun SettingsContent(
     onClickDismiss: () -> Unit
 ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
 
@@ -339,11 +340,11 @@ fun SettingsContent(
     val musicState = appSettings.musicState
     var seState by remember { mutableStateOf(false) } // TODO-1 убрать или придумать значение
     val vibrationState = appSettings.vibrateState
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
             viewModel.playChoiceClickSound(context)
@@ -394,7 +395,7 @@ fun SettingsContent(
             }
         },
     )
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 }
 
 
@@ -462,7 +463,7 @@ fun AccountContent(
     onClickDismiss: () -> Unit
 ){
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
 
@@ -472,7 +473,7 @@ fun AccountContent(
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
     // TODO Сделать поле ввода пароля секретным/скрытным
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
     Dialog(
@@ -778,7 +779,7 @@ private fun LabelText(text: String) {
     )
 }
 //endregion
-/* ########################################################################################## */
+//endregion ################################################################################# */
 
 
 

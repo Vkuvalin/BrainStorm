@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.domain.entity.Message
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.friends.FriendsViewModel
@@ -58,8 +59,8 @@ fun ChatContent(
 ){
     /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
-    /* ########################################################################################## */
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
+    //endregion ################################################################################# */
 
 
 
@@ -70,11 +71,11 @@ fun ChatContent(
         onBackButtonClick()
         GlobalStates.putScreenState("runGameScreenState", false)
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     // Общие
     val placeholderForTextField = "Enter your message"
@@ -84,11 +85,11 @@ fun ChatContent(
     val listMessage by viewModel.listMessage.collectAsState()
     val userUid by viewModel.userUid.collectAsState()
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     // Подгружаем список сообщений
     LaunchedEffect(Unit) {
@@ -125,12 +126,12 @@ fun ChatContent(
             }
         }
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 }
 
 
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region MessageRow
 @Composable
 private fun MessageRow(
@@ -228,5 +229,5 @@ private fun CustomTextFieldChatContent(
     )
 }
 //endregion
-/* ########################################################################################## */
+//endregion ################################################################################# */
 

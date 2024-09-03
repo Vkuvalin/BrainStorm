@@ -42,6 +42,7 @@ fun GameTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ){
+
         Box(modifier = Modifier.fillMaxWidth()){
             Text(
                 text = "TRAINING",

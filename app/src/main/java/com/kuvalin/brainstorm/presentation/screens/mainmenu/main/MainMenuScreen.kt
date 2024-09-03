@@ -51,11 +51,11 @@ import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.staticsClasses.NavigationState
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
-import com.kuvalin.brainstorm.ui.theme.GameLevelAColorOrange
-import com.kuvalin.brainstorm.ui.theme.GameLevelBColorYellow
-import com.kuvalin.brainstorm.ui.theme.GameLevelCColorGreen
-import com.kuvalin.brainstorm.ui.theme.GameLevelSColorPink
 import com.kuvalin.brainstorm.ui.theme.LinearTrackColor
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelA
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelB
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelC
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelS
 
 
 @Composable
@@ -64,18 +64,18 @@ fun MainMenuScreen(
     paddingValues: PaddingValues
 ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier
             .padding(top = paddingValues.calculateTopPadding())
@@ -117,12 +117,12 @@ fun MainMenuScreen(
         //endregion
 
     }
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }
 
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region Жизни и койны
 @Composable
 private fun LiveAndCoins() {
@@ -277,10 +277,10 @@ fun StatisticsCard(
     val configuration = LocalConfiguration.current
 
     val leagueList = mutableListOf(
-        mutableListOf("S", GameLevelSColorPink, false),
-        mutableListOf("A", GameLevelAColorOrange, true),
-        mutableListOf("B", GameLevelBColorYellow, false),
-        mutableListOf("C", GameLevelCColorGreen, false)
+        mutableListOf("S", SelectedGameLevelS, false),
+        mutableListOf("A", SelectedGameLevelA, true),
+        mutableListOf("B", SelectedGameLevelB, false),
+        mutableListOf("C", SelectedGameLevelC, false)
     )
 
     val gradeList = mutableListOf( // TODO перевести в базу, а затем добавить в ShareStatistics.kt
@@ -557,6 +557,6 @@ private fun GradeListLabel() {
     )
 }
 //endregion
-/* ########################################################################################## */
+//endregion ################################################################################# */
 
 

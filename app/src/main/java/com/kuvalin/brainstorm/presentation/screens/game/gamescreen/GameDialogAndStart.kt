@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +52,8 @@ fun GameDialogAndStart(
     onStartButtonClick: () -> Unit
 ) {
 
-    // Анимация появления диалога (если меняю, то также изменить в GamesScreenNavGraph)
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
+    //region Анимация появления диалога (если меняю, то также изменить в GamesScreenNavGraph)
     var visibleState by remember { mutableStateOf(false) }
     val alpha by animateFloatAsState(
         targetValue = if (visibleState) 1f else 0.1f,
@@ -61,23 +63,22 @@ fun GameDialogAndStart(
         targetValue = if (visibleState) 0.6f else 0.1f,
         animationSpec = tween(durationMillis = 400), label = ""
     )
-    visibleState = true
+    LaunchedEffect(Unit) { visibleState = true }
+    //endregion
 
-    // Ждем прогрузки анимации (скорость анимации также GamesScreenNavGraph)
+    // Ждем прогрузки анимации (скорость анимации также в GamesScreenNavGraph)
+    GlobalStates.AnimLoadState(450){}
     val animLoadState by GlobalStates.animLoadState.collectAsState()
-
 
     // Проигрывание музыки
     val context = LocalContext.current
 
-
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    // А я хуй его знает, почему именно ширина так хорошо подходит :)
+    //endregion ################################################################################# */
 
-    GlobalStates.AnimLoadState(450){} // TODO Проверить на рекомпозиции
-
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
             if (animLoadState) { onDismissRequest() }
@@ -95,8 +96,7 @@ fun GameDialogAndStart(
                     fontSize = 30.sp,
                     fontWeight = FontWeight.W400,
                     color = Color.White,
-                    modifier = Modifier
-                        .padding(bottom = 10.dp)
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
                 //endregion
 
@@ -113,25 +113,19 @@ fun GameDialogAndStart(
                         fontSize = 30.sp,
                         fontWeight = FontWeight.W400,
                         color = Color.DarkGray,
-                        modifier = Modifier
-                            .padding(vertical = 10.dp)
+                        modifier = Modifier.padding(vertical = 10.dp)
                     )
 
                     AssetImage(
                         fileName = gameInstructionImage,
-                        modifier = Modifier
-                            .weight(2f)
-                            .fillMaxSize()
+                        modifier = Modifier.weight(2f).fillMaxSize()
                     )
 
                     Text(
                         text = gameDescription,
                         fontSize = 18.sp,
                         color = Color.DarkGray,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 25.dp)
-                            .padding(top = 5.dp),
+                        modifier = Modifier.weight(1f).padding(horizontal = 25.dp).padding(top = 5.dp),
                         textAlign = TextAlign.Center
                     )
 
@@ -171,4 +165,5 @@ fun GameDialogAndStart(
         },
     )
 
+    //endregion ################################################################################## */
 }

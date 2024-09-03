@@ -37,7 +37,7 @@ class FriendsContentViewModel @Inject constructor(
             UniversalDecorator().executeAsync(
                 mainFunc = {
                     loadFriendList()
-                    delay(1500)
+                    delay(600)
                 },
                 beforeActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
                 afterActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })

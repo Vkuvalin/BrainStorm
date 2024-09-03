@@ -10,7 +10,7 @@ import javax.inject.Inject
 class BrainStormMainViewModel @Inject constructor() : ViewModel() {
 
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     // Состояния экрана (кнопок верхнего TopAppBar)
     private val _clickOnShareState = MutableStateFlow(false)
@@ -38,11 +38,11 @@ class BrainStormMainViewModel @Inject constructor() : ViewModel() {
     val separatorColor = Color.Gray
     val separatorWidth = 1
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     // ###################### Функции для изменения состояний
     fun toggleShareState(value: Boolean) { _clickOnShareState.value = value }
@@ -51,6 +51,6 @@ class BrainStormMainViewModel @Inject constructor() : ViewModel() {
     fun toggleGameSettingsButton(value: Boolean) { _clickOnGameSettingsButton.value = value }
     // ######################
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 }

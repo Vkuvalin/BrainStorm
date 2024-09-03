@@ -50,6 +50,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.presentation.viewmodels.main.ProfileViewModel
@@ -81,10 +82,10 @@ fun ProfileScreenContent(
 ) {
 
     /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
-    GlobalStates.AnimLoadState(350){}
-    /* ########################################################################################## */
+    GlobalStates.AnimLoadState(ANIMATION_DURATION_350){}
+    //endregion ################################################################################# */
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     // Базовые
     val component = getApplicationComponent()
@@ -117,11 +118,11 @@ fun ProfileScreenContent(
     }
     //endregion
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 
-    /* ############# 🟢 ################## ОСНОВНЫЕ ФУНКЦИИ ################## 🟢 ############### */
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
     ) {
@@ -159,11 +160,11 @@ fun ProfileScreenContent(
 
     }
 }
-/* ########################################################################################## */
+//endregion ################################################################################# */
 
 
 
-/* ############# 🟡 ################ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############# 🟡 ############### */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 
 //region AvatarBox
 @Composable
@@ -438,7 +439,7 @@ private fun SaveButton(
 }
 //endregion
 
-/* ########################################################################################## */
+//endregion ################################################################################# */
 
 
 

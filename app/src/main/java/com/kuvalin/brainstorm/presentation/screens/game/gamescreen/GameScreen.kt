@@ -6,16 +6,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.kuvalin.brainstorm.getApplicationComponent
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.navigation.games.GamesNavigationItem
@@ -30,6 +32,7 @@ import com.kuvalin.brainstorm.presentation.screens.game.games.Make10
 import com.kuvalin.brainstorm.presentation.screens.game.games.PathToSafety
 import com.kuvalin.brainstorm.presentation.screens.game.games.RapidSorting
 import com.kuvalin.brainstorm.presentation.screens.game.games.Reflection
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameScreenViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 
 
@@ -37,68 +40,72 @@ import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 @Composable
 fun GameScreen( navigationState: NavigationState ){
 
+    // Блокировка анимации
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
-    lateinit var gameName: String
-    lateinit var gameInstructionImage: String
-    lateinit var gameDescription: String
-    lateinit var miniatureGameImage: String
-
     val topBarHeight = remember { 50 } // Костыль
     val context = LocalContext.current
 
-    var correct by remember { mutableIntStateOf(0) }
-    var incorrect by remember { mutableIntStateOf(0) }
-    var scope by remember { mutableIntStateOf(0) }
-    var accuracy by remember { mutableFloatStateOf(0f) }
+
+    // ############# ViewModel
+    val viewModel: GameScreenViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
+    // Вводные игровые данные
+    val gameName by viewModel.gameName.collectAsState()
+    val gameInstructionImage by viewModel.gameInstructionImage.collectAsState()
+    val gameDescription by viewModel.gameDescription.collectAsState()
+
+    // Течение игры
+    val startGameState by viewModel.startGameState.collectAsState()
+    val endGameState by viewModel.endGameState.collectAsState()
+    // ##########################
 
     // Подключаемся к объекту навигации, получаем список GameItems и вытягиваем нужные значения
     val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
     val listGamesItems = GamesNavigationItem::class.sealedSubclasses.mapNotNull {it.objectInstance}
-    var loadFinish by remember { mutableStateOf(false) }
+    val loadFinish by viewModel.loadFinish.collectAsState()
     listGamesItems.forEach { item ->
         val selected = navBackStackEntry?.destination?.hierarchy?.any {
             it.route == item.screen.route
         } ?: false
 
         if (selected){
-            gameName = item.sectionName
-            gameDescription = item.gameDescription
-            miniatureGameImage = item.miniatureGameImage
-            gameInstructionImage = item.gameInstructionImage
-            loadFinish = true
+            viewModel.updateGameData(
+                item.sectionName,
+                item.gameDescription,
+                item.miniatureGameImage,
+                item.gameInstructionImage
+            )
         }
     }
 
-    // Течение игры
-    var startGameState by remember { mutableStateOf(false) }
-    var endGameState by remember { mutableStateOf(false) }
 
     // Меняет стейт для скрытия/открытия TopAppBar 1 и 2
     val gameOut: () -> Unit = {
+        viewModel.updateLoadFinish(false)
+        viewModel.updateEndGameState(false)
+        viewModel.updateStartGameState(false)
+        clickNavigation = true
         MusicPlayer(context = context).playChoiceClick()
         GlobalStates.putScreenState("runGameScreenState", false)
+        navigationState.navigateTo(GamesScreen.GameInitial.route)
     }
     //endregion ################################################################################# */
-
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
-        modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = BackgroundAppColor)
     ) {
         GameTopBar(
             topBarHeight = topBarHeight,
-            onBackButtonClick = {
-                loadFinish = false
-                endGameState = false
-                clickNavigation = true
-                gameOut()
-                navigationState.navHostController.popBackStack()
-            }
+            onBackButtonClick = { gameOut() }
         )
         Box(
-            modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = BackgroundAppColor)
         ) {
 
             if (loadFinish){
@@ -108,12 +115,8 @@ fun GameScreen( navigationState: NavigationState ){
                         gameName = gameName,
                         gameInstructionImage = gameInstructionImage,
                         gameDescription = gameDescription,
-                        onDismissRequest = {
-                            loadFinish = false
-                            gameOut()
-                            navigationState.navigateTo(GamesScreen.GameInitial.route)
-                        }
-                    ){startGameState = true}
+                        onDismissRequest = { gameOut() }
+                    ){viewModel.updateStartGameState(true)}
 
                 }else{
 
@@ -123,19 +126,13 @@ fun GameScreen( navigationState: NavigationState ){
                                 //region GamesNavigationItem.FlickMaster.sectionName
                                 GamesNavigationItem.FlickMaster.sectionName -> {
                                     FlickMaster(
-                                        onBackButtonClick = {
-                                            loadFinish = false
-                                            gameOut()
-                                            navigationState.navigateTo(GamesScreen.GameInitial.route)
-                                        },
+                                        onBackButtonClick = { gameOut() },
                                         putActualScope = {}
                                     ){
                                         countCorrect, countIncorrect, gameScope, internalAccuracy ->
-                                        correct = countCorrect
-                                        incorrect = countIncorrect
-                                        accuracy = internalAccuracy
-                                        scope = gameScope
-                                        endGameState = true
+                                        viewModel.updateGameResult(countCorrect, countIncorrect,
+                                            internalAccuracy, gameScope)
+                                        viewModel.updateEndGameState(true)
                                     }
                                 }
                                 //endregion
@@ -145,19 +142,13 @@ fun GameScreen( navigationState: NavigationState ){
                                 GamesNavigationItem.PathToSafety.sectionName -> {
                                     PathToSafety(
                                         topBarHeight = topBarHeight,
-                                        onBackButtonClick = {
-                                            loadFinish = false
-                                            gameOut()
-                                            navigationState.navigateTo(GamesScreen.GameInitial.route)
-                                        },
+                                        onBackButtonClick = { gameOut() },
                                         putActualScope = {}
                                     )
                                     {countCorrect, countIncorrect,gameScope , internalAccuracy ->
-                                        correct = countCorrect
-                                        incorrect = countIncorrect
-                                        accuracy = internalAccuracy
-                                        scope = gameScope
-                                        endGameState = true
+                                        viewModel.updateGameResult(countCorrect, countIncorrect,
+                                            internalAccuracy, gameScope)
+                                        viewModel.updateEndGameState(true)
                                     }
                                 }
                                 //endregion
@@ -171,18 +162,9 @@ fun GameScreen( navigationState: NavigationState ){
                         true -> {
                             //region GameResults
                             GameResults(
-                                gameName = gameName,
-                                miniatureGameImage = miniatureGameImage,
-                                correct = correct,
-                                incorrect = incorrect,
-                                scope = scope,
-                                accuracy = accuracy,
-                                onBackButtonClick = {
-                                    loadFinish = false
-                                    gameOut()
-                                    navigationState.navigateTo(GamesScreen.GameInitial.route)
-                                },
-                                onRetryButtonClick = { endGameState = false }
+                                viewModel = viewModel,
+                                onBackButtonClick = { gameOut() },
+                                onRetryButtonClick = { viewModel.updateEndGameState(false) }
                             )
                             //endregion
                         }

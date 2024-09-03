@@ -6,6 +6,10 @@ import com.kuvalin.brainstorm.domain.usecase.GetFriendsListUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetListGamesStatisticsUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetUserUidUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetWarStatisticUseCase
+import com.kuvalin.brainstorm.globalClasses.DecAction
+import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
+import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,13 +42,22 @@ class WarsStatisticsViewModel @Inject constructor(
 
     fun loadWarStatistics(currentUserUid: String) {
         viewModelScope.launch {
-            getWarStatisticUseCase.invoke(currentUserUid)?.let { warStatistics ->
-                _wins.value = warStatistics.wins
-                _losses.value = warStatistics.losses
-                _draws.value = warStatistics.draws
-                _winRate.value = calculateWinRate(warStatistics.wins, warStatistics.losses)
-                _highestScore.value = warStatistics.highestScore
-            }
+
+            UniversalDecorator().executeAsync(
+                mainFunc = {
+                    getWarStatisticUseCase.invoke(currentUserUid)?.let { warStatistics ->
+                        _wins.value = warStatistics.wins
+                        _losses.value = warStatistics.losses
+                        _draws.value = warStatistics.draws
+                        _winRate.value = calculateWinRate(warStatistics.wins, warStatistics.losses)
+                        _highestScore.value = warStatistics.highestScore
+                    }
+                    delay(600)
+                },
+                beforeActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
+                afterActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
+            )
+
         }
     }
 

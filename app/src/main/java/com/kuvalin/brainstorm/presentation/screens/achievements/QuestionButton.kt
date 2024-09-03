@@ -40,6 +40,8 @@ import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 fun QuestionButton(
     onClickDismiss: () -> Unit
 ){
+
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
     val context = LocalContext.current
 
@@ -47,7 +49,9 @@ fun QuestionButton(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val dialogHeight = DynamicSize(baseDimension = screenWidth, desiredSize = (screenWidth*1.3).toFloat())
+    //endregion ################################################################################# */
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
             MusicPlayer(context = context).playChoiceClick()
@@ -102,8 +106,11 @@ fun QuestionButton(
 
         },
     )
+    //endregion ################################################################################## */
+
 }
 
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region Discription
 @Composable
 private fun Discription(text: String) {
@@ -134,5 +141,6 @@ private fun QuestionLabel() {
     )
 }
 //endregion
+//endregion ################################################################################## */
 
 

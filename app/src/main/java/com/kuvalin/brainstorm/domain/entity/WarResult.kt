@@ -1,6 +1,6 @@
 package com.kuvalin.brainstorm.domain.entity
 
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.UNDEFINED_ID
 
 data class WarResult(
     val uid: String,

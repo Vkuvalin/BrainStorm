@@ -9,15 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,11 +25,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.presentation.viewmodels.game.GameSettingsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
+import com.kuvalin.brainstorm.ui.theme.NotSelectedGameLevelA
+import com.kuvalin.brainstorm.ui.theme.NotSelectedGameLevelB
+import com.kuvalin.brainstorm.ui.theme.NotSelectedGameLevelC
+import com.kuvalin.brainstorm.ui.theme.NotSelectedGameLevelS
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelA
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelB
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelC
+import com.kuvalin.brainstorm.ui.theme.SelectedGameLevelS
 
 
 @Composable
@@ -42,11 +51,17 @@ fun GameSettingsButton(
     // Для проигрывания звуков
     val context = LocalContext.current
 
-    // Должно перекачевать в базу
-    var selectSButtonState by remember { mutableStateOf(false) }
-    var selectAButtonState by remember { mutableStateOf(true) }
-    var selectBButtonState by remember { mutableStateOf(false) }
-    var selectCButtonState by remember { mutableStateOf(false) }
+    // Компонент
+    val component = getApplicationComponent()
+    val viewModel: GameSettingsViewModel = viewModel(factory = component.getViewModelFactory())
+
+    // Стейты кнопок
+    val selectSButtonState by viewModel.selectSButtonState.collectAsState()
+    val selectAButtonState by viewModel.selectAButtonState.collectAsState()
+    val selectBButtonState by viewModel.selectBButtonState.collectAsState()
+    val selectCButtonState by viewModel.selectCButtonState.collectAsState()
+
+
 
     Dialog(
         onDismissRequest = {
@@ -54,17 +69,14 @@ fun GameSettingsButton(
             onClickDismiss()
         },
         content = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .background(color = BackgroundAppColor)
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
                 //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
                     modifier = Modifier
-                        .offset(x = (10).dp, y = (-10).dp)
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
                         .size(30.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
@@ -76,61 +88,48 @@ fun GameSettingsButton(
                         }
                 )
                 //endregion
-                SettingsLabel()
-                Text("Select League", color = Color.Black, fontSize = 18.sp, modifier = Modifier.offset(y = -(10).dp))
-                //region SubButtons
-                Row {
-                    GameSettingsSubButton(
-                        backgroundColor = if(selectSButtonState)
-                            Color(0xFFE85B9D) else Color(0x59E85B9D),
-                        buttonName = "S",
-                        selectState = selectSButtonState
-                    ){
-                        selectSButtonState = true
-                        selectAButtonState = false
-                        selectBButtonState = false
-                        selectCButtonState = false
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(3))
+                        .background(color = BackgroundAppColor)
+                ) {
+                    SettingsLabel()
+                    Text("Select League", color = Color.Black, fontSize = 18.sp,
+                        modifier = Modifier.offset(y = -(10).dp))
+                    //region SubButtons
+                    Row {
+                        GameSettingsSubButton(
+                            backgroundColor = if(selectSButtonState) SelectedGameLevelS else NotSelectedGameLevelS,
+                            buttonName = "S",
+                            selectState = selectSButtonState
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.S, context) }
+                        GameSettingsSubButton(
+                            backgroundColor = if(selectAButtonState) SelectedGameLevelA else NotSelectedGameLevelA,
+                            buttonName = "A",
+                            selectState = selectAButtonState
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.A, context) }
+                        GameSettingsSubButton(
+                            backgroundColor = if(selectBButtonState) SelectedGameLevelB else NotSelectedGameLevelB,
+                            buttonName = "B",
+                            selectState = selectBButtonState
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.B, context) }
+                        GameSettingsSubButton(
+                            backgroundColor = if(selectCButtonState) SelectedGameLevelC else NotSelectedGameLevelC,
+                            buttonName = "C",
+                            selectState = selectCButtonState
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.C, context) }
                     }
-                    GameSettingsSubButton(
-                        backgroundColor = if(selectAButtonState)
-                            Color(0xFFF28B01) else Color(0x59F28B01),
-                        buttonName = "A",
-                        selectState = selectAButtonState
-                    ){
-                        selectSButtonState = false
-                        selectAButtonState = true
-                        selectBButtonState = false
-                        selectCButtonState = false
-                    }
-                    GameSettingsSubButton(
-                        backgroundColor = if(selectBButtonState)
-                            Color(0xFFF3CB00) else Color(0x59F3CB00),
-                        buttonName = "B",
-                        selectState = selectBButtonState
-                    ){
-                        selectSButtonState = false
-                        selectAButtonState = false
-                        selectBButtonState = true
-                        selectCButtonState = false
-                    }
-                    GameSettingsSubButton(
-                        backgroundColor = if(selectCButtonState)
-                            Color(0xFFBECF0D) else Color(0x59BECF0D),
-                        buttonName = "C",
-                        selectState = selectCButtonState
-                    ){
-                        selectSButtonState = false
-                        selectAButtonState = false
-                        selectBButtonState = false
-                        selectCButtonState = true
-                    }
+                    //endregion
                 }
-                //endregion
             }
         },
     )
 }
 
+enum class SettingsButtonCategory{ S, A, B, C }
 
 //region GameSettingsSubButton
 @Composable
@@ -176,10 +175,7 @@ private fun SettingsLabel() {
         softWrap = false,
         fontWeight = FontWeight.W400,
         textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(Alignment.Top)
-            .offset(y = -(20).dp)
+        modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
     )
 }
 //endregion

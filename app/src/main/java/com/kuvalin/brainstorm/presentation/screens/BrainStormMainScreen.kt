@@ -45,9 +45,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.getApplicationComponent
-import com.kuvalin.brainstorm.globalClasses.DecAction
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.DecAction
 import com.kuvalin.brainstorm.globalClasses.GetAssetBitmap
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_400
 import com.kuvalin.brainstorm.globalClasses.NoRippleInteractionSource
 import com.kuvalin.brainstorm.globalClasses.UniversalDecorator
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
@@ -109,7 +110,7 @@ fun BrainStormMainScreen() {
     // Стейт нажатия по навиге
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation) {
-        GlobalStates.AnimLoadState(400) { clickNavigation = false } // Было 350
+        GlobalStates.AnimLoadState(ANIMATION_DURATION_400) { clickNavigation = false } // Было 350
     }
     //endregion ################################################################################# */
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
@@ -309,7 +310,7 @@ private fun TopAppBarContent(
     onClickNavigationButton: () -> Unit
 ) {
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
     // Компонент и производные
     val component = getApplicationComponent()
@@ -347,7 +348,7 @@ private fun TopAppBarContent(
     val clickOnGameSettingsButton by viewModel.clickOnGameSettingsButton.collectAsState()
     if (clickOnGameSettingsButton) { GameSettingsButton { viewModel.toggleGameSettingsButton(false) } }
 
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
 

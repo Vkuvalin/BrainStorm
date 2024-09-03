@@ -2,9 +2,9 @@ package com.kuvalin.brainstorm.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.DEFAULT_COIN_VALUE
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.DEFAULT_LIVE_VALUE
-import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.Companion.UNDEFINED_ID
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.DEFAULT_COIN_VALUE
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.DEFAULT_LIVE_VALUE
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.UNDEFINED_ID
 
 
 @Entity("app_currency")

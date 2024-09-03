@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
@@ -106,14 +107,14 @@ fun PathToSafety(
 ){
 
     var clickNavigation by remember { mutableStateOf(false) }
-    if (clickNavigation){ GlobalStates.AnimLoadState(350){ clickNavigation = false } }
+    if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
 
     BackHandler {
         clickNavigation = true
         onBackButtonClick()
     }
 
-    /* ############# 🧮 ###################### ПЕРЕМЕННЫЕ #################### 🧮 ############## */
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val coroutineScope = rememberCoroutineScope()
 
     // Генерация игрового поля
@@ -146,7 +147,7 @@ fun PathToSafety(
     // Для проигрывания звуков
     val context = LocalContext.current
     var countTimer = 1
-    /* ########################################################################################## */
+    //endregion ################################################################################# */
 
 
     //region checkTouchPosition
