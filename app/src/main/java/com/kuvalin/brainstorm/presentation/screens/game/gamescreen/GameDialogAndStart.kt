@@ -20,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
+import com.kuvalin.brainstorm.ui.theme.OrangeAppColor
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -71,7 +73,7 @@ fun GameDialogAndStart(
     val animLoadState by GlobalStates.animLoadState.collectAsState()
 
     // Проигрывание музыки
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
@@ -138,14 +140,14 @@ fun GameDialogAndStart(
                         .padding(top = 10.dp)
                         .width(200.dp)
                         .clip(RoundedCornerShape(14))
-                        .background(color = Color(0xFFFF7700))
+                        .background(color = OrangeAppColor)
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFFF7700),
+                            color = OrangeAppColor,
                             shape = RoundedCornerShape(14)
                         )
                         .noRippleClickable {
-                            MusicPlayer(context).playChoiceStartGame()
+                            MusicPlayer(context.value).playChoiceStartGame()
                             onStartButtonClick()
                         }
                 ) {

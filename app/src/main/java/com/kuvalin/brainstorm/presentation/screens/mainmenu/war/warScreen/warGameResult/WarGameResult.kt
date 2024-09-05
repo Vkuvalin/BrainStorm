@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.warGameResult
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +21,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -48,7 +47,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-
 @Composable
 fun WarGameResult(
     userInfo: UserInfo,
@@ -59,12 +57,9 @@ fun WarGameResult(
     onBackButtonClick: () -> Unit
 ) {
 
-    Log.d("DEBUG-1", "-------------- ${userInfo.name} -------------- userInfo")
-    Log.d("DEBUG-1", "-------------- ${userInfoOpponent.name} -------------- userInfoOpponent")
-
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val scope = CoroutineScope(Dispatchers.IO)
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     val uriAvatar by remember { mutableStateOf<Uri?>(null) }
 
@@ -256,7 +251,7 @@ fun WarGameResult(
                     scope.launch {
                         viewModel.addFriendInGame.invoke(sessionId) // TODO вытащить сюда UID
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Запрос был отправлен", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context.value, "Запрос был отправлен", Toast.LENGTH_LONG).show()
                         }
                     }
                 }

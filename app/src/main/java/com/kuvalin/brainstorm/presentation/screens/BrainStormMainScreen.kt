@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,7 +101,7 @@ fun BrainStormMainScreen() {
     val navigationState = rememberNavigationState()
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // TopAppBar
     val appbarHeight = remember { 50 } // TODO подумать, где ещё фигурирует и куда вынести
@@ -121,7 +122,7 @@ fun BrainStormMainScreen() {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     TopAppBarLevel1(navigationState) {clickNavigation = it}
                     TopAppBarLevel2(appbarHeight, navigationState, animLoadState,
-                        viewModel, context){ clickNavigation = it }
+                        viewModel, context.value){ clickNavigation = it }
                     Spacer( modifier = Modifier.fillMaxWidth().height(1.dp).background(color = Color.LightGray) )
                 }
             }
@@ -318,7 +319,7 @@ private fun TopAppBarContent(
 
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
     val animLoadState by GlobalStates.animLoadState.collectAsState()
 
 
@@ -366,7 +367,7 @@ private fun TopAppBarContent(
                     .noRippleClickable {
                         if (animLoadState) {
                             navigationState.navigateToMenu()
-                            MusicPlayer(context = context).playChangeNavigation()
+                            MusicPlayer(context = context.value).playChangeNavigation()
                             onClickNavigationButton()
                         }
                     }
@@ -378,7 +379,7 @@ private fun TopAppBarContent(
                     .size(40.dp)
                     .noRippleClickable {
                         viewModel.toggleShareState(true)
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                     }
             )
         }
@@ -399,7 +400,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
 
                         CoroutineScope(Dispatchers.Default).launch {
                             UniversalDecorator().executeAsync(
@@ -417,7 +418,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                         viewModel.toggleAddFriendsButton(true)
                         onClickNavigationButton()
                     }
@@ -432,7 +433,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                         viewModel.toggleAddQuestionButton(true)
                         onClickNavigationButton()
                     }
@@ -455,7 +456,7 @@ private fun TopAppBarContent(
                                 afterActions = listOf(DecAction.Execute{ putScreenState("animBrainLoadState", false) })
                             )
                         }
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                         onClickNavigationButton()
                     }
             )
@@ -470,7 +471,7 @@ private fun TopAppBarContent(
                 Modifier
                     .size(40.dp)
                     .noRippleClickable {
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                         viewModel.toggleGameSettingsButton(true)
                         onClickNavigationButton()
                     }
@@ -496,7 +497,7 @@ private fun TopAppBarContent(
                 .noRippleClickable {
                     if (animLoadState) {
                         navigationState.navHostController.popBackStack()
-                        MusicPlayer(context = context).playChangeNavigation()
+                        MusicPlayer(context = context.value).playChangeNavigation()
                         onClickNavigationButton()
                     }
                 }
@@ -511,7 +512,7 @@ private fun TopAppBarContent(
                 .noRippleClickable {
                     if (animLoadState) {
                         navigationState.navHostController.popBackStack()
-                        MusicPlayer(context = context).playChangeNavigation()
+                        MusicPlayer(context = context.value).playChangeNavigation()
                         onClickNavigationButton()
                     }
                 }

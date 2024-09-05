@@ -18,14 +18,7 @@ class GamesStatisticsViewModel @Inject constructor(
     private val _gamesStatistics = MutableStateFlow<List<GameStatistic>>(emptyList())
 
     suspend fun getListGamesStatistics(userUid: String) {
-        UniversalDecorator().executeAsync(
-            mainFunc = {
-                _gamesStatistics.value = getListGamesStatisticsUseCase.invoke(userUid)
-                delay(800)
-            },
-            beforeActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
-            afterActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
-        )
+        _gamesStatistics.value = getListGamesStatisticsUseCase.invoke(userUid)
     }
 
     fun getGameStatistic(gameName: String): GameStatistic? {

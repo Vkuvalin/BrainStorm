@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,7 +90,7 @@ private fun AchievementItem(
     position: Int
 ) {
 
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
     var clickOnAchievementState by remember { mutableStateOf(false) }
 
     if (clickOnAchievementState){
@@ -108,7 +109,7 @@ private fun AchievementItem(
             .background(color = BackgroundAppColor)
             .padding(25.dp)
             .noRippleClickable {
-                MusicPlayer(context).playChoiceClick()
+                MusicPlayer(context.value).playChoiceClick()
                 clickOnAchievementState = true
             },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -143,7 +144,7 @@ fun AchievementItemContent(
 
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Немного странно тут считает размер, поэтому беру высоту.
     val configuration = LocalConfiguration.current
@@ -152,7 +153,7 @@ fun AchievementItemContent(
 
     Dialog(
         onDismissRequest = {
-            MusicPlayer(context = context).playChoiceClick()
+            MusicPlayer(context = context.value).playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -171,7 +172,7 @@ fun AchievementItemContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            MusicPlayer(context = context).playChoiceClick()
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )

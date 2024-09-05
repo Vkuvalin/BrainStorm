@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,7 +98,7 @@ private fun GameScreenInitialContent(
 
     GlobalStates.AnimLoadState(ANIMATION_DURATION_400){}
     val animLoadState by GlobalStates.animLoadState.collectAsState()
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     Box(
         modifier = Modifier
@@ -120,7 +121,7 @@ private fun GameScreenInitialContent(
                 ) {
                     if (animLoadState) {
                         GlobalStates.putScreenState("runGameScreenState", true)
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                         viewModel.navigateWithDelay(navigationState, items[position].screen.route)
                     }
                 }

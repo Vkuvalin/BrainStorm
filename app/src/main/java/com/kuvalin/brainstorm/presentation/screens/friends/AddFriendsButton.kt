@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,10 +51,10 @@ fun AddFriendsButtonContent( onClickDismiss: () -> Unit ){
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     Dialog(
-        onDismissRequest = { playSoundAndDismiss(context, onClickDismiss) },
+        onDismissRequest = { playSoundAndDismiss(context.value, onClickDismiss) },
         content = {
 
             Column(
@@ -71,7 +72,7 @@ fun AddFriendsButtonContent( onClickDismiss: () -> Unit ){
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            playSoundAndDismiss(context, onClickDismiss)
+                            playSoundAndDismiss(context.value, onClickDismiss)
                         }
                 )
                 //endregion
@@ -113,7 +114,6 @@ fun AddFriendsButtonContent( onClickDismiss: () -> Unit ){
     //endregion ################################################################################# */
 
 }
-
 
 //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region ShareLabel

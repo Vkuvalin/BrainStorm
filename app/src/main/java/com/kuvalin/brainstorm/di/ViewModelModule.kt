@@ -9,6 +9,8 @@ import com.kuvalin.brainstorm.presentation.viewmodels.friends.RequestContentView
 import com.kuvalin.brainstorm.presentation.viewmodels.game.GameMainScreenViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.game.GameScreenViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.game.GameSettingsViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.games.FlickMasterViewModel
+import com.kuvalin.brainstorm.presentation.viewmodels.game.games.PathToSafetyViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.BrainStormMainViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MainMenuViewModel
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
@@ -131,7 +133,7 @@ interface ViewModelModule {
 
 
 
-    // ###################### Games
+    // ###################### Game
     @IntoMap
     @ViewModelKey(GameMainScreenViewModel::class)
     @Binds
@@ -146,6 +148,19 @@ interface ViewModelModule {
     @ViewModelKey(GameScreenViewModel::class)
     @Binds
     fun bindGameScreenViewModel(viewModel: GameScreenViewModel): ViewModel
+
+
+    // ########## Games
+
+    @IntoMap
+    @ViewModelKey(FlickMasterViewModel::class)
+    @Binds
+    fun bindFlickMasterViewModel(viewModel: FlickMasterViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(PathToSafetyViewModel::class)
+    @Binds
+    fun bindPathToSafetyViewModel(viewModel: PathToSafetyViewModel): ViewModel
     // ######################
 
 

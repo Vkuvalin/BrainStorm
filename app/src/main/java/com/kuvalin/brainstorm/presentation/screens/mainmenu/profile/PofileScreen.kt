@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,7 +91,7 @@ fun ProfileScreenContent(
     // Базовые
     val component = getApplicationComponent()
     val viewModel: ProfileViewModel = viewModel(factory = component.getViewModelFactory())
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
 
     // UserInfo
@@ -109,8 +110,8 @@ fun ProfileScreenContent(
     ) { newUri: Uri? ->
 
         newUri?.let {uri ->
-            context.contentResolver.openInputStream(uri)?.let {input ->
-                val outputFile = context.filesDir.resolve("profilePic${(1..1_000_000).random()}.jpg")
+            context.value.contentResolver.openInputStream(uri)?.let {input ->
+                val outputFile = context.value.filesDir.resolve("profilePic${(1..1_000_000).random()}.jpg")
                 input.copyTo(outputFile.outputStream())
                 viewModel.updateSelectedImageUri(outputFile.toUri())
             }
@@ -153,7 +154,7 @@ fun ProfileScreenContent(
             onFacebookConnectChange = viewModel::updateFacebookConnectState
         ){
             SaveButton {
-                viewModel.updateUserInfoInDatabase(context)
+                viewModel.updateUserInfoInDatabase(context.value)
             }
         }
         //endregion

@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +44,7 @@ fun QuestionButton(
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Высота Dialog ()
     val configuration = LocalConfiguration.current
@@ -54,7 +55,7 @@ fun QuestionButton(
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
-            MusicPlayer(context = context).playChoiceClick()
+            MusicPlayer(context = context.value).playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -76,7 +77,7 @@ fun QuestionButton(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            MusicPlayer(context = context).playChoiceClick()
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )

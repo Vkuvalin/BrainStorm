@@ -19,6 +19,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,15 +56,13 @@ fun UserMessagePanel(
     val panelHeight = remember { screenWidth/4 }
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Аватар
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
 
     // Заглушка ласт сообщения
     //endregion ################################################################################# */
-
-
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Row(
@@ -78,7 +77,7 @@ fun UserMessagePanel(
             modifier = Modifier
                 .weight(1f)
                 .noRippleClickable {
-                    MusicPlayer(context = context).playChoiceClick()
+                    MusicPlayer(context = context.value).playChoiceClick()
                     onPressAvatar()
                 }
             ,

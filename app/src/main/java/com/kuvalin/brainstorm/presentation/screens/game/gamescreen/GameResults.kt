@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import com.kuvalin.brainstorm.presentation.viewmodels.game.GameScreenViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 import com.kuvalin.brainstorm.ui.theme.MiniStatPanelBackground
+import com.kuvalin.brainstorm.ui.theme.OrangeAppColor
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 
 
@@ -70,7 +72,7 @@ fun GameResults(
 
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Отрисовка элементов
     val screenWidth = LocalConfiguration.current.screenWidthDp
@@ -184,9 +186,9 @@ fun GameResults(
                 StringButton(
                     buttonText = "Retry",
                     buttonSize = 24,
-                    color = Color(0xFFFF7700)
+                    color = OrangeAppColor
                 ){
-                    MusicPlayer(context = context).playChoiceClick()
+                    MusicPlayer(context = context.value).playChoiceClick()
                     onRetryButtonClick()
                 }
             }

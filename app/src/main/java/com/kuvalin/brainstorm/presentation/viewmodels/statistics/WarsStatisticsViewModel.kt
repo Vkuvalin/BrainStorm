@@ -43,20 +43,13 @@ class WarsStatisticsViewModel @Inject constructor(
     fun loadWarStatistics(currentUserUid: String) {
         viewModelScope.launch {
 
-            UniversalDecorator().executeAsync(
-                mainFunc = {
-                    getWarStatisticUseCase.invoke(currentUserUid)?.let { warStatistics ->
-                        _wins.value = warStatistics.wins
-                        _losses.value = warStatistics.losses
-                        _draws.value = warStatistics.draws
-                        _winRate.value = calculateWinRate(warStatistics.wins, warStatistics.losses)
-                        _highestScore.value = warStatistics.highestScore
-                    }
-                    delay(600)
-                },
-                beforeActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", true) }),
-                afterActions = listOf(DecAction.Execute{ GlobalStates.putScreenState("animBrainLoadState", false) })
-            )
+            getWarStatisticUseCase.invoke(currentUserUid)?.let { warStatistics ->
+                _wins.value = warStatistics.wins
+                _losses.value = warStatistics.losses
+                _draws.value = warStatistics.draws
+                _winRate.value = calculateWinRate(warStatistics.wins, warStatistics.losses)
+                _highestScore.value = warStatistics.highestScore
+            }
 
         }
     }

@@ -5,7 +5,12 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +35,7 @@ import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.resultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
 import com.kuvalin.brainstorm.presentation.screens.BrainStormMainScreen
+import com.kuvalin.brainstorm.presentation.screens.welcome.WelcomeScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
 import kotlinx.coroutines.delay
@@ -44,25 +51,25 @@ class MainActivity : ComponentActivity() {
             //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
             // Общие
-            val context = LocalContext.current
+            val context = rememberUpdatedState(LocalContext.current)
 
-            // Прогружена ли анимация (переименовать?)
-            var runMainActivity by remember { mutableStateOf(false) }
+            // Прогружена ли анимация
+            var animateLoadingEnd by remember { mutableStateOf(true) } // FALSE
 
-            // Загрузка (мини-мозг)
-            val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
-            val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
+
+            val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState() // Мини-мозг
+            val runGameScreenState by GlobalStates.runGameScreenState.collectAsState() // Пауза в музыке
 
 
             //region Музыка
             var playerState by remember { mutableStateOf(true) }
             var resumedApp by remember { mutableStateOf(false) }
-            val backgroundMusic = MediaPlayer.create(context, R.raw.background_music)
+            val backgroundMusic = MediaPlayer.create(context.value, R.raw.background_music)
             val observer = remember {
                 LifecycleEventObserver { owner, _ ->
                     when (owner.lifecycle.currentState) {
                         Lifecycle.State.RESUMED -> {
-                            if (runMainActivity){
+                            if (animateLoadingEnd){
                                 backgroundMusic.start()
                                 resumedApp = false
                             }
@@ -83,7 +90,7 @@ class MainActivity : ComponentActivity() {
             // Наполняет resultPaths при загрузке приложения (т.е. подгружает все фотографии/иконки)
             LaunchedEffect(Unit) {
                 UniversalDecorator().execute(
-                    mainFunc = { populateResultPaths(context) },
+                    mainFunc = { populateResultPaths(context.value) },
                     afterActions = listOf(DecAction.Log("$resultPaths")),
                     subLogTag = "Main"
                 )
@@ -96,45 +103,45 @@ class MainActivity : ComponentActivity() {
             BrainStormTheme {
 
                 //region Запуск музыки
-                val lifecycle = LocalLifecycleOwner.current.lifecycle
-                DisposableEffect(lifecycle) {
-                    lifecycle.addObserver(observer)
-                    onDispose {
-                        lifecycle.removeObserver(observer)
-                        backgroundMusic.release()
-                    }
-                }
+//                val lifecycle = LocalLifecycleOwner.current.lifecycle
+//                DisposableEffect(lifecycle) {
+//                    lifecycle.addObserver(observer)
+//                    onDispose {
+//                        lifecycle.removeObserver(observer)
+//                        backgroundMusic.release()
+//                    }
+//                }
 
-                LaunchedEffect(Unit){
-                    delay(1000)
-                    if (runMainActivity){
-                        while (true) {
-                            if (resumedApp) {
-                                delay(1000)
-                            }
-                            else {
-                                if (runGameScreenState) {
-                                    if (backgroundMusic.isPlaying) {
-                                        backgroundMusic.pause()
-                                    }
-                                }
-                                else {
-                                    if (playerState) {
-                                        backgroundMusic.start()
-                                        playerState = false
-                                    }
-                                    if (!backgroundMusic.isPlaying) {
-                                        playerState = true
-                                    }
-                                }
-                            }
-                            delay(1000)
-                        }
-                    }
-                    if (backgroundMusic.isPlaying) {
-                        backgroundMusic.pause()
-                    }
-                }
+//                LaunchedEffect(animateLoadingEnd){
+//                    delay(1000)
+//                    if (animateLoadingEnd){
+//                        while (true) {
+//                            if (resumedApp) {
+//                                delay(1000)
+//                            }
+//                            else {
+//                                if (runGameScreenState) {
+//                                    if (backgroundMusic.isPlaying) {
+//                                        backgroundMusic.pause()
+//                                    }
+//                                }
+//                                else {
+//                                    if (playerState) {
+//                                        backgroundMusic.start()
+//                                        playerState = false
+//                                    }
+//                                    if (!backgroundMusic.isPlaying) {
+//                                        playerState = true
+//                                    }
+//                                }
+//                            }
+//                            delay(1000)
+//                        }
+//                    }
+//                    if (backgroundMusic.isPlaying) {
+//                        backgroundMusic.pause()
+//                    }
+//                }
                 //endregion
 
                 Column( modifier = Modifier
@@ -152,7 +159,7 @@ class MainActivity : ComponentActivity() {
 //                        .fillMaxSize()
 //                ) {
 //                    AnimatedContent(
-//                        targetState = runMainMenu,
+//                        targetState = animateLoadingEnd,
 //                        transitionSpec = {
 //                            fadeIn(tween(durationMillis = 2000)) with fadeOut(tween(durationMillis = 2000))
 //                        }, label = ""
@@ -161,21 +168,15 @@ class MainActivity : ComponentActivity() {
 //
 //                        if (!shouldLaunchFirstScreen) {
 //                            // Дальше сюда привязать загрузку
-//                            WelcomeScreen(delayMilsLoading = 5000) { runMainMenu = !runMainMenu }
+//                            WelcomeScreen(delayMilsLoading = 5000) { animateLoadingEnd = true }
 //                        } else {
-//                            MainScreen(){ refreshState = true }
+//                            BrainStormMainScreen()
 //                        }
 //                    }
 //                }
 //
 //                // Бля, что-то не могу понять, почему теперь она работает лишь за пределами
-//                if (refreshState){
-//                    BrainLoading()
-//                    scope.launch {
-//                        delay(3000)
-//                        refreshState = false
-//                    }
-//                }
+//                if (animBrainLoadState){ BrainLoading() }
 
             }
             //endregion ################################################################################# */

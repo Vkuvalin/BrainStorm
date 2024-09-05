@@ -14,8 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -28,7 +26,6 @@ import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CrosshairColorCyan
 import com.kuvalin.brainstorm.ui.theme.PinkAppColor
 import kotlin.random.Random
-
 
 
 // ###################### DrawingChart
@@ -252,11 +249,6 @@ private fun calculateLevel(rating: Int, policy: Boolean = false): Double {
 @Composable
 fun SkillName(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
 
-    //region Старый вариант
-    val density = LocalDensity.current.density
-    val context = LocalContext.current
-    //endregion
-
     val textMeasurer = rememberTextMeasurer()
     val color = if (workMode == 1 || workMode == 4) Color(0xFF3EB5B2)
     else if (text == "Memory" || text == "Judgement") Color.White else Color.Black
@@ -288,11 +280,6 @@ fun SkillName(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun SkillNamePolus(text: String, x: Float = 0f, y: Float = 0f, workMode: Int) {
-
-    //region Старый вариант
-    val density = LocalDensity.current.density
-    val context = LocalContext.current
-    //endregion
 
     val textMeasurer = rememberTextMeasurer()
     val color = if (workMode == 1 || workMode == 4) Color(0xFF3EB5B2)

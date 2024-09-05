@@ -74,18 +74,16 @@ fun GamesStatisticsContent(
                 .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp)),
             columns = GridCells.Fixed(2)
         ) {
-            if (!animBrainLoadState){
-                items(items.size) { position ->
-                    val item = items[position]
-                    val gameStatistic = viewModel.getGameStatistic(item.sectionName)
+            items(items.size) { position ->
+                val item = items[position]
+                val gameStatistic = viewModel.getGameStatistic(item.sectionName)
 
-                    GamesStatisticsItem(
-                        gamesInfo = item,
-                        parentWidth = parentWidth,
-                        statisticsType = statisticsType,
-                        gameStatistic = gameStatistic
-                    )
-                }
+                GamesStatisticsItem(
+                    gamesInfo = item,
+                    parentWidth = parentWidth,
+                    statisticsType = statisticsType,
+                    gameStatistic = gameStatistic
+                )
             }
         }
 

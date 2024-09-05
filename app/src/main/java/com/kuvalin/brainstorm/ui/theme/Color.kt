@@ -1,6 +1,7 @@
 package com.kuvalin.brainstorm.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.kuvalin.brainstorm.presentation.viewmodels.game.games.FlickMasterViewModel
 
 
 // Default
@@ -27,6 +28,7 @@ val WhiteAppBackground = Color(0xFFF9F9F9)
 val BackgroundAppColor = Color(0xFFE6E6E6) // Light Grey
 val CyanAppColor = Color(0xFF00BBBA) // Cyan
 val PinkAppColor = Color(0xFFEB6FA6) // Pink
+val OrangeAppColor = Color(0xFFFF7700)
 val LinearTrackColor = Color(0xFF373737) // Dark Grey
 val TopAppBarBackgroundColor = Color(0xFF373737) // Dark Grey
 
@@ -53,6 +55,7 @@ val InformationButtonColorOrange = Color(0xFFFFAA01)
 val ContactUsButtonColorDarkGray = Color(0xFF595959)
 val AccountButtonColorTeal = Color(0xFF009688)
 
-
+// ##### Games
 // GameResult
 val MiniStatPanelBackground = Color(0x80FFFFFF)
+val FlickMasterFieldBackground = Color(0xB22AD2FC)

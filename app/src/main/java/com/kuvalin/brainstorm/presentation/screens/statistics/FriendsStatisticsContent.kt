@@ -26,12 +26,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +58,6 @@ import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.DynamicFontSize
 import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
-import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.viewmodels.statistics.FriendsStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
@@ -70,11 +69,10 @@ import com.kuvalin.brainstorm.ui.theme.CyanAppColor
 fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
+    val context = rememberUpdatedState(LocalContext.current)
+
     // ViewModel
     val viewModel: FriendsStatisticsViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
-
-    // Анимация мозга
-    val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState()
 
     // Список друзей
     val friendsList by viewModel.friendList.collectAsState()
@@ -84,8 +82,10 @@ fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
     val screenWidth = configuration.screenWidthDp
     val dynamicFontSize = DynamicFontSize(screenWidth, 20f)
 
-    //endregion ################################################################################# */
+    // Состояние для хранения выбранного друга
+    var selectedFriend by remember { mutableStateOf<Friend?>(null) }
 
+    //endregion ################################################################################# */
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Box(
@@ -93,36 +93,41 @@ fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
             .fillMaxSize()
             .padding(top = paddingParent.calculateTopPadding())
             .background(BackgroundAppColor)
-    ){
-        if (friendsList.isNotEmpty() && !animBrainLoadState){
+    ) {
+        if (friendsList.isNotEmpty()) {
             LazyVerticalGrid(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxSize()
                     .background(BackgroundAppColor)
-                    .then(Modifier.padding(horizontal = 10.dp, vertical = 10.dp))
-                ,
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
                 columns = GridCells.Adaptive(100.dp)
             ) {
-
                 items(friendsList.size) { position ->
-                    RoundCircleFriendsStatisticIndicator(viewModel, friendsList[position], dynamicFontSize)
-                }
-
-            }
-        }else {
-            if (!animBrainLoadState){
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ){
-                    Text("No information about friends.", fontSize = dynamicFontSize)
+                    RoundCircleFriendsStatisticIndicator(
+                        friend = friendsList[position],
+                        dynamicFontSize = dynamicFontSize,
+                        onClick = {
+                            MusicPlayer(context.value).playChoiceClick()
+                            selectedFriend = it
+                        }
+                    )
                 }
             }
-
+        } else {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("No information about friends.", fontSize = dynamicFontSize)
+            }
         }
+    }
 
+    // Если выбран друг, показываем диалог
+    selectedFriend?.let { friend ->
+        FriendStatDialog(friend = friend) { selectedFriend = null }
     }
     //endregion ################################################################################## */
 
@@ -132,41 +137,27 @@ fun FriendsStatisticsContent( paddingParent: PaddingValues ) {
 //region RoundCircleIndicator
 @Composable
 private fun RoundCircleFriendsStatisticIndicator(
-    viewModel: FriendsStatisticsViewModel,
     friend: Friend,
-    dynamicFontSize: TextUnit
+    dynamicFontSize: TextUnit,
+    onClick: (Friend) -> Unit
 ) {
+    val wins = friend.warStatistics?.wins ?: 0
+    val losses = friend.warStatistics?.losses ?: 0
+    val winRate = if (wins + losses > 0) wins / (wins + losses).toFloat() else 0f
 
-    val winRate = viewModel.calculateWinRate(friend)
-
-    // Аватар //TODO не забыть подтянуть
-    var uriAvatar by remember { mutableStateOf<Uri?>(null) }
-
-
-    var clickState by remember { mutableStateOf(false) }
-    if (clickState){
-        FriendStatDialog(friend) { clickState = false}
-    }
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier,
-            contentAlignment = Alignment.Center
-        ){
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(contentAlignment = Alignment.Center) {
             CircularProgressIndicator(
                 progress = winRate,
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
                     .background(color = Color(0xFFE85B9D))
-                    .noRippleClickable { clickState = true }
-                ,
+                    .noRippleClickable { onClick(friend) },
                 strokeWidth = 20.dp,
                 color = Color(0xFF00BAB9),
             )
-            Avatar(uriAvatar){ clickState = true }
+            Avatar(uriAvatar = null) { onClick(friend) }
         }
         Text(
             text = "${friend.name}",
@@ -174,9 +165,8 @@ private fun RoundCircleFriendsStatisticIndicator(
             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
         )
     }
-
-
 }
+
 //endregion
 //region Avatar
 @Composable
@@ -225,7 +215,7 @@ fun FriendStatDialog(
 ){
 
     // Проигрывание музыки
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
@@ -267,7 +257,7 @@ fun FriendStatDialog(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            MusicPlayer(context = context).playChoiceClick()
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -336,10 +326,3 @@ private fun LabelText(text: String, fontSize: TextUnit, color: Color) {
 }
 //endregion
 //endregion ################################################################################## */
-
-
-
-
-
-
-

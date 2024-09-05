@@ -86,27 +86,25 @@ fun WarsStatisticsContent(
             .padding(horizontal = 30.dp)
     ) {
 
-        if (!animBrainLoadState){
-            AdaptiveBoxContent(compressionRatio){ RoundCircleIndicator(winRate, compressionRatio) }
-            Spacer(modifier = Modifier.height((50*compressionRatio).dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                AdaptiveBoxContent(compressionRatio){
-                    Box(modifier = Modifier.weight(1f)){StatisticBoxContent("WINS", wins, compressionRatio) }
-                }
-
-                AdaptiveBoxContent(compressionRatio){
-                    Box(modifier = Modifier.weight(1f)){ StatisticBoxContent("LOSSES", losses, compressionRatio) }
-                }
-                AdaptiveBoxContent(compressionRatio){
-                    Box(modifier = Modifier.weight(1f)){StatisticBoxContent("DRAWS", draws, compressionRatio)}
-                }
+        AdaptiveBoxContent(compressionRatio){ RoundCircleIndicator(winRate, compressionRatio) }
+        Spacer(modifier = Modifier.height((50*compressionRatio).dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            AdaptiveBoxContent(compressionRatio){
+                Box(modifier = Modifier.weight(1f)){StatisticBoxContent("WINS", wins, compressionRatio) }
             }
-            AdaptiveBoxContent(compressionRatio){ Spacer(modifier = Modifier.height((50*compressionRatio).dp)) }
-            AdaptiveBoxContent(compressionRatio){ HighestScoreBoxContent(highestScore, compressionRatio) }
+
+            AdaptiveBoxContent(compressionRatio){
+                Box(modifier = Modifier.weight(1f)){ StatisticBoxContent("LOSSES", losses, compressionRatio) }
+            }
+            AdaptiveBoxContent(compressionRatio){
+                Box(modifier = Modifier.weight(1f)){StatisticBoxContent("DRAWS", draws, compressionRatio)}
+            }
         }
+        AdaptiveBoxContent(compressionRatio){ Spacer(modifier = Modifier.height((50*compressionRatio).dp)) }
+        AdaptiveBoxContent(compressionRatio){ HighestScoreBoxContent(highestScore, compressionRatio) }
 
     }
     //endregion ################################################################################## */
@@ -118,6 +116,10 @@ fun WarsStatisticsContent(
 @Composable
 private fun AdaptiveBoxContent(scale: Float, content: @Composable () -> Unit) {
     Box(modifier = Modifier.scale(scale)) {content()}
+}
+
+private fun calculateCompressionRatio(screenWidth: Int): Float {
+    return screenWidth / 393.toFloat()
 }
 
 
@@ -221,11 +223,7 @@ private fun HighestScoreBoxContent(value: Int, scale: Float) {
 }
 //endregion
 
-// Вспомогательная функция для расчета коэффициента сжатия экрана
-private fun calculateCompressionRatio(screenWidth: Int): Float {
-    return screenWidth / 393.toFloat()
-}
 
-//endregion ################################################################################## */
+
 
 

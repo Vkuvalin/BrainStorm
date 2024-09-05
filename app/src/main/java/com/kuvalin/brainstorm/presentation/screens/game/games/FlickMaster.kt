@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,10 +24,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.presentation.viewmodels.game.games.FlickMasterViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import kotlinx.coroutines.delay
 import kotlin.math.abs
@@ -39,6 +44,7 @@ fun FlickMaster(
     putGameResult: (countCorrect: Int, countIncorrect: Int, gameScope: Int, internalAccuracy: Float) -> Unit
 ){
 
+    //region ############# 🔄 ################## BackHandler ################## 🔄 ############## */
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
 
@@ -46,8 +52,11 @@ fun FlickMaster(
         clickNavigation = true
         onBackButtonClick()
     }
+    //endregion ################################################################################# */
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
+    val viewModel: FlickMasterViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
+
     // Настройки отображения стрелки
     var degrees by remember { mutableFloatStateOf(getRandomDegrees()) }
     var arrowFileName by remember { mutableStateOf(getRandomFileName()) }
@@ -56,17 +65,14 @@ fun FlickMaster(
     var previousOffset: Offset? = null
     val listOffsets = mutableListOf<Offset>()
 
-    // Подсчет результатов
-    var countCorrect = 0
-    var countIncorrect = 0
-
     // Для проигрывания звуков
-    val context = LocalContext.current
-    var countTimer = 1
+    val context = rememberUpdatedState(LocalContext.current)
 
+    // Таймер
+    val countTimer by viewModel.countTimer.collectAsState()
     //endregion ################################################################################# */
 
-
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,17 +86,16 @@ fun FlickMaster(
                         val lastX = listOffsets.last().x
                         val lastY = listOffsets.last().y
 
-                        val result = gameResult(degrees, arrowFileName, lastX, offsetToDegrees, lastY)
+                        val result =
+                            gameResult(degrees, arrowFileName, lastX, offsetToDegrees, lastY)
 
                         if (result) {
-                            MusicPlayer(context = context).playSuccessInGame()
-                            countCorrect++
+                            MusicPlayer(context = context.value).playSuccessInGame()
+                            viewModel.increaseCorrect()
                             putActualScope(53) // TODO Пока костыль для экономии времени ТОЧКА-2
-                            // Происходит почему-то двойная рекомпозиция TODO - искать
-                        }
-                        else {
-                            MusicPlayer(context = context).playErrorInGame()
-                            countIncorrect++
+                        } else {
+                            MusicPlayer(context = context.value).playErrorInGame()
+                            viewModel.increaseIncorrect()
                             putActualScope(-22) // TODO Пока костыль для экономии времени ТОЧКА-2
                         }
 
@@ -116,25 +121,27 @@ fun FlickMaster(
         LaunchedEffect(Unit) {
             delay(10000)
             while (countTimer <= 10){
-                MusicPlayer(context = context).playTimer()
+                MusicPlayer(context = context.value).playTimer()
                 delay(1000)
-                countTimer++
+                viewModel.updateTimer()
             }
-            MusicPlayer(context = context).playEndOfTheGame()
 
+            MusicPlayer(context = context.value).playEndOfTheGame()
             putGameResult(
-                countCorrect,
-                countIncorrect,
+                viewModel.countCorrect.value,
+                viewModel.countIncorrect.value,
                 0,
-                (countCorrect.toFloat()/(countCorrect + countIncorrect).toFloat())
+                viewModel.getInternalAccuracy()
             )
+            viewModel.resetGame()
         }
     }
+    //endregion ################################################################################# */
+
 }
 
 
-
-/* ################################# ФУНКЦИИ (вспомогательные) ################################## */
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 private fun getRandomFileName(): String {
     return listOf("img_blue_arrow.png", "img_red_arrow.png").random()
 }
@@ -185,5 +192,5 @@ private fun gameResult(
     else -> false
 }
 //endregion
-/* ############################################################################################## */
+//endregion ################################################################################## */
 

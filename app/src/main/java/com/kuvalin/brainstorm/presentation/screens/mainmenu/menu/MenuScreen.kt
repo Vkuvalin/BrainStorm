@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -133,8 +134,6 @@ fun MenuScreen(){
     //endregion
     //endregion ################################################################################# */
 
-
-
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     //region Кнопки меню
     Box(
@@ -220,8 +219,6 @@ fun MenuScreen(){
 
 }
 
-
-
 //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region MenuText
 @Composable
@@ -235,7 +232,7 @@ private fun MenuText(
 ) {
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
 
     Row(
@@ -250,7 +247,7 @@ private fun MenuText(
                 shape = RoundedCornerShape(14)
             )
             .noRippleClickable {
-                viewModel.playChoiceClickSound(context)
+                viewModel.playChoiceClickSound(context.value)
                 onPressButton()
             }
     ){
@@ -277,12 +274,12 @@ fun AnnouncementContent(
 ){
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
 
     Dialog(
         onDismissRequest = {
-            viewModel.playChoiceClickSound(context)
+            viewModel.playChoiceClickSound(context.value)
             onClickDismiss()
         },
         content = {
@@ -297,7 +294,7 @@ fun AnnouncementContent(
                     modifier = customModifier
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context)
+                            viewModel.playChoiceClickSound(context.value)
                             onClickDismiss()
                         }
                 )
@@ -329,7 +326,7 @@ fun SettingsContent(
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Получение размеров
     val configuration = LocalConfiguration.current
@@ -347,7 +344,7 @@ fun SettingsContent(
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
-            viewModel.playChoiceClickSound(context)
+            viewModel.playChoiceClickSound(context.value)
             onClickDismiss()
         },
         content = {
@@ -364,7 +361,7 @@ fun SettingsContent(
                     modifier = customModifier
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context)
+                            viewModel.playChoiceClickSound(context.value)
                             onClickDismiss()
                         }
                 )
@@ -465,7 +462,7 @@ fun AccountContent(
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Переменные
     val authState by viewModel.authState.collectAsState()
@@ -478,7 +475,7 @@ fun AccountContent(
 
     Dialog(
         onDismissRequest = {
-            viewModel.playChoiceClickSound(context)
+            viewModel.playChoiceClickSound(context.value)
             onClickDismiss()
         },
         content = {
@@ -498,7 +495,7 @@ fun AccountContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context)
+                            viewModel.playChoiceClickSound(context.value)
                             onClickDismiss()
                         }
                 )
@@ -562,9 +559,9 @@ fun AccountContent(
                                     if (userEmail.isNotEmpty() && userPassword.isNotEmpty()){
                                         viewModel.updateUserEmail(userEmail)
                                         viewModel.updateUserPassword(userPassword)
-                                        viewModel.signUp(context)
+                                        viewModel.signUp(context.value)
                                     } else {
-                                        Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context.value, "Заполните поля", Toast.LENGTH_LONG).show()
                                     }
 
                                 }
@@ -574,9 +571,9 @@ fun AccountContent(
 
                                     if (userEmail.isNotEmpty()) {
                                         viewModel.updateUserEmail(userEmail)
-                                        viewModel.resetPassword(context)
+                                        viewModel.resetPassword(context.value)
                                     } else {
-                                        Toast.makeText(context, "Пожалуйста, заполните поле Email", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context.value, "Пожалуйста, заполните поле Email", Toast.LENGTH_SHORT).show()
                                     }
 
                                 }
@@ -589,9 +586,9 @@ fun AccountContent(
                                     if (userEmail.isNotEmpty() && userPassword.isNotEmpty()){
                                         viewModel.updateUserEmail(userEmail)
                                         viewModel.updateUserPassword(userPassword)
-                                        viewModel.signIn(context)
+                                        viewModel.signIn(context.value)
                                     } else {
-                                        Toast.makeText(context, "Заполните поля", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context.value, "Заполните поля", Toast.LENGTH_LONG).show()
                                     }
                                 } else {
                                     viewModel.signOut()

@@ -26,6 +26,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,7 +79,7 @@ fun UserInfoDialog(
 
 
     // Проигрывание музыки
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Получаем нужные размеры экрана
     val configuration = LocalConfiguration.current
@@ -96,7 +97,6 @@ fun UserInfoDialog(
         }
     }
     //endregion ################################################################################# */
-
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
@@ -119,7 +119,7 @@ fun UserInfoDialog(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            MusicPlayer(context = context).playChoiceClick()
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -260,8 +260,6 @@ fun UserInfoDialog(
 
 }
 
-
-
 //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region AddDeleteUserButton
 @Composable
@@ -387,7 +385,7 @@ fun AddDeleteUser(
     val scope = CoroutineScope(Dispatchers.IO)
 
     // Проигрывание звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
 
     // Компонент
@@ -415,7 +413,7 @@ fun AddDeleteUser(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            MusicPlayer(context = context).playChoiceClick()
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )

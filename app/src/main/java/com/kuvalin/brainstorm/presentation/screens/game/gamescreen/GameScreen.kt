@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +47,7 @@ fun GameScreen( navigationState: NavigationState ){
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     val topBarHeight = remember { 50 } // Костыль
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
 
     // ############# ViewModel
@@ -87,7 +88,7 @@ fun GameScreen( navigationState: NavigationState ){
         viewModel.updateEndGameState(false)
         viewModel.updateStartGameState(false)
         clickNavigation = true
-        MusicPlayer(context = context).playChoiceClick()
+        MusicPlayer(context = context.value).playChoiceClick()
         GlobalStates.putScreenState("runGameScreenState", false)
         navigationState.navigateTo(GamesScreen.GameInitial.route)
     }

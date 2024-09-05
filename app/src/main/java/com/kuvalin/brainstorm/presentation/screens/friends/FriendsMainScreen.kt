@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +74,7 @@ fun FriendsMainScreen(
     val appbarHeight = remember { 50 }
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Данная шляпа нужна для скрытия topbar // TODO Измени название, а лучше создай просто второй
     val runGameScreenState by GlobalStates.runGameScreenState.collectAsState()
@@ -95,7 +96,7 @@ fun FriendsMainScreen(
         modifier = Modifier.padding(top = paddingValuesParent.calculateTopPadding()),
         topBar = {
             FriendTopBar( runGameScreenState, appbarHeight, navigationState, 
-                animLoadState, context ){ clickNavigation = it }
+                animLoadState, context.value ){ clickNavigation = it }
         }
         
     ) { paddingValues ->

@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,7 +54,7 @@ fun ShareContent(
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Component
     val component = getApplicationComponent()
@@ -66,7 +67,7 @@ fun ShareContent(
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
-            viewModel.playChoiceClickSound(context)
+            viewModel.playChoiceClickSound(context.value)
             onClickDismiss()
         },
         content = {
@@ -88,7 +89,7 @@ fun ShareContent(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context)
+                            viewModel.playChoiceClickSound(context.value)
                             onClickDismiss()
                         }
                 )

@@ -21,6 +21,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,14 +56,12 @@ fun UserRequestOrFriendPanel(
     val panelHeight = remember { screenWidth/4 }
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Аватар
     var uriAvatar by remember { mutableStateOf<Uri?>(null) }
 
     //endregion ################################################################################# */
-
-
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Row(
@@ -71,7 +70,7 @@ fun UserRequestOrFriendPanel(
             .height(panelHeight)
             .padding(10.dp)
             .noRippleClickable {
-                MusicPlayer(context = context).playChoiceClick()
+                MusicPlayer(context = context.value).playChoiceClick()
                 onPressPanel()
             }
     ) {

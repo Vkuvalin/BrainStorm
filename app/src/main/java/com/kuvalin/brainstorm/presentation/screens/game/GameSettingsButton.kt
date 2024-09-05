@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +50,7 @@ fun GameSettingsButton(
     onClickDismiss: () -> Unit
 ){
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Компонент
     val component = getApplicationComponent()
@@ -65,7 +66,7 @@ fun GameSettingsButton(
 
     Dialog(
         onDismissRequest = {
-            MusicPlayer(context = context).playChoiceClick()
+            MusicPlayer(context = context.value).playChoiceClick()
             onClickDismiss()
         },
         content = {
@@ -83,7 +84,7 @@ fun GameSettingsButton(
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            MusicPlayer(context = context).playChoiceClick()
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )
@@ -105,22 +106,22 @@ fun GameSettingsButton(
                             backgroundColor = if(selectSButtonState) SelectedGameLevelS else NotSelectedGameLevelS,
                             buttonName = "S",
                             selectState = selectSButtonState
-                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.S, context) }
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.S, context.value) }
                         GameSettingsSubButton(
                             backgroundColor = if(selectAButtonState) SelectedGameLevelA else NotSelectedGameLevelA,
                             buttonName = "A",
                             selectState = selectAButtonState
-                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.A, context) }
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.A, context.value) }
                         GameSettingsSubButton(
                             backgroundColor = if(selectBButtonState) SelectedGameLevelB else NotSelectedGameLevelB,
                             buttonName = "B",
                             selectState = selectBButtonState
-                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.B, context) }
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.B, context.value) }
                         GameSettingsSubButton(
                             backgroundColor = if(selectCButtonState) SelectedGameLevelC else NotSelectedGameLevelC,
                             buttonName = "C",
                             selectState = selectCButtonState
-                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.C, context) }
+                        ){ viewModel.selectButtonCategory(SettingsButtonCategory.C, context.value) }
                     }
                     //endregion
                 }

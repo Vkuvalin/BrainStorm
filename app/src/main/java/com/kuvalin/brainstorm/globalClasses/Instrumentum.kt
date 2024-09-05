@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -78,7 +79,7 @@ val imageCache = mutableMapOf<String, ImageBitmap>()
 //region AssetImage
 @Composable
 fun AssetImage(fileName: String, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
     var bitmapState by remember { mutableStateOf<ImageBitmap?>(null) }
 
     LaunchedEffect(fileName) {
@@ -88,10 +89,10 @@ fun AssetImage(fileName: String, modifier: Modifier = Modifier) {
             val cachedBitmap = imageCache[fileName]
             if (cachedBitmap != null) { bitmapState = cachedBitmap }
             else {
-                val fullPath = findAssetFiles(context, fileName)
+                val fullPath = findAssetFiles(context.value, fileName)
                     ?: throw IllegalArgumentException("File not found: $fileName")
 
-                val assetManager: AssetManager = context.assets
+                val assetManager: AssetManager = context.value.assets
                 val inputStream = assetManager.open(fullPath)
                 val bitmap = BitmapFactory.decodeStream(inputStream).asImageBitmap()
                 imageCache[fileName] = bitmap
@@ -113,15 +114,15 @@ fun AssetImage(fileName: String, modifier: Modifier = Modifier) {
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun GetAssetBitmap(fileName: String): ImageBitmap {
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     val cachedBitmap = imageCache[fileName]
     return if (cachedBitmap != null) {
         cachedBitmap
     } else {
-        val fullPath = findAssetFiles(context, fileName)
+        val fullPath = findAssetFiles(context.value, fileName)
             ?: throw IllegalArgumentException("File not found: $fileName")
-        val assetManager: AssetManager = context.assets
+        val assetManager: AssetManager = context.value.assets
         val inputStream = assetManager.open(fullPath)
         BitmapFactory.decodeStream(inputStream).asImageBitmap()
     }
@@ -427,32 +428,33 @@ class NoRippleInteractionSource : MutableInteractionSource {
 // ############ Мини-блок
 // ########################
 
-/* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
-//endregion ################################################################################# */
+
+/* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ ##################### 🌈 ############# */
+/* ########################################################################################### */
 //region ############# 🌈 ################# ИНИЦИАЛИЗАЦИЯ ################## 🌈 ############# */
 //endregion ################################################################################## */
 
 
 /* ############# 🔄 ###################### BackHandler #################### 🔄 ############## */
-//endregion ################################################################################# */
+/* ########################################################################################## */
 //region ############# 🔄 ################## BackHandler ################## 🔄 ############## */
 //endregion ################################################################################# */
 
 
-//region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
-//endregion ################################################################################# */
+/* ################ 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ################## */
+/* ########################################################################################## */
 //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 //endregion ################################################################################# */
 
 
-//region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
-//endregion ################################################################################# */
+/* ################ 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ################ */
+/* ########################################################################################## */
 //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 //endregion ################################################################################## */
 
 
-//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
-//endregion ################################################################################# */
+/* ################ 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ################# */
+/* ########################################################################################## */
 //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //endregion ################################################################################## */
 

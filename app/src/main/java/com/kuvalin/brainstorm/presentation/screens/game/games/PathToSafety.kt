@@ -24,14 +24,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -45,56 +47,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
+import com.kuvalin.brainstorm.presentation.viewmodels.game.games.PathToSafetyViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
+import com.kuvalin.brainstorm.ui.theme.FlickMasterFieldBackground
+import com.kuvalin.brainstorm.ui.theme.OrangeAppColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-
-// Т.к. я сделал, что можно перемещаться между клетками, то можно и шафл вернуть! :)
-//region listOfLists
-val listOfLists: List<List<Int>> = listOf(
-    listOf(2, 0, 3, 0, 1, 3, 0, 3, 0, 3, 3, 0, 0, 0, 1, 0),
-    listOf(3, 1, 0, 3, 0, 3, 0, 0, 3, 1, 2, 3, 0, 0, 0, 0),
-    listOf(0, 0, 0, 1, 1, 3, 3, 3, 0, 0, 3, 0, 0, 2, 3, 0),
-    listOf(3, 0, 1, 0, 3, 3, 0, 3, 0, 0, 1, 0, 2, 3, 0, 0),
-    listOf(0, 0, 2, 0, 3, 0, 3, 0, 3, 3, 1, 0, 3, 1, 0, 0),
-    listOf(0, 0, 0, 3, 0, 2, 1, 3, 0, 0, 3, 0, 0, 1, 3, 3),
-    listOf(1, 0, 3, 1, 0, 0, 0, 2, 3, 3, 0, 3, 0, 3, 0, 0),
-    listOf(0, 0, 3, 0, 2, 1, 0, 0, 3, 3, 0, 0, 3, 3, 0, 1),
-    listOf(2, 0, 3, 3, 1, 3, 0, 1, 0, 0, 0, 0, 0, 3, 3, 0),
-    listOf(0, 0, 3, 0, 3, 2, 3, 3, 0, 0, 1, 0, 3, 0, 0, 1),
-    listOf(0, 0, 0, 0, 0, 3, 3, 1, 2, 0, 3, 0, 3, 0, 1, 3),
-    listOf(3, 1, 0, 3, 0, 0, 3, 3, 0, 0, 1, 3, 0, 2, 0, 0),
-    listOf(1, 1, 0, 0, 0, 0, 3, 3, 0, 0, 0, 3, 2, 3, 0, 3),
-    listOf(3, 0, 0, 0, 0, 0, 0, 3, 1, 0, 1, 2, 0, 3, 3, 3),
-    listOf(3, 3, 0, 3, 0, 1, 0, 0, 0, 0, 3, 3, 0, 0, 2, 1),
-    listOf(2, 0, 0, 3, 1, 0, 3, 0, 0, 0, 0, 1, 3, 3, 3, 0),
-    listOf(3, 0, 1, 3, 0, 0, 3, 3, 0, 3, 0, 0, 2, 0, 1, 0),
-    listOf(0, 3, 0, 3, 3, 2, 3, 1, 3, 0, 0, 0, 0, 0, 1, 0),
-    listOf(0, 3, 3, 0, 1, 0, 3, 0, 0, 0, 0, 2, 3, 1, 0, 3),
-    listOf(3, 3, 0, 0, 2, 1, 0, 3, 3, 0, 3, 1, 0, 0, 0, 0),
-    listOf(1, 0, 3, 0, 0, 3, 1, 0, 0, 0, 0, 0, 2, 3, 3, 3),
-    listOf(3, 2, 0, 0, 1, 0, 0, 3, 0, 0, 3, 3, 3, 0, 1, 0),
-    listOf(1, 0, 3, 0, 0, 2, 0, 3, 3, 0, 0, 0, 1, 0, 3, 3),
-    listOf(0, 0, 2, 1, 3, 3, 0, 3, 0, 3, 0, 0, 0, 3, 1, 0),
-    listOf(0, 0, 0, 1, 3, 0, 0, 2, 0, 0, 3, 3, 3, 1, 0, 3),
-    listOf(0, 1, 0, 0, 0, 0, 3, 3, 3, 0, 0, 3, 3, 0, 1, 2),
-    listOf(3, 0, 2, 1, 0, 3, 0, 0, 3, 0, 0, 3, 0, 1, 3, 0),
-    listOf(2, 0, 0, 0, 3, 0, 0, 1, 3, 3, 0, 3, 3, 1, 0, 0),
-    listOf(0, 0, 0, 0, 3, 1, 3, 0, 3, 3, 3, 0, 2, 0, 0, 1),
-    listOf(0, 0, 1, 0, 2, 0, 0, 0, 3, 3, 1, 3, 3, 0, 3, 0),
-    listOf(3, 3, 3, 0, 0, 1, 0, 0, 0, 3, 0, 2, 1, 0, 0, 3),
-    listOf(3, 1, 0, 3, 0, 3, 0, 1, 3, 0, 0, 2, 0, 0, 3, 0),
-    listOf(3, 0, 3, 0, 3, 1, 0, 0, 0, 0, 3, 0, 3, 0, 2, 1),
-    listOf(3, 3, 0, 0, 2, 3, 0, 0, 0, 0, 0, 1, 0, 1, 3, 3),
-    listOf(3, 1, 0, 1, 0, 0, 3, 0, 2, 3, 3, 0, 0, 0, 3, 0)
-)
-//endregion
 
 
 @SuppressLint("MutableCollectionMutableState")
@@ -106,6 +71,7 @@ fun PathToSafety(
     putGameResult: (countCorrect: Int, countIncorrect: Int, gameScope: Int, internalAccuracy: Float) -> Unit
 ){
 
+    //region ############# 🔄 ################## BackHandler ################## 🔄 ############## */
     var clickNavigation by remember { mutableStateOf(false) }
     if (clickNavigation){ GlobalStates.AnimLoadState(ANIMATION_DURATION_350){ clickNavigation = false } }
 
@@ -113,42 +79,39 @@ fun PathToSafety(
         clickNavigation = true
         onBackButtonClick()
     }
+    //endregion ################################################################################# */
+
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
+    val viewModel: PathToSafetyViewModel = viewModel(factory = getApplicationComponent().getViewModelFactory())
     val coroutineScope = rememberCoroutineScope()
 
     // Генерация игрового поля
-    var listIndexFirst by remember { mutableStateOf(listOfLists.random().toMutableList()) }
-    var listIndexSecond by remember { mutableStateOf(listIndexFirst.map { if (it == 3 || it == 2) 0 else it }) }
-
+    val listIndexFirst by viewModel.listIndexFirst.collectAsState()
+    val listIndexSecond by viewModel.listIndexSecond.collectAsState()
 
     // Контроль этапами игры
-    var startStage by remember { mutableStateOf(false) }
-    var movingState by remember { mutableStateOf(false) }
-
+    val startStage by viewModel.startStage.collectAsState()
+    val movingState by viewModel.movingState.collectAsState()
 
     // Отслеживание координат ячеек и перемещения пальца
-    var cellBounds by remember { mutableStateOf<Map<Int, Rect>>(emptyMap()) }
-    var touchPosition by remember { mutableStateOf(Offset.Zero) }
-    var isInCell by remember { mutableStateOf(false) }
-    var currentCell by remember { mutableIntStateOf(-1) }
+    val cellBounds by viewModel.cellBounds.collectAsState()
+    val touchPosition by viewModel.touchPosition.collectAsState()
+    val isInCell by viewModel.isInCell.collectAsState()
 
-    var listCell by remember { mutableStateOf(mutableListOf<Int>()) }
-    var listClickableIndexes by remember { mutableStateOf(mutableListOf<Int>()) }
-
+    // Закрашенные ячейки
+    val currentCell by viewModel.currentCell.collectAsState()
+    val listClickableIndexes by viewModel.listClickableIndexes.collectAsState()
+    val listCell by viewModel.listCell.collectAsState()
     val isDraggingMap = remember { mutableMapOf<Int, Boolean>()}
 
 
-    // Подсчет результатов
-    val resultsList by remember { mutableStateOf(mutableListOf<Int>()) }
-    var countCorrect = 0
-    var countIncorrect = 0
-
     // Для проигрывания звуков
-    val context = LocalContext.current
-    var countTimer = 1
+    val context = rememberUpdatedState(LocalContext.current)
+    val countTimer by viewModel.countTimer.collectAsState()
     //endregion ################################################################################# */
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     //region checkTouchPosition
     fun checkTouchPosition(boundsMap: Map<Int, Rect>) {
@@ -157,17 +120,16 @@ fun PathToSafety(
                 if (touchPosition.x in bounds.left..bounds.right &&
                     touchPosition.y in bounds.top..bounds.bottom
                 ) {
-                    isInCell = true
-                    currentCell = index
+                    viewModel.updateIsInCell(true)
+                    viewModel.updateCurrentCell(index)
                     return
                 }
             }
-            isInCell = false
-            currentCell = -1
+            viewModel.updateIsInCell(false)
+            viewModel.updateCurrentCell(-1)
         }
     }
     //endregion
-
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -190,11 +152,12 @@ fun PathToSafety(
             items(listIndexFirst.size) { position ->
                 //region GameCell
                 GameCell(
+                    viewModel = viewModel,
+                    startStage = startStage,
                     currentCell = currentCell,
                     movingState = movingState,
                     draggingMap = isDraggingMap,
                     listCell = listCell,
-                    listClickableIndexes = listClickableIndexes,
                     listIndexFirst = listIndexFirst,
                     position = position,
                     index = if(!startStage) listIndexFirst[position] else listIndexSecond[position],
@@ -202,25 +165,19 @@ fun PathToSafety(
                         val topLeft = layoutCoordinates.positionInRoot()
                         val bottomRight = Offset(topLeft.x + layoutCoordinates.size.width, topLeft.y + layoutCoordinates.size.height)
 
-                        val bounds = Rect(
-                            topLeft.x,
-                            topLeft.y,
-                            bottomRight.x,
-                            bottomRight.y
-                        )
-                        cellBounds = cellBounds + (position to bounds)
+                        val bounds = Rect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
+                        viewModel.updateBounds(viewModel.cellBounds.value + (position to bounds))
 
                     }
                 )
                 //endregion
             }
         }
-
         Spacer(modifier = Modifier.weight(1f)) // Имитация LazyVerticalGrid
     }
 
 
-    // Отслеживание перемещения
+    //region Отслеживание перемещения
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -228,27 +185,22 @@ fun PathToSafety(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = {
-                        movingState = true
+                        viewModel.updateMovingState(true)
                     },
                     //region onDragEnd
                     onDragEnd = {
 
                         if (listClickableIndexes.count { it == 1 } < 2 && startStage) {
-                            resultsList.add(-1)
-                            MusicPlayer(context = context).playErrorInGame()
+                            viewModel.updateResults(-1)
+                            MusicPlayer(context = context.value).playErrorInGame()
 
-                            movingState = false
-                            currentCell = -1
-                            listCell = mutableListOf()
-                            listClickableIndexes = mutableListOf()
+                            viewModel.updateMovingState(false)
+                            viewModel.updateCurrentCell(-1)
+                            viewModel.resetFromListCell()
+                            viewModel.resetFromListClickableIndexes()
 
-                            listIndexFirst = listOfLists
-                                .random()
-                                .toMutableList()
-                            listIndexSecond =
-                                listIndexFirst.map { if (it == 3 || it == 2) 0 else it }
-
-                            startStage = false
+                            viewModel.updateGameField()
+                            viewModel.updateGameStage(false)
                         }
                     },
                     //endregion
@@ -256,35 +208,29 @@ fun PathToSafety(
                     onDrag = { change, dragAmount ->
                         if (startStage) {
                             val newPosition = change.position
-                            touchPosition = Offset(newPosition.x, newPosition.y)
-                            coroutineScope.launch {
-                                checkTouchPosition(cellBounds)
-                            }
+                            viewModel.updateTouchPosition(Offset(newPosition.x, newPosition.y))
+
+                            coroutineScope.launch { checkTouchPosition(cellBounds) }
 
                             if (listClickableIndexes.count { it == 1 } >= 2) {
                                 if (3 in listClickableIndexes) {
-                                    MusicPlayer(context = context).playErrorInGame()
-                                    resultsList.add(-1)
+                                    MusicPlayer(context = context.value).playErrorInGame()
+                                    viewModel.updateResults(-1)
                                 } else if (2 in listClickableIndexes) {
-                                    MusicPlayer(context = context).playSuccessInGame()
-                                    resultsList.add(3)
+                                    MusicPlayer(context = context.value).playSuccessInGame()
+                                    viewModel.updateResults(3)
                                 } else {
-                                    MusicPlayer(context = context).playSuccessInGame()
-                                    resultsList.add(2)
+                                    MusicPlayer(context = context.value).playSuccessInGame()
+                                    viewModel.updateResults(2)
                                 }
 
-                                movingState = false
-                                currentCell = -1
-                                listCell = mutableListOf()
-                                listClickableIndexes = mutableListOf()
+                                viewModel.updateMovingState(false)
+                                viewModel.updateCurrentCell(-1)
+                                viewModel.resetFromListCell()
+                                viewModel.resetFromListClickableIndexes()
 
-                                listIndexFirst = listOfLists
-                                    .random()
-                                    .toMutableList()
-                                listIndexSecond =
-                                    listIndexFirst.map { if (it == 3 || it == 2) 0 else it }
-
-                                startStage = false
+                                viewModel.updateGameField()
+                                viewModel.updateGameStage(false)
                             }
                         }
                     }
@@ -298,27 +244,9 @@ fun PathToSafety(
             }
         }
 
-        //region Box - под мышкой. Если находится в нужной области красится в красный
-        //        Box(
-        //            modifier = Modifier
-        //                .zIndex(5f)
-        //                .size(10.dp)
-        //                .drawWithContent {
-        //                    val position = touchPosition
-        //                    this.drawContent()
-        //                    val boxSize = 10.dp.toPx() // размеры Box
-        //                    val topLeftX = position.x - (boxSize / 2) // центрирование по X
-        //                    val topLeftY = position.y - (boxSize / 2) // центрирование по Y
-        //                    drawRect(
-        //                        color = if (isInCell) Color.Red else Color.Green,
-        //                        topLeft = Offset(topLeftX, topLeftY),
-        //                        size = Size(boxSize, boxSize)
-        //                    )
-        //                }
-        //        )
-        //endregion
         Spacer(modifier = Modifier.weight(3f)) // Имитация LazyVerticalGrid
         //region Кнопка "Запомнил"
+        // Располагается тут, чтобы быть поверх "отслеживания перемещения"
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -327,56 +255,59 @@ fun PathToSafety(
         ){
             if (!startStage) {
                 LaunchedEffect(Unit) {
-                    if (resultsList.size != 0){
-                        putActualScope(if (resultsList.last() > 0) 53 else -22) // TODO Пока костыль для экономии времени ТОЧКА-2
+                    val resultList = viewModel.resultList.value
+                    if (resultList.size != 0){
+                        putActualScope(if (resultList.last() > 0) 53 else -22) // TODO Пока костыль для экономии времени ТОЧКА-2
                     }
                 }
-                StringButton(color = Color(0xFFFF7700)){
-//                    Log.d("DEBUG-11", "------------ $isDraggingMap -----------isDraggingMap-1")
-//                    Log.d("DEBUG-11", "------------ $listCell -----------listCell-1")
-//                    Log.d("DEBUG-11", "------------ $listClickableIndexes -----------listClickableIndexes-1")
-                    startStage = true
-                }
+                StringButton(color = OrangeAppColor){ viewModel.updateGameStage(true) }
             }
         }
         //endregion
     }
-
+    //endregion
 
     //region Подсчет результатов игры
     LaunchedEffect(Unit) {
-        delay(10000)
-        while (countTimer <= 10){
-            MusicPlayer(context = context).playTimer()
+        delay(20000)
+        while (countTimer <= 10) { // TODO забыл про repeat(10) { }
+            MusicPlayer(context = context.value).playTimer()
             delay(1000)
-            countTimer++
+            viewModel.updateTimer()
         }
-        MusicPlayer(context = context).playEndOfTheGame()
+        MusicPlayer(context = context.value).playEndOfTheGame()
 
-        resultsList.forEach {
-            if (it > 0){
-                countCorrect += 1
-            }else{
-                countIncorrect += 1
-            }
+        viewModel.resultList.value.forEach {
+            if (it > 0) viewModel.increaseCorrect()
+            else viewModel.increaseIncorrect()
         }
-        val scopeGame = resultsList.sum()
-        putGameResult(countCorrect, countIncorrect, if (scopeGame < 0) 0 else scopeGame, (countCorrect.toFloat()/resultsList.size.toFloat()))
+
+        // Отправка результатов
+        val scopeGame = viewModel.resultList.value.sum()
+        putGameResult(
+            viewModel.countCorrect.value,
+            viewModel.countIncorrect.value,
+            if (scopeGame < 0) 0 else scopeGame,
+            viewModel.getInternalAccuracy()
+        )
+        viewModel.resetGame()
     }
     //endregion
 
+    //endregion ################################################################################## */
 }
 
-
+//region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region GameCell
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 private fun GameCell(
+    viewModel: PathToSafetyViewModel,
+    startStage: Boolean,
     currentCell: Int,
     movingState: Boolean,
     draggingMap: MutableMap<Int, Boolean>,
     listCell: MutableList<Int>,
-    listClickableIndexes: MutableList<Int>,
     listIndexFirst: List<Int>,
     position: Int,
     index: Int,
@@ -385,14 +316,14 @@ private fun GameCell(
 
     if (currentCell == position && movingState) {
         if (position !in listCell){
-            listCell.add(position)
-            listClickableIndexes.add(listIndexFirst[position])
+            viewModel.addToListCell(position)
+            viewModel.addToListClickableIndexes(listIndexFirst[position])
         }
 
         if (listCell.size > 1 && position == listCell[listCell.size - 2]){
-            listCell.removeAt(listCell.size - 1)
+            viewModel.removeFromListCell(listCell.size - 1)
             if (index != 1) {
-                listClickableIndexes.removeAt(listCell.size - 1)
+                viewModel.removeFromListClickableIndexes(listCell.size - 1)
             }
         }
     }
@@ -405,16 +336,24 @@ private fun GameCell(
             .aspectRatio(1f)
             .size(60.dp)
             .clip(RoundedCornerShape(8))
-            .background(if (draggingMap[position] ?: false) Color(0xB22AD2FC) else Color.White)
+            .background(
+                if (draggingMap[position] ?: false) FlickMasterFieldBackground else Color.White
+            )
             .onGloballyPositioned { layoutCoordinates ->
                 onLayoutChanged(layoutCoordinates)
             }
     ){
         when(index){
             0 -> {}
-            1 -> {AssetImage(fileName = "ic_finish_flag.png", modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp))}
+            1 -> {
+                AssetImage(
+                    fileName = "ic_finish_flag.png",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                        .then(if (!startStage) Modifier.alpha(0f) else Modifier)
+                )
+            }
             2 -> {AssetImage(fileName = "ic_star.png", modifier = Modifier
                 .fillMaxSize()
                 .padding(10.dp))}
@@ -456,13 +395,6 @@ private fun StringButton(
     }
 }
 //endregion
+//endregion ################################################################################## */
 
-//region generateGameFieldMode2
-private fun generateGameFieldMode2(): Pair<List<Int>, List<Int>>{
-    val indexes = listOf(2, 0, 3, 0, 1, 3, 0, 3, 0, 3, 3, 0, 0, 0, 1, 0)
-    val listIndexFirst = indexes.shuffled()
-    val listIndexSecond = listIndexFirst.map { if (it == 3 || it == 2) 0 else it }
-    return Pair(listIndexFirst, listIndexSecond)
-}
-//endregion
 

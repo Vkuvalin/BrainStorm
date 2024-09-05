@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,7 +67,7 @@ fun MainMenuScreen(
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -95,7 +96,7 @@ fun MainMenuScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Avatar(navigationState, context) // Аватарка
+            Avatar(navigationState, context.value) // Аватарка
             Spacer( modifier = Modifier .fillMaxHeight() .width(10.dp) )
             LiveAndCoins() // Жизни и койны
 
@@ -273,7 +274,7 @@ fun StatisticsCard(
 ) {
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
     val configuration = LocalConfiguration.current
 
     val leagueList = mutableListOf(
@@ -301,7 +302,7 @@ fun StatisticsCard(
     )
 
     var onClickGrade by remember { mutableStateOf(false) }
-    if (onClickGrade){ GradeDialog(MusicPlayer(context = context)) { onClickGrade = false } }
+    if (onClickGrade){ GradeDialog(MusicPlayer(context = context.value)) { onClickGrade = false } }
 
     Row(
         modifier = Modifier.width(configuration.screenWidthDp.dp / 2),
@@ -316,7 +317,7 @@ fun StatisticsCard(
                 .border(width = 1.dp, color = Color.White, shape = CircleShape)
                 .noRippleClickable {
                     if (type == "Grade"){
-                        MusicPlayer(context).playChoiceClick()
+                        MusicPlayer(context.value).playChoiceClick()
                         onClickGrade = true
                     }
                 },

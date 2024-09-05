@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,7 +67,7 @@ fun StatisticsMainScreen( paddingValuesParent: PaddingValues ) {
     val appbarHeight = remember { 50 } // TopAppBar
 
     // Для проигрывания звуков
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
     // Ждем прогрузки анимации
     val animLoadState by GlobalStates.animLoadState.collectAsState()
@@ -80,7 +81,8 @@ fun StatisticsMainScreen( paddingValuesParent: PaddingValues ) {
     Scaffold(
         modifier = Modifier.padding(top = paddingValuesParent.calculateTopPadding()),
         topBar = {
-            StatisticsTopBar( appbarHeight, navigationState, animLoadState, context ){ clickNavigation = it }
+            StatisticsTopBar(appbarHeight, navigationState, animLoadState, context.value)
+            { clickNavigation = it }
         }
     ) { paddingValues ->
 

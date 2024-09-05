@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -259,7 +260,7 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
     var isBrainAnimationEnd by remember { mutableStateOf(false) }
     var loadingHasStarted by remember { mutableStateOf(false) }
     val scope = CoroutineScope(Dispatchers.Default)
-    val context = LocalContext.current
+    val context = rememberUpdatedState(LocalContext.current)
 
 
     //region Brain animation
@@ -534,7 +535,7 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
             ) {
                 if (isBrainAnimationEnd) {
                     scope.launch {
-                        MusicPlayer(context = context).playChoiceClick()
+                        MusicPlayer(context = context.value).playChoiceClick()
                         isBrainAnimationEnd = !isBrainAnimationEnd // Для блокировки кнопки
                         delay(500)
                         loadingHasStarted = !loadingHasStarted
