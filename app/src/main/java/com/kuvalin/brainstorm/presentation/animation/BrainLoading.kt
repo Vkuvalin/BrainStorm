@@ -3,8 +3,10 @@ package com.kuvalin.brainstorm.presentation.animation
 import android.graphics.Paint
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -18,7 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,161 +30,48 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun BrainLoading() {
 
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     //region Brain animation
-    //region RedPart
-    val sizeAnimationRedPart by animateFloatAsState(
-        targetValue = 0.5f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteRedPartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationRedPart by infiniteRedPartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 120, delayMillis = 480),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region YellowPart
-    val sizeAnimationYellowPart by animateFloatAsState(
-        targetValue = 0.5f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteYellowPartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationYellowPart by infiniteYellowPartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 150, delayMillis = 450),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region BeigePart
-    val sizeAnimationBeigePart by animateFloatAsState(
-        targetValue = 0.5f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteBeigePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationBeigePart by infiniteBeigePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 150, delayMillis = 450),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region BluePart
-    val sizeAnimationBluePart by animateFloatAsState(
-        targetValue = 0.5f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteBluePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationBluePart by infiniteBluePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 180, delayMillis = 420),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region OrangePart
-    val sizeAnimationOrangePart by animateFloatAsState(
-        targetValue = 0.5f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteOrangePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationOrangePart by infiniteOrangePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 210, delayMillis = 390),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region WhitePart
-    val sizeAnimationWhitePart by animateFloatAsState(
-        targetValue = 0.5f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteWhitePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationWhitePart by infiniteWhitePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 240, delayMillis = 360),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //endregion
+    // RedPart
+    val sizeAnimationRedPart = SmallBrainBounce()
+    val infiniteSizeAnimationRedPart = BrainPathAnimationCyclicFloat(0f, 0.3f, 120, 480)
 
+    // YellowPart
+    val sizeAnimationYellowPart = SmallBrainBounce()
+    val infiniteSizeAnimationYellowPart = BrainPathAnimationCyclicFloat(0f, 0.3f, 150, 450)
+
+    // BeigePart
+    val sizeAnimationBeigePart = SmallBrainBounce()
+    val infiniteSizeAnimationBeigePart = BrainPathAnimationCyclicFloat(0f, 0.2f, 150, 450)
+
+    // BluePart
+    val sizeAnimationBluePart = SmallBrainBounce()
+    val infiniteSizeAnimationBluePart = BrainPathAnimationCyclicFloat(0f, 0.3f, 180, 420)
+
+    // OrangePart
+    val sizeAnimationOrangePart = SmallBrainBounce()
+    val infiniteSizeAnimationOrangePart = BrainPathAnimationCyclicFloat(0f, 0.3f, 210, 390)
+
+    // WhitePart
+    val sizeAnimationWhitePart = SmallBrainBounce()
+    val infiniteSizeAnimationWhitePart = BrainPathAnimationCyclicFloat(0f, 0.3f, 240, 360)
+
+    //endregion
     //region Loading + Dot animation
-    val infiniteAlphaDot1 = rememberInfiniteTransition(label = "")
-    val infiniteAlphaAnimationDot1 by infiniteAlphaDot1.animateFloat(
-        initialValue = 255f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 400, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-
-    val infiniteAlphaDot2 = rememberInfiniteTransition(label = "")
-    val infiniteAlphaAnimationDot2 by infiniteAlphaDot2.animateFloat(
-        initialValue = 255f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 300, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-
-    val infiniteAlphaDot3 = rememberInfiniteTransition(label = "")
-    val infiniteAlphaAnimationDot3 by infiniteAlphaDot3.animateFloat(
-        initialValue = 255f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 200, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
+    val infiniteAlphaAnimationDot1 = BrainPathAnimationCyclicFloat(255f, 0f, 400, 200)
+    val infiniteAlphaAnimationDot2 = BrainPathAnimationCyclicFloat(255f, 0f, 300, 200)
+    val infiniteAlphaAnimationDot3 = BrainPathAnimationCyclicFloat(255f, 0f, 200, 200)
     //endregion
+    //endregion ################################################################################# */
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -198,28 +87,29 @@ fun BrainLoading() {
             verticalArrangement = Arrangement.Center
         ) {
             Column() {
-                val correctionInCalculationsBrain = 7
+                val correctionInCalculationBrain = 7
 
-                YellowPartSmall(sizeAnimationYellowPart, correctionInCalculationsBrain, infiniteSizeAnimationYellowPart)
-                RedPartSmall(sizeAnimationRedPart, correctionInCalculationsBrain, infiniteSizeAnimationRedPart)
-                WhitePartSmall(sizeAnimationWhitePart, correctionInCalculationsBrain, infiniteSizeAnimationWhitePart)
-                BeigePartSmall(sizeAnimationBeigePart, correctionInCalculationsBrain, infiniteSizeAnimationBeigePart)
-                BluePartSmall(sizeAnimationBluePart, correctionInCalculationsBrain, infiniteSizeAnimationBluePart)
-                OrangePartSmall(sizeAnimationOrangePart, correctionInCalculationsBrain, infiniteSizeAnimationOrangePart)
+                YellowPartSmall(sizeAnimationYellowPart.value, correctionInCalculationBrain, infiniteSizeAnimationYellowPart.value)
+                RedPartSmall(sizeAnimationRedPart.value, correctionInCalculationBrain, infiniteSizeAnimationRedPart.value)
+                WhitePartSmall(sizeAnimationWhitePart.value, correctionInCalculationBrain, infiniteSizeAnimationWhitePart.value)
+                BeigePartSmall(sizeAnimationBeigePart.value, correctionInCalculationBrain, infiniteSizeAnimationBeigePart.value)
+                BluePartSmall(sizeAnimationBluePart.value, correctionInCalculationBrain, infiniteSizeAnimationBluePart.value)
+                OrangePartSmall(sizeAnimationOrangePart.value, correctionInCalculationBrain, infiniteSizeAnimationOrangePart.value)
 
                 LoadingSmall()
-                Dot1Small(infiniteAlphaAnimationDot1.toInt())
-                Dot2Small(infiniteAlphaAnimationDot2.toInt())
-                Dot3Small(infiniteAlphaAnimationDot3.toInt())
+                Dot1Small(infiniteAlphaAnimationDot1.value.toInt())
+                Dot2Small(infiniteAlphaAnimationDot2.value.toInt())
+                Dot3Small(infiniteAlphaAnimationDot3.value.toInt())
             }
         }
     }
+    //endregion ################################################################################## */
 
 }
 
 
 
-
+/* ################ 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ################# */
 //region Loading()
 @Composable
 fun LoadingSmall() {
@@ -512,3 +402,83 @@ fun WhitePartSmall(animationScale: Float, correctionInCalculations: Int, animati
     }
 }
 //endregion
+
+
+// ######################## Анимация
+//region CompanyScreenAnimation --> LetterAnimation
+@Composable
+private fun LetterAnimationFirst(targetState: Boolean, delayMillis: Int, durationMillis: Int): State<Dp> {
+    return animateDpAsState(
+        targetValue = if (targetState) 500.dp else 0.dp,
+        animationSpec = tween(delayMillis = delayMillis, durationMillis = durationMillis),
+        label = ""
+    )
+}
+
+@Composable
+private fun LetterAnimationSecond(targetState: Boolean, delayMillis: Int, durationMillis: Int): State<Dp> {
+    return animateDpAsState(
+        targetValue = if (targetState) 0.dp else 500.dp,
+        animationSpec = tween(delayMillis = delayMillis, durationMillis = durationMillis),
+        label = ""
+    )
+}
+//endregion
+//region BrainPathAnimation
+@Composable
+private fun BrainPathAnimationFloat(
+    targetState: Boolean, initialValue: Float, targetValue: Float, dampingRatio: Float = Spring.DampingRatioHighBouncy
+): State<Float> {
+    return animateFloatAsState(
+        targetValue = if (targetState) initialValue else targetValue,
+        animationSpec = spring(dampingRatio = dampingRatio, stiffness = Spring.StiffnessLow),
+        label = ""
+    )
+}
+
+
+@Composable
+private fun BrainPathAnimationCyclicFloat(
+    initialValue: Float, targetValue: Float, durationMillis: Int, delayMillis: Int
+): State<Float> {
+    return rememberInfiniteTransition(label = "").animateFloat(
+        initialValue = initialValue,
+        targetValue = targetValue,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = durationMillis, delayMillis = delayMillis),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
+}
+
+
+@Composable
+private fun BrainPathAnimationInt(
+    targetState: Boolean, initialValue: Int, targetValue: Int, durationMillis: Int
+): State<Int> {
+    return animateIntAsState(
+        targetValue = if (targetState) initialValue else targetValue,
+        animationSpec = tween(durationMillis = durationMillis),
+        label = ""
+    )
+}
+//endregion
+//region SmallBrainBounce
+@Composable
+private fun SmallBrainBounce(): State<Float> {
+    return animateFloatAsState(
+        targetValue = 0.5f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessLow),
+        label = ""
+    )
+}
+//endregion
+/* ########################################################################################## */
+
+
+
+
+
+
+
+

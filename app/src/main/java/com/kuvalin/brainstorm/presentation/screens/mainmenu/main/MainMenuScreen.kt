@@ -74,8 +74,6 @@ fun MainMenuScreen(
     val screenWidth = configuration.screenWidthDp.dp
     //endregion ################################################################################# */
 
-
-
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier

@@ -1,9 +1,10 @@
-package com.kuvalin.brainstorm.presentation.screens.welcome
+package com.kuvalin.brainstorm.presentation.animation
 
 
 import android.graphics.Paint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,13 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -66,19 +68,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
+/**
+ * ## Управляющая функция запуска и смены анимации
+ *
+ * delayMilsLoading - заглушка, имитирующая загрузку:
+ * - фоток;
+ * - экранов;
+ * - прочей информации из интернета;
+ * - ПЕРЕЧЕСЛЕНИЕ = НАПОМИНАНИЕ --> TODO сделать позже
+ */
+//region WelcomeScreen
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun WelcomeScreen(delayMilsLoading: Long, onStartMainMenuClick: () -> Unit) {
 
-    var isBrainAnimationLaunched by remember { // Триггер для смены анимации
-        mutableStateOf(true)
-    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+
+    // Триггер для смены анимации
+    var isBrainAnimationLaunched by remember { mutableStateOf(true) }
+
+    Column(modifier = Modifier.fillMaxSize()) {
 
         AnimatedContent(
             targetState = isBrainAnimationLaunched,
@@ -96,78 +105,49 @@ fun WelcomeScreen(delayMilsLoading: Long, onStartMainMenuClick: () -> Unit) {
     }
 
 }
+//endregion
 
 
+
+/**
+ *  CompanyScreenAnimation. Первая анимация: "КСЮ"
+*/
+//region CompanyScreenAnimation
 @Composable
 fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
 
-    //region Animation
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
+    //region Animation Letter
     // Letter K
     var isFirstTranslateLetterK by remember { mutableStateOf(true) }
-    val firstTranslateCoordinatesLetterK by animateDpAsState(
-        targetValue = if (isFirstTranslateLetterK) 500.dp else 0.dp,
-        animationSpec = tween(
-            delayMillis = 500,
-            durationMillis = 4000
-        ),
-        label = ""
-    )
+    val firstTranslateCoordinateLetterK = LetterAnimationFirst(
+        isFirstTranslateLetterK, 500, 4000)
 
     var isSecondTranslateLetterK by remember { mutableStateOf(true) }
-    val secondTranslateCoordinatesLetterK by animateDpAsState(
-        targetValue = if (isSecondTranslateLetterK) 0.dp else 500.dp,
-        animationSpec = tween(
-            delayMillis = 500,
-            durationMillis = 4000
-        ),
-        label = ""
-    )
+    val secondTranslateCoordinatesLetterK = LetterAnimationSecond(
+        isSecondTranslateLetterK, 500, 4000)
 
 
     // Letter S
     var isFirstTranslateLetterS by remember { mutableStateOf(true) }
-    val firstTranslateCoordinatesLetterS by animateDpAsState(
-        targetValue = if (isFirstTranslateLetterS) 500.dp else 0.dp,
-        animationSpec = tween(
-            delayMillis = 500,
-            durationMillis = 4000
-        ),
-        label = ""
-    )
+    val firstTranslateCoordinateLetterS = LetterAnimationFirst(
+        isFirstTranslateLetterS, 500, 4000)
 
     var isSecondTranslateLetterS by remember { mutableStateOf(true) }
-    val secondTranslateCoordinatesLetterS by animateDpAsState(
-        targetValue = if (isSecondTranslateLetterS) 0.dp else 500.dp,
-        animationSpec = tween(
-            delayMillis = 500,
-            durationMillis = 4000
-        ),
-        label = ""
-    )
+    val secondTranslateCoordinateLetterS = LetterAnimationSecond(
+        isSecondTranslateLetterS, 500, 4000)
 
 
     // Letter U
     var isFirstTranslateLetterU by remember { mutableStateOf(true) }
-    val firstTranslateCoordinatesLetterU by animateDpAsState(
-        targetValue = if (isFirstTranslateLetterU) 500.dp else 0.dp,
-        animationSpec = tween(
-            delayMillis = 500,
-            durationMillis = 4000
-        ),
-        label = ""
-    )
+    val firstTranslateCoordinateLetterU = LetterAnimationFirst(
+        isFirstTranslateLetterU, 500, 4000)
 
     var isSecondTranslateLetterU by remember { mutableStateOf(true) }
-    val secondTranslateCoordinatesLetterU by animateDpAsState(
-        targetValue = if (isSecondTranslateLetterU) 0.dp else 500.dp,
-        animationSpec = tween(
-            delayMillis = 500,
-            durationMillis = 4000
-        ),
-        label = ""
-    )
-
-    // GAMES
+    val secondTranslateCoordinateLetterU = LetterAnimationSecond(
+        isSecondTranslateLetterU, 500, 4000)
+    //endregion
+    //region Animation GAMES
     var isIncreasedGames by remember { mutableStateOf(true) }
     val sizeAnimationGames by animateIntAsState(
         targetValue = if (isIncreasedGames) 0 else 32,
@@ -181,38 +161,33 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
     var infiniteGames by remember { mutableStateOf(true) }
     val alphaAnimationGames by animateFloatAsState(
         targetValue = if (infiniteGames) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 4000
-        ),
+        animationSpec = tween(durationMillis = 4000),
         label = ""
     )
     //endregion
+    //endregion ################################################################################# */
 
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Spacer(
-            modifier = Modifier
-                .padding(top = 50.dp)
-                .weight(4f)
-        )
-        Box(
-            modifier = Modifier.weight(1f),
-        ) {
+        Spacer(modifier = Modifier
+            .padding(top = 50.dp)
+            .weight(4f))
+        Box(modifier = Modifier.weight(1f)) {
             LetterU(
-                firstTranslateCoordinatesAnimation = firstTranslateCoordinatesLetterU,
-                secondTranslateCoordinatesAnimation = secondTranslateCoordinatesLetterU
+                firstTranslateCoordinatesAnimation = firstTranslateCoordinateLetterU.value,
+                secondTranslateCoordinateAnimation = secondTranslateCoordinateLetterU.value
             )
             LetterS(
-                firstTranslateCoordinatesAnimation = firstTranslateCoordinatesLetterS,
-                secondTranslateCoordinatesAnimation = secondTranslateCoordinatesLetterS
+                firstTranslateCoordinatesAnimation = firstTranslateCoordinateLetterS.value,
+                secondTranslateCoordinatesAnimation = secondTranslateCoordinateLetterS.value
             )
             LetterK(
-                firstTranslateCoordinatesAnimation = firstTranslateCoordinatesLetterK,
-                secondTranslateCoordinatesAnimation = secondTranslateCoordinatesLetterK
+                firstTranslateCoordinatesAnimation = firstTranslateCoordinateLetterK.value,
+                secondTranslateCoordinateAnimation = secondTranslateCoordinatesLetterK.value
             )
         }
         Text(
@@ -224,14 +199,14 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
             fontFamily = FontFamily.Monospace,
             color = Color.Red
         )
-        Spacer(
-            modifier = Modifier
-                .padding(top = 50.dp)
-                .weight(3f)
-        )
+        Spacer(modifier = Modifier
+            .padding(top = 50.dp)
+            .weight(3f))
     }
+    //endregion ################################################################################## */
 
 
+    // ############ Временная карта анимации
     LaunchedEffect(Unit) {
         isFirstTranslateLetterU = !isFirstTranslateLetterU
         delay(500)
@@ -250,281 +225,92 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
         delay(2500)
         onStartBrainAnimation()
     }
+    // ########################
 
 }
+//endregion
 
 
+
+/**
+ *  BrainScreenAnimation. Вторая анимация: Мозг/название/пульсация/вход
+ */
+//region BrainScreenAnimation
 @Composable
 fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Unit) {
 
+    //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
     var isBrainAnimationEnd by remember { mutableStateOf(false) }
     var loadingHasStarted by remember { mutableStateOf(false) }
     val scope = CoroutineScope(Dispatchers.Default)
     val context = rememberUpdatedState(LocalContext.current)
 
-
     //region Brain animation
-    //region RedPart
+    // RedPart
     var isIncreasedRedPart by remember { mutableStateOf(true) }
-    val sizeAnimationRedPart by animateFloatAsState(
-        targetValue = if (isIncreasedRedPart) 0f else 1.3f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteRedPartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationRedPart by infiniteRedPartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 200, delayMillis = 800),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region YellowPart
+    val sizeAnimationRedPart = BrainPathAnimationFloat(isIncreasedRedPart, 0f, 1.3f)
+    val infiniteSizeAnimationRedPart = BrainPathAnimationCyclicFloat(0f, 0.3f, 200, 800)
+
+    // YellowPart
     var isIncreasedYellowPart by remember { mutableStateOf(true) }
-    val sizeAnimationYellowPart by animateFloatAsState(
-        targetValue = if (isIncreasedYellowPart) 0f else 1.3f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteYellowPartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationYellowPart by infiniteYellowPartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 250, delayMillis = 750),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region BeigePart
+    val sizeAnimationYellowPart = BrainPathAnimationFloat(isIncreasedYellowPart, 0f, 1.3f)
+    val infiniteSizeAnimationYellowPart = BrainPathAnimationCyclicFloat(0f, 0.3f, 250, 750)
+
+    // BeigePart
     var isIncreasedBeigePart by remember { mutableStateOf(true) }
-    val sizeAnimationBeigePart by animateFloatAsState(
-        targetValue = if (isIncreasedBeigePart) 0f else 1.3f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteBeigePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationBeigePart by infiniteBeigePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 250, delayMillis = 750),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region BluePart
+    val sizeAnimationBeigePart = BrainPathAnimationFloat(isIncreasedBeigePart, 0f, 1.3f)
+    val infiniteSizeAnimationBeigePart = BrainPathAnimationCyclicFloat(0f, 0.2f, 250, 750)
+
+    // BluePart
     var isIncreasedBluePart by remember { mutableStateOf(true) }
-    val sizeAnimationBluePart by animateFloatAsState(
-        targetValue = if (isIncreasedBluePart) 0f else 1.3f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteBluePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationBluePart by infiniteBluePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 300, delayMillis = 700),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region OrangePart
+    val sizeAnimationBluePart = BrainPathAnimationFloat(isIncreasedBluePart, 0f, 1.3f)
+    val infiniteSizeAnimationBluePart = BrainPathAnimationCyclicFloat(0f, 0.3f, 300, 700)
+
+    // OrangePart
     var isIncreasedOrangePart by remember { mutableStateOf(true) }
-    val sizeAnimationOrangePart by animateFloatAsState(
-        targetValue = if (isIncreasedOrangePart) 0f else 1.3f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteOrangePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationOrangePart by infiniteOrangePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 350, delayMillis = 650),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
-    //region WhitePart
+    val sizeAnimationOrangePart = BrainPathAnimationFloat(isIncreasedOrangePart, 0f, 1.3f)
+    val infiniteSizeAnimationOrangePart = BrainPathAnimationCyclicFloat(0f, 0.3f, 350, 650)
+
+    // WhitePart
     var isIncreasedWhitePart by remember { mutableStateOf(true) }
-    val sizeAnimationWhitePart by animateFloatAsState(
-        targetValue = (if (isIncreasedWhitePart) 0f else 1.3f),
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
-    val infiniteWhitePartScale = rememberInfiniteTransition(label = "")
-    val infiniteSizeAnimationWhitePart by infiniteWhitePartScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 400, delayMillis = 600),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //endregion
+    val sizeAnimationWhitePart = BrainPathAnimationFloat(isIncreasedWhitePart, 0f, 1.3f)
+    val infiniteSizeAnimationWhitePart = BrainPathAnimationCyclicFloat(0f, 0.3f, 400, 600)
+
     //endregion
     //region Circle animation scale
-    val infiniteSmallCircleScale = rememberInfiniteTransition(label = "")
-    val sizeAnimationSmallCircle by infiniteSmallCircleScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 1.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
-    val infiniteMediumCircleScale = rememberInfiniteTransition(label = "")
-    val sizeAnimationMediumCircle by infiniteMediumCircleScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 1.9f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
-    val infiniteBigCircleScale = rememberInfiniteTransition(label = "")
-    val sizeAnimationBigCircle by infiniteBigCircleScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 2.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
+    val sizeAnimationSmallCircle = BrainPathAnimationCyclicFloat(0f, 1.6f, 4000, 0)
+    val sizeAnimationMediumCircle = BrainPathAnimationCyclicFloat(0f, 1.9f, 4000, 0)
+    val sizeAnimationBigCircle = BrainPathAnimationCyclicFloat(0f, 2.2f, 4000, 0)
     //endregion
     //region Circle animation alpha
-    val infiniteSmallCircleAlpha = rememberInfiniteTransition(label = "")
-    val alphaAnimationSmallCircle by infiniteSmallCircleAlpha.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
-    val infiniteMediumCircleAlpha = rememberInfiniteTransition(label = "")
-    val alphaAnimationMediumCircle by infiniteMediumCircleAlpha.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
-    val infiniteBigCircleAlpha = rememberInfiniteTransition(label = "")
-    val alphaAnimationBigCircle by infiniteBigCircleAlpha.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4000),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
+    val alphaAnimationSmallCircle = BrainPathAnimationCyclicFloat(0.8f, 0f, 4000, 0)
+    val alphaAnimationMediumCircle = BrainPathAnimationCyclicFloat(0.7f, 0f, 4000, 0)
+    val alphaAnimationBigCircle = BrainPathAnimationCyclicFloat(0.6f, 0f, 4000, 0)
     //endregion
     //region BrainStorm animation
     var brainStormAnimationEnd by remember { mutableStateOf(false) }
-    val alphaAnimationTapBrainStorm by animateIntAsState(
-        targetValue = if (brainStormAnimationEnd) 0 else 255,
-        animationSpec = tween(durationMillis = 2000),
-        label = ""
-    )
+    val alphaAnimationTapBrainStorm = BrainPathAnimationInt(brainStormAnimationEnd, 0, 255, 2000)
     var brainTextAnim by remember { mutableStateOf(false) }
-    val sizeAnimationBrainText by animateFloatAsState(
-        targetValue = if (brainTextAnim) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
+    val sizeAnimationBrainText = BrainPathAnimationFloat(brainTextAnim, 1f, 0f, dampingRatio = Spring.DampingRatioNoBouncy)
     var stormTextAnim by remember { mutableStateOf(false) }
-    val sizeAnimationStormText by animateFloatAsState(
-        targetValue = if (stormTextAnim) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
+    val sizeAnimationStormText = BrainPathAnimationFloat(stormTextAnim, 1f, 0f, dampingRatio = Spring.DampingRatioNoBouncy)
     //endregion
     //region Tap to Screen animation
     var infiniteTap by remember { mutableStateOf(false) }
-    val alphaAnimationTap by animateIntAsState(
-        targetValue = if (infiniteTap) 255 else 0,
-        animationSpec = tween(durationMillis = 3000),
-        label = ""
-    )
-    val alphaAnimationTap2 by animateIntAsState(
-        targetValue = if (loadingHasStarted) 255 else 0,
-        animationSpec = tween(durationMillis = 700),
-        label = ""
-    )
+    val alphaAnimationTap = BrainPathAnimationInt(infiniteTap, 255, 0, 3000)
+    val alphaAnimationTap2 = BrainPathAnimationInt(loadingHasStarted, 255, 0, 3000)
     //endregion
     //region Loading + Dot animation
     var loadingTextAnim by remember { mutableStateOf(false) }
-    val sizeAnimationLoadingText by animateFloatAsState(
-        targetValue = if (loadingTextAnim) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = ""
-    )
+    val sizeAnimationLoadingText = BrainPathAnimationFloat(loadingTextAnim, 1f, 0f, dampingRatio = Spring.DampingRatioNoBouncy)
 
-    val infiniteAlphaDot1 = rememberInfiniteTransition(label = "")
-    val infiniteAlphaAnimationDot1 by infiniteAlphaDot1.animateFloat(
-        initialValue = 255f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 400, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-
-    val infiniteAlphaDot2 = rememberInfiniteTransition(label = "")
-    val infiniteAlphaAnimationDot2 by infiniteAlphaDot2.animateFloat(
-        initialValue = 255f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 300, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-
-    val infiniteAlphaDot3 = rememberInfiniteTransition(label = "")
-    val infiniteAlphaAnimationDot3 by infiniteAlphaDot3.animateFloat(
-        initialValue = 255f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 200, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
+    val infiniteAlphaAnimationDot1 = BrainPathAnimationCyclicFloat(255f, 0f, 400, 200)
+    val infiniteAlphaAnimationDot2 = BrainPathAnimationCyclicFloat(255f, 0f, 300, 200)
+    val infiniteAlphaAnimationDot3 = BrainPathAnimationCyclicFloat(255f, 0f, 200, 200)
     //endregion
+    //endregion ################################################################################# */
 
-
+    //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -548,47 +334,34 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box(
-            modifier = Modifier
-        ) {
-            val correctionInCalculationsBrain = 7
-            val correctionInCalculationsCircle = 0
+        Box(modifier = Modifier) {
+            val correctionInCalculationBrain = 7
+            val correctionInCalculationCircle = 0
 
-            BigCircle(
-                animationScale = sizeAnimationBigCircle,
-                alphaAnimationSmallCircle,
-                correctionInCalculationsCircle
-            )
-            MediumCircle(
-                animationScale = sizeAnimationMediumCircle,
-                alphaAnimationMediumCircle,
-                correctionInCalculationsCircle
-            )
-            SmallCircle(
-                animationScale = sizeAnimationSmallCircle,
-                alphaAnimationBigCircle,
-                correctionInCalculationsCircle
-            )
+            BigCircle(animationScale = sizeAnimationBigCircle.value, alphaAnimationSmallCircle.value, correctionInCalculationCircle)
+            MediumCircle(animationScale = sizeAnimationMediumCircle.value, alphaAnimationMediumCircle.value, correctionInCalculationCircle)
+            SmallCircle(animationScale = sizeAnimationSmallCircle.value, alphaAnimationBigCircle.value, correctionInCalculationCircle)
 
-            YellowPart(sizeAnimationYellowPart, correctionInCalculationsBrain, infiniteSizeAnimationYellowPart, loadingHasStarted)
-            RedPart(sizeAnimationRedPart, correctionInCalculationsBrain, infiniteSizeAnimationRedPart, loadingHasStarted)
-            WhitePart(sizeAnimationWhitePart, correctionInCalculationsBrain, infiniteSizeAnimationWhitePart, loadingHasStarted)
-            BeigePart(sizeAnimationBeigePart, correctionInCalculationsBrain, infiniteSizeAnimationBeigePart, loadingHasStarted)
-            BluePart(sizeAnimationBluePart, correctionInCalculationsBrain, infiniteSizeAnimationBluePart, loadingHasStarted)
-            OrangePart(sizeAnimationOrangePart, correctionInCalculationsBrain, infiniteSizeAnimationOrangePart, loadingHasStarted)
+            YellowPart(sizeAnimationYellowPart.value, correctionInCalculationBrain, infiniteSizeAnimationYellowPart.value, loadingHasStarted)
+            RedPart(sizeAnimationRedPart.value, correctionInCalculationBrain, infiniteSizeAnimationRedPart.value, loadingHasStarted)
+            WhitePart(sizeAnimationWhitePart.value, correctionInCalculationBrain, infiniteSizeAnimationWhitePart.value, loadingHasStarted)
+            BeigePart(sizeAnimationBeigePart.value, correctionInCalculationBrain, infiniteSizeAnimationBeigePart.value, loadingHasStarted)
+            BluePart(sizeAnimationBluePart.value, correctionInCalculationBrain, infiniteSizeAnimationBluePart.value, loadingHasStarted)
+            OrangePart(sizeAnimationOrangePart.value, correctionInCalculationBrain, infiniteSizeAnimationOrangePart.value, loadingHasStarted)
 
-            BrainText(alphaAnimationTapBrainStorm, sizeAnimationBrainText)
-            StormText(alphaAnimationTapBrainStorm, sizeAnimationStormText)
-            TapToScreen(alphaAnimationTap, alphaAnimationTap2)
+            BrainText(alphaAnimationTapBrainStorm.value, sizeAnimationBrainText.value,)
+            StormText(alphaAnimationTapBrainStorm.value, sizeAnimationStormText.value,)
+            TapToScreen(alphaAnimationTap.value, alphaAnimationTap2.value)
 
-            Loading(sizeAnimationLoadingText)
-            Dot1(sizeAnimationLoadingText, infiniteAlphaAnimationDot1.toInt(), loadingHasStarted)
-            Dot2(sizeAnimationLoadingText, infiniteAlphaAnimationDot2.toInt(), loadingHasStarted)
-            Dot3(sizeAnimationLoadingText, infiniteAlphaAnimationDot3.toInt(), loadingHasStarted)
+            Loading(sizeAnimationLoadingText.value)
+            Dot1(sizeAnimationLoadingText.value, infiniteAlphaAnimationDot1.value.toInt(), loadingHasStarted)
+            Dot2(sizeAnimationLoadingText.value, infiniteAlphaAnimationDot2.value.toInt(), loadingHasStarted)
+            Dot3(sizeAnimationLoadingText.value, infiniteAlphaAnimationDot3.value.toInt(), loadingHasStarted)
         }
     }
+    //endregion ################################################################################## */
 
-
+    // ############ Временная карта анимации
     LaunchedEffect(Unit) {
         delay(2000)
         isIncreasedYellowPart = !isIncreasedYellowPart
@@ -613,10 +386,21 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
         delay(1000)
         isBrainAnimationEnd = !isBrainAnimationEnd
     }
+    // ########################
 
 }
+//endregion
 
 
+
+
+/* ################ 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ################# */
+
+// Цвета для KSU (сломался, сука, мой градиент)
+val colorsPackOne = listOf(Color(0xff0c056d), Color(0xff590d82), Color(0xffb61aae))
+val colorsPackTwo = listOf( Color(0xffe61c5d), Color(0xff930077), Color(0xff3a0088))
+
+// ######################## Отрисовка элементов анимации
 // --------------------- BRAIN
 //region YellowPart
 @Composable
@@ -801,7 +585,6 @@ fun WhitePart(animationScale: Float, correctionInCalculations: Int, animationSca
 }
 //endregion
 
-
 // --------------------- CIRCLES
 //region SmallCircle
 @Composable
@@ -865,7 +648,6 @@ fun BigCircle(animationScale: Float, animationAlpha: Float, correctionInCalculat
     }
 }
 //endregion
-
 
 // --------------------- Text
 //region TapToScreen
@@ -1061,12 +843,30 @@ fun Dot3(animationScale: Float, alphaAnimation: Int, loadingHasStarted: Boolean)
 // --------------------- KSU (Company name)
 //region LetterK
 @Composable
-fun LetterK(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAnimation: Dp) {
+fun LetterK(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinateAnimation: Dp) {
+
+    val animatedFraction by rememberInfiniteTransition("").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3500, delayMillis = 2500),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
+
+    val gradientColor = lerp(
+        lerp(colorsPackOne[1], colorsPackTwo[1], animatedFraction),
+        lerp(colorsPackOne[0], colorsPackTwo[0], animatedFraction),
+        animatedFraction
+    )
+    
+
+
     Canvas(
         modifier = Modifier
     ) {
         val firstPositionX =
-            (center.x - 30.dp.toPx()) - firstTranslateCoordinatesAnimation.toPx() + secondTranslateCoordinatesAnimation.toPx()
+            (center.x - 30.dp.toPx()) - firstTranslateCoordinatesAnimation.toPx() + secondTranslateCoordinateAnimation.toPx()
         val firstPositionY = center.y
         scale(1.05f) {
             drawPath(
@@ -1085,13 +885,7 @@ fun LetterK(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
                     lineTo(firstPositionX - 127.5.dp.toPx(), firstPositionY + 75.dp.toPx())
                 },
                 style = Fill,
-                brush = Brush.linearGradient(
-                    colors = listOf(Color.Cyan, Color.Magenta),
-                    start = Offset(200.dp.toPx(), 0.dp.toPx()),
-                    end = Offset(200.dp.toPx(), 200.dp.toPx()),
-//                    tileMode = TileMode.Mirror
-                    tileMode = TileMode.Repeated
-                )
+                brush = SolidColor(gradientColor)
             )
         }
 
@@ -1102,6 +896,22 @@ fun LetterK(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
 //region LetterS
 @Composable
 fun LetterS(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAnimation: Dp) {
+
+    val animatedFraction by rememberInfiniteTransition("").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3500, delayMillis = 1500),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
+
+    val gradientColor = lerp(
+        lerp(colorsPackOne[1], colorsPackTwo[1], animatedFraction),
+        lerp(colorsPackOne[0], colorsPackTwo[0], animatedFraction),
+        animatedFraction
+    )
+
     Canvas(
         modifier = Modifier
     ) {
@@ -1111,24 +921,14 @@ fun LetterS(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
 
         drawCircle(
             center = Offset(firstPositionX, firstPositionY - 25.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(Color.Magenta, Color.Cyan, WelcomeScreenOrange),
-                start = Offset(200.dp.toPx(), 120.dp.toPx()),
-                end = Offset(120.dp.toPx(), 0.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 50.dp.toPx(),
             style = Fill
         )
 
         drawCircle(
             center = Offset(firstPositionX, firstPositionY + 25.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(Color.Magenta, Color.Cyan, WelcomeScreenOrange),
-                start = Offset(200.dp.toPx(), 120.dp.toPx()),
-                end = Offset(120.dp.toPx(), 0.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 50.dp.toPx(),
             style = Fill
         )
@@ -1184,23 +984,35 @@ fun LetterS(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
 //endregion
 //region LetterU
 @Composable
-fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAnimation: Dp) {
+fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinateAnimation: Dp) {
+
+    val animatedFraction by rememberInfiniteTransition("").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3500, delayMillis = 500),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
+
+    val gradientColor = lerp(
+        lerp(colorsPackOne[1], colorsPackTwo[1], animatedFraction),
+        lerp(colorsPackOne[0], colorsPackTwo[0], animatedFraction),
+        animatedFraction
+    )
+
+
     Canvas(
         modifier = Modifier
     ) {
         val firstPositionX =
-            center.x - 10.dp.toPx() - firstTranslateCoordinatesAnimation.toPx() + secondTranslateCoordinatesAnimation.toPx()
+            center.x - 10.dp.toPx() - firstTranslateCoordinatesAnimation.toPx() + secondTranslateCoordinateAnimation.toPx()
         val firstPositionY = center.y
 
 
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY + 25.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(WelcomeScreenYellow, Color.Magenta, Color.Cyan),
-                start = Offset(200.dp.toPx(), 120.dp.toPx()),
-                end = Offset(120.dp.toPx(), 0.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 50.dp.toPx(),
             style = Fill
         )
@@ -1208,12 +1020,7 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
 
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY + 5.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(WelcomeScreenOrange, WelcomeScreenYellow, Color.Magenta, Color.Cyan),
-                start = Offset(0.dp.toPx(), 200.dp.toPx()),
-                end = Offset(200.dp.toPx(), 200.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 50.dp.toPx(),
             style = Fill
         )
@@ -1221,48 +1028,28 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
 
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 15.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(WelcomeScreenOrange, Color.Magenta, Color.Cyan),
-                start = Offset(0.dp.toPx(), 0.dp.toPx()),
-                end = Offset(100.dp.toPx(), 100.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 50.dp.toPx(),
             style = Fill
         )
 
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 25.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(Color.Magenta, Color.Cyan),
-                end = Offset(0.dp.toPx(), 200.dp.toPx()),
-                start = Offset(100.dp.toPx(), 100.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 50.dp.toPx(),
             style = Fill
         )
 
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 25.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(WelcomeScreenOrange, Color.Magenta, Color.Cyan),
-                start = Offset(200.dp.toPx(), 0.dp.toPx()),
-                end = Offset(200.dp.toPx(), 200.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 40.dp.toPx(),
             style = Fill
         )
 
         drawCircle(
             center = Offset(firstPositionX + 127.5.dp.toPx(), firstPositionY - 25.dp.toPx()),
-            brush = Brush.linearGradient(
-                colors = listOf(WelcomeScreenYellow, Color.Magenta, Color.Cyan),
-                end = Offset(200.dp.toPx(), 0.dp.toPx()),
-                start = Offset(0.dp.toPx(), 0.dp.toPx()),
-                tileMode = TileMode.Mirror
-            ),
+            brush = SolidColor(gradientColor),
             radius = 30.dp.toPx(),
             style = Fill
         )
@@ -1289,127 +1076,72 @@ fun LetterU(firstTranslateCoordinatesAnimation: Dp, secondTranslateCoordinatesAn
 
 
 
+// ######################## Анимация
+//region CompanyScreenAnimation --> LetterAnimation
+@Composable
+private fun LetterAnimationFirst(targetState: Boolean, delayMillis: Int, durationMillis: Int): State<Dp> {
+    return animateDpAsState(
+        targetValue = if (targetState) 500.dp else 0.dp,
+        animationSpec = tween(delayMillis = delayMillis, durationMillis = durationMillis),
+        label = ""
+    )
+}
+
+@Composable
+private fun LetterAnimationSecond(targetState: Boolean, delayMillis: Int, durationMillis: Int): State<Dp> {
+    return animateDpAsState(
+        targetValue = if (targetState) 0.dp else 500.dp,
+        animationSpec = tween(delayMillis = delayMillis, durationMillis = durationMillis),
+        label = ""
+    )
+}
+//endregion
+//region BrainPathAnimation
+@Composable
+private fun BrainPathAnimationFloat(
+    targetState: Boolean, initialValue: Float, targetValue: Float, dampingRatio: Float = Spring.DampingRatioHighBouncy
+): State<Float> {
+    return animateFloatAsState(
+        targetValue = if (targetState) initialValue else targetValue,
+        animationSpec = spring(dampingRatio = dampingRatio, stiffness = Spring.StiffnessLow),
+        label = ""
+    )
+}
 
 
-////region Brain animation version 2
-////region RedPart
-//var isIncreasedRedPart by remember { mutableStateOf(true) }
-//val sizeAnimationRedPart by animateFloatAsState(
-//    targetValue = if (isIncreasedRedPart) 0f else 1.3f,
-//    animationSpec = spring(
-//        dampingRatio = Spring.DampingRatioHighBouncy,
-//        stiffness = Spring.StiffnessLow
-//    ),
-//    label = ""
-//)
-//val infiniteRedPartScale = rememberInfiniteTransition(label = "")
-//val infiniteSizeAnimationRedPart by infiniteRedPartScale.animateFloat(
-//    initialValue = 0f,
-//    targetValue = 0.3f,
-//    animationSpec = infiniteRepeatable(
-//        animation = tween(durationMillis = 1100, delayMillis = 1250),
-//        repeatMode = RepeatMode.Reverse
-//    ), label = ""
-//)
-////endregion
-////region YellowPart
-//var isIncreasedYellowPart by remember { mutableStateOf(true) }
-//val sizeAnimationYellowPart by animateFloatAsState(
-//    targetValue = if (isIncreasedYellowPart) 0f else 1.3f,
-//    animationSpec = spring(
-//        dampingRatio = Spring.DampingRatioHighBouncy,
-//        stiffness = Spring.StiffnessLow
-//    ),
-//    label = ""
-//)
-//val infiniteYellowPartScale = rememberInfiniteTransition(label = "")
-//val infiniteSizeAnimationYellowPart by infiniteYellowPartScale.animateFloat(
-//    initialValue = 0f,
-//    targetValue = 0.3f,
-//    animationSpec = infiniteRepeatable(
-//        animation = tween(durationMillis = 900, delayMillis = 1200),
-//        repeatMode = RepeatMode.Reverse
-//    ), label = ""
-//)
-////endregion
-////region BeigePart
-//var isIncreasedBeigePart by remember { mutableStateOf(true) }
-//val sizeAnimationBeigePart by animateFloatAsState(
-//    targetValue = if (isIncreasedBeigePart) 0f else 1.3f,
-//    animationSpec = spring(
-//        dampingRatio = Spring.DampingRatioHighBouncy,
-//        stiffness = Spring.StiffnessLow
-//    ),
-//    label = ""
-//)
-//val infiniteBeigePartScale = rememberInfiniteTransition(label = "")
-//val infiniteSizeAnimationBeigePart by infiniteBeigePartScale.animateFloat(
-//    initialValue = 0f,
-//    targetValue = 0.18f,
-//    animationSpec = infiniteRepeatable(
-//        animation = tween(durationMillis = 1400, delayMillis = 1000),
-//        repeatMode = RepeatMode.Reverse
-//    ), label = ""
-//)
-////endregion
-////region BluePart
-//var isIncreasedBluePart by remember { mutableStateOf(true) }
-//val sizeAnimationBluePart by animateFloatAsState(
-//    targetValue = if (isIncreasedBluePart) 0f else 1.3f,
-//    animationSpec = spring(
-//        dampingRatio = Spring.DampingRatioHighBouncy,
-//        stiffness = Spring.StiffnessLow
-//    ),
-//    label = ""
-//)
-//val infiniteBluePartScale = rememberInfiniteTransition(label = "")
-//val infiniteSizeAnimationBluePart by infiniteBluePartScale.animateFloat(
-//    initialValue = 0f,
-//    targetValue = 0.3f,
-//    animationSpec = infiniteRepeatable(
-//        animation = tween(durationMillis = 1500, delayMillis = 1300),
-//        repeatMode = RepeatMode.Reverse
-//    ), label = ""
-//)
-////endregion
-////region OrangePart
-//var isIncreasedOrangePart by remember { mutableStateOf(true) }
-//val sizeAnimationOrangePart by animateFloatAsState(
-//    targetValue = if (isIncreasedOrangePart) 0f else 1.3f,
-//    animationSpec = spring(
-//        dampingRatio = Spring.DampingRatioHighBouncy,
-//        stiffness = Spring.StiffnessLow
-//    ),
-//    label = ""
-//)
-//val infiniteOrangePartScale = rememberInfiniteTransition(label = "")
-//val infiniteSizeAnimationOrangePart by infiniteOrangePartScale.animateFloat(
-//    initialValue = 0f,
-//    targetValue = 0.3f,
-//    animationSpec = infiniteRepeatable(
-//        animation = tween(durationMillis = 1600, delayMillis = 800),
-//        repeatMode = RepeatMode.Reverse
-//    ), label = ""
-//)
-////endregion
-////region WhitePart
-//var isIncreasedWhitePart by remember { mutableStateOf(true) }
-//val sizeAnimationWhitePart by animateFloatAsState(
-//    targetValue = (if (isIncreasedWhitePart) 0f else 1.3f),
-//    animationSpec = spring(
-//        dampingRatio = Spring.DampingRatioHighBouncy,
-//        stiffness = Spring.StiffnessLow
-//    ),
-//    label = ""
-//)
-//val infiniteWhitePartScale = rememberInfiniteTransition(label = "")
-//val infiniteSizeAnimationWhitePart by infiniteWhitePartScale.animateFloat(
-//    initialValue = 0f,
-//    targetValue = 0.3f,
-//    animationSpec = infiniteRepeatable(
-//        animation = tween(durationMillis = 1000, delayMillis = 700),
-//        repeatMode = RepeatMode.Reverse
-//    ), label = ""
-//)
-////endregion
-////endregion
+@Composable
+private fun BrainPathAnimationCyclicFloat(
+    initialValue: Float, targetValue: Float, durationMillis: Int, delayMillis: Int
+): State<Float> {
+    return rememberInfiniteTransition(label = "").animateFloat(
+        initialValue = initialValue,
+        targetValue = targetValue,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = durationMillis, delayMillis = delayMillis),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
+}
+
+
+@Composable
+private fun BrainPathAnimationInt(
+    targetState: Boolean, initialValue: Int, targetValue: Int, durationMillis: Int
+): State<Int> {
+    return animateIntAsState(
+        targetValue = if (targetState) initialValue else targetValue,
+        animationSpec = tween(durationMillis = durationMillis),
+        label = ""
+    )
+}
+//endregion
+
+/* ########################################################################################## */
+
+
+
+
+
+
+
+

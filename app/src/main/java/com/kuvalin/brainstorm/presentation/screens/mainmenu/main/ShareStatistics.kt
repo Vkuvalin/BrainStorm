@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,7 +40,9 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.viewmodels.main.ShareStatisticsViewModel
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.CyanAppColor
@@ -63,7 +66,6 @@ fun ShareContent(
     val userName by viewModel.userName.collectAsState()
     //endregion ################################################################################# */
 
-
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Dialog(
         onDismissRequest = {
@@ -72,39 +74,34 @@ fun ShareContent(
         },
         content = {
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .background(color = BackgroundAppColor)
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                 //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
                     modifier = Modifier
-                        .offset(x = (10).dp, y = (-10).dp)
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
                         .size(30.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context.value)
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )
                 //endregion
-                ShareLabel()
 
-                //region Share your Stats
-                Text(
-                    text = "Share your Stats!",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W300,
-                    color = Color.Black,
-                    modifier = Modifier.offset(y = -(10).dp)
-                )
-                //endregion
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(3))
+                    .background(color = BackgroundAppColor)
+            ) {
+
+                ShareLabel("Share your stats!")
 
                 Column(
                     modifier = Modifier
@@ -188,9 +185,7 @@ fun ShareContent(
                     Box(modifier = Modifier.scale(0.85f)){ DrawingChart(workMode = 1) }
                 }
 
-                Spacer(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp))
+                Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
                 Row(
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -202,6 +197,7 @@ fun ShareContent(
                 }
 
             }
+            }
         },
     )
     //endregion ################################################################################# */
@@ -211,9 +207,9 @@ fun ShareContent(
 //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 //region ShareLabel
 @Composable
-private fun ShareLabel() {
+private fun ShareLabel(text: String) {
     Text(
-        text = "Share",
+        text = text,
         color = CyanAppColor,
         fontSize = 26.sp,
         softWrap = false,
@@ -222,7 +218,7 @@ private fun ShareLabel() {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(Alignment.Top)
-            .offset(y = -(20).dp)
+            .padding(bottom = 20.dp, top = 10.dp)
     )
 }
 //endregion

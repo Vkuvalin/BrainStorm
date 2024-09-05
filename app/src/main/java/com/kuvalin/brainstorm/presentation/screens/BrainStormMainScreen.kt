@@ -2,6 +2,7 @@ package com.kuvalin.brainstorm.presentation.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -487,6 +488,8 @@ private fun TopAppBarContent(
             .offset(x = (-5).dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val currentRoute = navigationState.navHostController.currentDestination?.route
+
         //region Стрелка "назад"
         AssetImage(
             fileName = "tab_arrow_button.png",
@@ -495,7 +498,7 @@ private fun TopAppBarContent(
                 .alpha(arrowButtonAlpha)
                 .clickable( enabled = clickableArrowButtonState ) {}
                 .noRippleClickable {
-                    if (animLoadState) {
+                    if (animLoadState && currentRoute != "main_menu") {
                         navigationState.navHostController.popBackStack()
                         MusicPlayer(context = context.value).playChangeNavigation()
                         onClickNavigationButton()
@@ -510,7 +513,7 @@ private fun TopAppBarContent(
                 .size(40.dp)
                 .clickable(enabled = clickableArrowButtonState) {}
                 .noRippleClickable {
-                    if (animLoadState) {
+                    if (animLoadState && currentRoute != "main_menu") {
                         navigationState.navHostController.popBackStack()
                         MusicPlayer(context = context.value).playChangeNavigation()
                         onClickNavigationButton()

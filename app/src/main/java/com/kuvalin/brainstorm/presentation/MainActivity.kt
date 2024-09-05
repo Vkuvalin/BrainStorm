@@ -34,11 +34,13 @@ import com.kuvalin.brainstorm.globalClasses.populateResultPaths
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
 import com.kuvalin.brainstorm.globalClasses.resultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
+import com.kuvalin.brainstorm.presentation.animation.WelcomeScreen
 import com.kuvalin.brainstorm.presentation.screens.BrainStormMainScreen
-import com.kuvalin.brainstorm.presentation.screens.welcome.WelcomeScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
 import kotlinx.coroutines.delay
+
+
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
             val context = rememberUpdatedState(LocalContext.current)
 
             // Прогружена ли анимация
-            var animateLoadingEnd by remember { mutableStateOf(true) } // FALSE
+            var animateLoadingEnd by remember { mutableStateOf(false) } // FALSE
 
 
             val animBrainLoadState by GlobalStates.animBrainLoadState.collectAsState() // Мини-мозг
@@ -111,53 +113,33 @@ class MainActivity : ComponentActivity() {
 //                        backgroundMusic.release()
 //                    }
 //                }
-
+//
 //                LaunchedEffect(animateLoadingEnd){
 //                    delay(1000)
 //                    if (animateLoadingEnd){
 //                        while (true) {
-//                            if (resumedApp) {
-//                                delay(1000)
-//                            }
+//                            if (resumedApp) { delay(1000) }
 //                            else {
 //                                if (runGameScreenState) {
-//                                    if (backgroundMusic.isPlaying) {
-//                                        backgroundMusic.pause()
-//                                    }
+//                                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
 //                                }
 //                                else {
 //                                    if (playerState) {
 //                                        backgroundMusic.start()
 //                                        playerState = false
 //                                    }
-//                                    if (!backgroundMusic.isPlaying) {
-//                                        playerState = true
-//                                    }
+//                                    if (!backgroundMusic.isPlaying) { playerState = true }
 //                                }
 //                            }
 //                            delay(1000)
 //                        }
 //                    }
-//                    if (backgroundMusic.isPlaying) {
-//                        backgroundMusic.pause()
-//                    }
+//                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
 //                }
                 //endregion
 
-                Column( modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = BackgroundAppColor) ) {
-                    BrainStormMainScreen()
-                }
 
-                // Анимация мозга при загрузке данных
-                if (animBrainLoadState){ BrainLoading() }
-
-
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                ) {
+//                Column(modifier = Modifier.fillMaxSize()) {
 //                    AnimatedContent(
 //                        targetState = animateLoadingEnd,
 //                        transitionSpec = {
@@ -167,16 +149,23 @@ class MainActivity : ComponentActivity() {
 //                    { shouldLaunchFirstScreen ->
 //
 //                        if (!shouldLaunchFirstScreen) {
-//                            // Дальше сюда привязать загрузку
 //                            WelcomeScreen(delayMilsLoading = 5000) { animateLoadingEnd = true }
 //                        } else {
 //                            BrainStormMainScreen()
 //                        }
+//
 //                    }
 //                }
-//
-//                // Бля, что-то не могу понять, почему теперь она работает лишь за пределами
+
+                // Бля, что-то не могу понять, почему теперь она работает лишь за пределами
 //                if (animBrainLoadState){ BrainLoading() }
+
+
+                // Mini version
+                Column(modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)) {
+                    BrainStormMainScreen()
+                }
+                if (animBrainLoadState){ BrainLoading() } // Анимация мозга при загрузке данных
 
             }
             //endregion ################################################################################# */
