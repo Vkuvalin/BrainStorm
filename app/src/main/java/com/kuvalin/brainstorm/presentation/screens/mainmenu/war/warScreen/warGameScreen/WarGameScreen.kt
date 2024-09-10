@@ -1,6 +1,11 @@
 package com.kuvalin.brainstorm.presentation.screens.mainmenu.war.warScreen.warGameScreen
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.kuvalin.brainstorm.domain.entity.GameResult
@@ -35,7 +40,9 @@ fun WarGameScreen(
 ) {
 
     val scope = CoroutineScope(Dispatchers.IO)
-    val userUid = Firebase.auth.uid ?: "zero_user_uid"
+    var userUid by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) { userUid = viewModel.getUserUid.invoke() }// TODO забыл, но ща не буду отвлекаться
+
 
     when(gameName){
         //region GamesNavigationItem.FlickMaster.sectionName

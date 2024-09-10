@@ -45,12 +45,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kuvalin.brainstorm.getApplicationComponent
 import com.kuvalin.brainstorm.globalClasses.AssetImage
 import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.ANIMATION_DURATION_350
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.GlobalStates
+import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.viewmodels.main.MenuViewModel
 import com.kuvalin.brainstorm.ui.theme.AccountButtonColorTeal
 import com.kuvalin.brainstorm.ui.theme.AnnouncementButtonColorBlue
@@ -207,7 +209,7 @@ fun MenuScreen(){
             AnnouncementContent(viewModel, modifierForCloseButton) { announcementButtonState = false}
         }
         if (settingsButtonState) {
-            SettingsContent(viewModel, modifierForCloseButton2) { settingsButtonState = false }
+            SettingsContent(viewModel) { settingsButtonState = false }
         }
         if (accountButtonState) {
             AccountContent(viewModel) { accountButtonState = false }
@@ -299,7 +301,7 @@ fun AnnouncementContent(
                         }
                 )
 
-                LabelText("Announcement")
+                LabelTextAnnouncement("Announcement")
                 Spacer(modifier = Modifier.height(10.dp))
                 AssetImage(
                     fileName = "im_announcement.jpg",
@@ -320,7 +322,6 @@ fun AnnouncementContent(
 @Composable
 fun SettingsContent(
     viewModel: MenuViewModel,
-    customModifier: Modifier,
     onClickDismiss: () -> Unit
 ) {
 
@@ -350,45 +351,64 @@ fun SettingsContent(
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .background(color = BackgroundAppColor)
-                    .height(screenHeight.dp)
             ) {
-
+                //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
-                    modifier = customModifier
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(width = 2.dp, color = Color.White, shape = CircleShape)
+                        .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context.value)
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )
+                //endregion
 
-                LabelText("Settings")
-                Spacer(modifier = Modifier.height(10.dp))
 
-                SettingItem("Music", musicState){ viewModel.updateAppSettings(musicState = !musicState) }
-                Spacer(modifier = Modifier.height(10.dp))
-
-                SettingItem("SE", seState){ seState = !seState } //TODO-1
-                Spacer(modifier = Modifier.height(10.dp))
-
-                SettingItem("Vibrate", vibrationState){ viewModel.updateAppSettings(musicState = !vibrationState)}
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Row(
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .width(230.dp)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .clip(RoundedCornerShape(3))
+                        .background(color = BackgroundAppColor)
+                        .padding(bottom = 50.dp)
                 ) {
-                    Text(text = "Language", color = Color.Black, fontSize = 20.sp)
-                    Text(text = "English", color = Color.Black, fontSize = 20.sp)
-                }
 
+                    LabelText("Settings")
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    SettingItem("Music", musicState){
+                        MusicPlayer(context = context.value).playChoiceClick()
+                        viewModel.updateAppSettings(musicState = !musicState)
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    SettingItem("SE", seState) { seState = !seState } //TODO-1
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    SettingItem("Vibrate", vibrationState){
+                        MusicPlayer(context = context.value).playChoiceClick()
+                        viewModel.updateAppSettings(musicState = !vibrationState)
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .width(230.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Language", color = Color.Black, fontSize = 20.sp)
+                        Text(text = "English", color = Color.Black, fontSize = 20.sp)
+                    }
+
+                }
             }
         },
     )
@@ -482,24 +502,34 @@ fun AccountContent(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.background(color = BackgroundAppColor)
             ) {
                 //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
                     modifier = Modifier
-                        .offset(x = (10).dp, y = (-10).dp)
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
                         .size(30.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            viewModel.playChoiceClickSound(context.value)
+                            MusicPlayer(context = context.value).playChoiceClick()
                             onClickDismiss()
                         }
                 )
                 //endregion
+
+
+
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(3))
+                    .background(color = BackgroundAppColor)
+            ) {
 
                 Column(
                     modifier = Modifier
@@ -600,6 +630,7 @@ fun AccountContent(
 
                     Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
                 }
+            }
             }
 
         },
@@ -761,7 +792,7 @@ private fun ForgotPassButton(
 
 //region LabelText
 @Composable
-private fun LabelText(text: String) {
+private fun LabelTextAnnouncement(text: String) {
     Text(
         text = text,
         color = CyanAppColor,
@@ -776,6 +807,22 @@ private fun LabelText(text: String) {
     )
 }
 //endregion
+
+@Composable
+private fun LabelText(text: String) {
+    Text(
+        text = text,
+        color = CyanAppColor,
+        fontSize = 26.sp,
+        softWrap = false,
+        fontWeight = FontWeight.W400,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .padding(top = 10.dp, bottom = 20.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(Alignment.Top)
+    )
+}
 //endregion ################################################################################# */
 
 

@@ -6,5 +6,6 @@ import javax.inject.Inject
 class AuthorizationCheckUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(): Boolean = brainStormRepository.authorizationCheck()
+    suspend operator fun invoke(): Boolean =
+        brainStormRepository.authorizationCheck()
 }

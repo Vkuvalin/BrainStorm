@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 
+
 /*
 Данный файл является зачатком библиотеки-инструментария для кодинга "в моём стиле".
 Потихонечку будут добавляться универсальные и многофункциональные шаблоны для различных

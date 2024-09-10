@@ -7,7 +7,12 @@ import dagger.Component
 
 @ApplicationScope
 @Component(
-    modules = [DataModule::class, ContextModule::class, ViewModelModule::class, FirebaseModule::class]
+    modules = [
+        DataModule::class,
+        ContextModule::class,
+        ViewModelModule::class,
+        FirebaseModule::class
+    ]
 )
 interface ApplicationComponent {
 

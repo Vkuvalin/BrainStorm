@@ -4,7 +4,6 @@ package com.kuvalin.brainstorm.presentation.animation
 import android.graphics.Paint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -125,7 +124,7 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
 
     var isSecondTranslateLetterK by remember { mutableStateOf(true) }
     val secondTranslateCoordinatesLetterK = LetterAnimationSecond(
-        isSecondTranslateLetterK, 500, 4000)
+        isSecondTranslateLetterK, 500, 3500)
 
 
     // Letter S
@@ -135,7 +134,7 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
 
     var isSecondTranslateLetterS by remember { mutableStateOf(true) }
     val secondTranslateCoordinateLetterS = LetterAnimationSecond(
-        isSecondTranslateLetterS, 500, 4000)
+        isSecondTranslateLetterS, 500, 3500)
 
 
     // Letter U
@@ -145,7 +144,7 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
 
     var isSecondTranslateLetterU by remember { mutableStateOf(true) }
     val secondTranslateCoordinateLetterU = LetterAnimationSecond(
-        isSecondTranslateLetterU, 500, 4000)
+        isSecondTranslateLetterU, 500, 3500)
     //endregion
     //region Animation GAMES
     var isIncreasedGames by remember { mutableStateOf(true) }
@@ -169,7 +168,14 @@ fun CompanyScreenAnimation(onStartBrainAnimation: () -> Unit) {
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                enabled = false,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ){}
+        ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -278,14 +284,14 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
 
     //endregion
     //region Circle animation scale
-    val sizeAnimationSmallCircle = BrainPathAnimationCyclicFloat(0f, 1.6f, 4000, 0)
-    val sizeAnimationMediumCircle = BrainPathAnimationCyclicFloat(0f, 1.9f, 4000, 0)
-    val sizeAnimationBigCircle = BrainPathAnimationCyclicFloat(0f, 2.2f, 4000, 0)
+    val sizeAnimationSmallCircle = BrainPathAnimationCyclicFloat(0f, 1.6f, 4000, 0, RepeatMode.Restart)
+    val sizeAnimationMediumCircle = BrainPathAnimationCyclicFloat(0f, 1.9f, 4000, 0, RepeatMode.Restart)
+    val sizeAnimationBigCircle = BrainPathAnimationCyclicFloat(0f, 2.2f, 4000, 0, RepeatMode.Restart)
     //endregion
     //region Circle animation alpha
-    val alphaAnimationSmallCircle = BrainPathAnimationCyclicFloat(0.8f, 0f, 4000, 0)
-    val alphaAnimationMediumCircle = BrainPathAnimationCyclicFloat(0.7f, 0f, 4000, 0)
-    val alphaAnimationBigCircle = BrainPathAnimationCyclicFloat(0.6f, 0f, 4000, 0)
+    val alphaAnimationSmallCircle = BrainPathAnimationCyclicFloat(0.8f, 0f, 4000, 0, RepeatMode.Restart)
+    val alphaAnimationMediumCircle = BrainPathAnimationCyclicFloat(0.7f, 0f, 4000, 0, RepeatMode.Restart)
+    val alphaAnimationBigCircle = BrainPathAnimationCyclicFloat(0.6f, 0f, 4000, 0, RepeatMode.Restart)
     //endregion
     //region BrainStorm animation
     var brainStormAnimationEnd by remember { mutableStateOf(false) }
@@ -298,7 +304,7 @@ fun BrainScreenAnimation(delayMilsLoading: Long, onStartMainMenuClick: () -> Uni
     //region Tap to Screen animation
     var infiniteTap by remember { mutableStateOf(false) }
     val alphaAnimationTap = BrainPathAnimationInt(infiniteTap, 255, 0, 3000)
-    val alphaAnimationTap2 = BrainPathAnimationInt(loadingHasStarted, 255, 0, 3000)
+    val alphaAnimationTap2 = BrainPathAnimationInt(loadingHasStarted, 255, 0, 500)
     //endregion
     //region Loading + Dot animation
     var loadingTextAnim by remember { mutableStateOf(false) }
@@ -1111,14 +1117,14 @@ private fun BrainPathAnimationFloat(
 
 @Composable
 private fun BrainPathAnimationCyclicFloat(
-    initialValue: Float, targetValue: Float, durationMillis: Int, delayMillis: Int
+    initialValue: Float, targetValue: Float, durationMillis: Int, delayMillis: Int, repeatMode: RepeatMode = RepeatMode.Reverse
 ): State<Float> {
     return rememberInfiniteTransition(label = "").animateFloat(
         initialValue = initialValue,
         targetValue = targetValue,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = durationMillis, delayMillis = delayMillis),
-            repeatMode = RepeatMode.Reverse
+            repeatMode = repeatMode
         ), label = ""
     )
 }

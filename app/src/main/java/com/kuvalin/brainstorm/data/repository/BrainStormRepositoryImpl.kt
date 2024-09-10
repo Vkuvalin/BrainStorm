@@ -55,7 +55,6 @@ class BrainStormRepositoryImpl @Inject constructor(
             userDataDao.addGameStatistic(mapper.mapEntityToDbModelGamesStatistic(it))
         }
         userDataDao.addWarStatistic(mapper.mapEntityToDbModelWarStatistics(friend.warStatistics))
-        Log.d("TEST_TEST", "${friend.chatInfo}   <---- addFriend -> friend.chatInfo")
         userDataDao.addChatInfo(mapper.mapEntityToDbModelListOfMessage(friend.chatInfo))
 
         if (!initialState){
@@ -90,7 +89,7 @@ class BrainStormRepositoryImpl @Inject constructor(
         addGameStatistic(
             gameResult.uid,
             gameResult.gameName,
-            userDataDao.getGameResults(gameResult.uid, gameResult.gameName)
+            userDataDao.getGameResultsByUidAndName(gameResult.uid, gameResult.gameName)
         )
 
     }
@@ -114,7 +113,7 @@ class BrainStormRepositoryImpl @Inject constructor(
         ))
 
 
-        apiService.sendGameStatisticToFirestore(userDataDao.getGameStatistic(userUid, gameName))
+        apiService.sendGameStatisticToFirestore(userDataDao.getGameStatisticByUidAndName(userUid, gameName))
     }
     //endregion
 
@@ -128,7 +127,7 @@ class BrainStormRepositoryImpl @Inject constructor(
         var countDraws = 0
         val warScope = mutableListOf<Int>()
 
-        userDataDao.getWarResults(warResult.uid).map {
+        userDataDao.getWarResultsByUid(warResult.uid).map {
             when(it.result){
                 "win" -> {countWins++}
                 "loss" -> {countLoss++}
@@ -186,15 +185,15 @@ class BrainStormRepositoryImpl @Inject constructor(
 
     // ###################### GET
     override suspend fun getUserInfo(uid: String): UserInfo? {
-        return mapper.mapDbModelToEntityUserInfo(userDataDao.getUserInfo(uid))
+        return mapper.mapDbModelToEntityUserInfo(userDataDao.getUserInfoByUid(uid))
     }
 
     override suspend fun getFriend(uid: String): Friend {
         return mapper.mapDbModelToEntityFriend(
-            userDataDao.getFriendInfo(uid),
-            userDataDao.getChatInfo(uid),
-            userDataDao.getListGamesStatistics(uid),
-            userDataDao.getWarStatistic(uid)
+            userDataDao.getFriendInfoByUid(uid),
+            userDataDao.getChatInfoByUid(uid),
+            userDataDao.getListGameStatisticsByUid(uid),
+            userDataDao.getWarStatisticByUid(uid)
         )
     }
     override suspend fun getFriendList(uid: String): List<Friend>? {
@@ -203,7 +202,7 @@ class BrainStormRepositoryImpl @Inject constructor(
             mapper.mapDbModelToEntityFriend(
                 it.friendInfoDbModel,
                 it.chatInfoDbModel,
-                gameStatisticDbModel = userDataDao.getListGamesStatistics(it.friendInfoDbModel.uid),
+                gameStatisticDbModel = userDataDao.getListGameStatisticsByUid(it.friendInfoDbModel.uid),
                 it.warStatisticsDbModel
             )
         }
@@ -212,10 +211,10 @@ class BrainStormRepositoryImpl @Inject constructor(
 
 
     override suspend fun getGameStatistic(uid: String, gameName: String): GameStatistic {
-        return mapper.mapDbModelToEntityGamesStatistic(userDataDao.getGameStatistic(uid, gameName))
+        return mapper.mapDbModelToEntityGamesStatistic(userDataDao.getGameStatisticByUidAndName(uid, gameName))
     }
     override suspend fun getListGamesStatistics(uid: String): List<GameStatistic> {
-        return mapper.mapListDbModelToListEntityGameStatistics(userDataDao.getListGamesStatistics(uid))
+        return mapper.mapListDbModelToListEntityGameStatistics(userDataDao.getListGameStatisticsByUid(uid))
     }
 
 
@@ -225,7 +224,7 @@ class BrainStormRepositoryImpl @Inject constructor(
 
 
     override suspend fun getWarStatistic(uid: String): WarStatistics? {
-        return mapper.mapDbModelToEntityWarsStatistics(userDataDao.getWarStatistic(uid))
+        return mapper.mapDbModelToEntityWarsStatistics(userDataDao.getWarStatisticByUid(uid))
     }
 
 
@@ -234,7 +233,7 @@ class BrainStormRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSocialData(uid: String): SocialData? {
-        return mapper.mapDbModelToEntitySocialData(userDataDao.getSocialData(uid))
+        return mapper.mapDbModelToEntitySocialData(userDataDao.getSocialDataByUid(uid))
     }
 
     // Дальше сюда добавится также полностью зависимый от инета функционал GAMES для совместки
@@ -249,12 +248,10 @@ class BrainStormRepositoryImpl @Inject constructor(
 
     //region singIn
     override suspend fun singIn(email: String, password: String): Pair<Boolean, String> {
-        Log.d("DEBUG-1", "--------------START-2--------------")
 
         val singInResult = apiService.singInFirebase(email = email, password = password)
 
         if (singInResult.first) {
-            Log.d("DEBUG-1", "-------------- @1 --------------")
             val userUid = apiService.getUserUid()
 
             withContext(Dispatchers.Default) {
@@ -262,9 +259,7 @@ class BrainStormRepositoryImpl @Inject constructor(
                     ?: UserInfo(uid = userUid, name = email.split("@")[0], email = email).also { userInfo ->
                         apiService.sendUserInfoToFirestore(userInfo)
                         addUserInfo(userInfo, initialState = true)
-                        Log.d("DEBUG-1", "-------------- @2-1 --------------")
                     }
-                Log.d("DEBUG-1", "-------------- @3 --------------")
             }
 
             CoroutineScope(Dispatchers.Default).launch {
@@ -282,18 +277,15 @@ class BrainStormRepositoryImpl @Inject constructor(
                         )
                     }
                 }
-                Log.d("DEBUG-1", "-------------- @4 --------------")
                 apiService.getWarStatisticsFB(userUid)?.let { addWarStatistic(it, initialState = true) }
-                apiService.getFriendsFB(userUid)?.let { listFriends ->
+                apiService.getListFriendFB(userUid)?.let { listFriends ->
                     listFriends.map { friend ->
                         addFriend(friend, initialState = true)
                     }
                 }
-                Log.d("DEBUG-1", "-------------- @5 --------------")
             }
         }
 
-        Log.d("DEBUG-1", "--------------END-2--------------")
 
         return singInResult
     }

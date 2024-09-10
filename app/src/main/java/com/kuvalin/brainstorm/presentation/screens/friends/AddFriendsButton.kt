@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import com.kuvalin.brainstorm.globalClasses.AssetImage
+import com.kuvalin.brainstorm.globalClasses.DynamicSize
 import com.kuvalin.brainstorm.globalClasses.noRippleClickable
 import com.kuvalin.brainstorm.globalClasses.presentation.MusicPlayer
 import com.kuvalin.brainstorm.presentation.screens.mainmenu.main.ShareCompany
@@ -53,60 +56,80 @@ fun AddFriendsButtonContent( onClickDismiss: () -> Unit ){
     // Для проигрывания звуков
     val context = rememberUpdatedState(LocalContext.current)
 
+    // Получаем нужные размеры экрана
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+
     Dialog(
         onDismissRequest = { playSoundAndDismiss(context.value, onClickDismiss) },
         content = {
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.background(color = BackgroundAppColor)
+                modifier = Modifier.height(screenWidth.dp)
             ) {
+
                 //region Крестик
                 AssetImage(
                     fileName = "ic_cancel.png",
                     modifier = Modifier
-                        .offset(x = (10).dp, y = (-10).dp)
+                        .zIndex(2f)
+                        .offset(x = (10).dp, y = (20).dp)
                         .size(30.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = Color.White, shape = CircleShape)
                         .background(color = Color.White)
                         .align(alignment = Alignment.End)
                         .noRippleClickable {
-                            playSoundAndDismiss(context.value, onClickDismiss)
+                            MusicPlayer(context = context.value).playChoiceClick()
+                            onClickDismiss()
                         }
                 )
                 //endregion
 
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 50.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(3))
+                        .background(color = BackgroundAppColor)
                 ) {
 
-                    //region Текст + поле вводда
-                    AddFriendsButtonLabel()
-                    Text(text = "Enter your friend's User Code", modifier = Modifier.offset(y = (-10).dp))
-                    Text(text = "Your code is CTS7551", modifier = Modifier.offset( y = (-10).dp))
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 50.dp)
+                            .background(color = BackgroundAppColor),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        CustomTextFieldFiendsScreen()
-                    }
-                    //endregion
-                    Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
-                    //region Строка с ShareCompany
-                    Row(
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        ShareCompany(fileName = "ic_facebook.png", companyName = "Facebook")
-                        Spacer(modifier = Modifier.width(10.dp))
-                        ShareCompany(fileName = "ic_vkontakte.png", companyName = "Vk")
-                        Spacer(modifier = Modifier.width(10.dp))
-                        ShareCompany(fileName = "ic_twitter.png", companyName = "Twitter")
-                    }
-                    //endregion
 
+                        //region Текст + поле вводда
+                        AddFriendsButtonLabel()
+                        Text(text = "Enter your friend's User Code", modifier = Modifier.offset(y = (-10).dp))
+                        Text(text = "Your code is CTS7551", modifier = Modifier.offset( y = (-10).dp))
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
+                        ) {
+                            CustomTextFieldFiendsScreen()
+                        }
+                        //endregion
+                        Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
+                        //region Строка с ShareCompany
+                        Row(
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            ShareCompany(fileName = "ic_facebook.png", companyName = "Facebook")
+                            Spacer(modifier = Modifier.width(10.dp))
+                            ShareCompany(fileName = "ic_vkontakte.png", companyName = "Vk")
+                            Spacer(modifier = Modifier.width(10.dp))
+                            ShareCompany(fileName = "ic_twitter.png", companyName = "Twitter")
+                        }
+                        //endregion
+
+                    }
                 }
+
             }
 
         },
@@ -129,7 +152,7 @@ private fun AddFriendsButtonLabel() {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(Alignment.Top)
-            .offset(y = -(20).dp)
+            .padding(top = 10.dp, bottom = 20.dp)
     )
 }
 //endregion

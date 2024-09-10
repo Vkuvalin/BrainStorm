@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -23,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.kuvalin.brainstorm.R
@@ -36,10 +39,18 @@ import com.kuvalin.brainstorm.globalClasses.resultPaths
 import com.kuvalin.brainstorm.presentation.animation.BrainLoading
 import com.kuvalin.brainstorm.presentation.animation.WelcomeScreen
 import com.kuvalin.brainstorm.presentation.screens.BrainStormMainScreen
+import com.kuvalin.brainstorm.presentation.screens.achievements.AchievementScreen
+import com.kuvalin.brainstorm.presentation.screens.friends.FriendsMainScreen
+import com.kuvalin.brainstorm.presentation.screens.game.GamesMainScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.menu.MenuScreen
+import com.kuvalin.brainstorm.presentation.screens.mainmenu.profile.ProfileScreenContent
+import com.kuvalin.brainstorm.presentation.screens.statistics.StatisticsMainScreen
 import com.kuvalin.brainstorm.ui.theme.BackgroundAppColor
 import com.kuvalin.brainstorm.ui.theme.BrainStormTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
@@ -85,7 +96,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
             //endregion
-            //endregion ################################################################################# */
 
 
             /* ############# 🌈 ##################### ИНИЦИАЛИЗАЦИЯ #################### 🌈 ############# */
@@ -99,12 +109,10 @@ class MainActivity : ComponentActivity() {
             }
             //endregion ################################################################################# */
 
-
-
             //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
             BrainStormTheme {
 
-                //region Запуск музыки
+                // region Запуск музыки
 //                val lifecycle = LocalLifecycleOwner.current.lifecycle
 //                DisposableEffect(lifecycle) {
 //                    lifecycle.addObserver(observer)
@@ -136,7 +144,7 @@ class MainActivity : ComponentActivity() {
 //                    }
 //                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
 //                }
-                //endregion
+                // endregion
 
 
 //                Column(modifier = Modifier.fillMaxSize()) {
@@ -156,13 +164,26 @@ class MainActivity : ComponentActivity() {
 //
 //                    }
 //                }
-
-                // Бля, что-то не могу понять, почему теперь она работает лишь за пределами
-//                if (animBrainLoadState){ BrainLoading() }
-
+//
+//                // Теперь она работает лишь за пределами почему-то
+//                if (animBrainLoadState && animateLoadingEnd){ BrainLoading() }
+//
+//
+//                if (!animateLoadingEnd){ // Короче я не знаю как обойти лаги в меню, пока так
+//                    Column(modifier = Modifier.zIndex(-2f).alpha(0f)) {
+//                        MenuScreen()
+//                        ProfileScreenContent(PaddingValues())
+//                        FriendsMainScreen(PaddingValues())
+//                        AchievementScreen(PaddingValues())
+//                        StatisticsMainScreen(PaddingValues())
+//                        GamesMainScreen(PaddingValues())
+//                    }
+//                }
 
                 // Mini version
-                Column(modifier = Modifier.fillMaxSize().background(color = BackgroundAppColor)) {
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = BackgroundAppColor)) {
                     BrainStormMainScreen()
                 }
                 if (animBrainLoadState){ BrainLoading() } // Анимация мозга при загрузке данных

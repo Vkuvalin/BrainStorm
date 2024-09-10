@@ -18,6 +18,14 @@ import com.kuvalin.brainstorm.data.model.UserWithAllInfo
 import com.kuvalin.brainstorm.data.model.WarResultDbModel
 import com.kuvalin.brainstorm.data.model.WarStatisticsDbModel
 
+
+/**
+ * ### Flow вместо suspend для запросов:
+ * Использование Flow вместо suspend позволяет сразу обрабатывать данные,
+ * когда они приходят, что может быть полезно, если выборка может быть длительной
+ * или если необходимо реагировать на изменения данных.
+ */
+
 @Dao
 interface UserDataDao {
 
@@ -25,14 +33,9 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addUserInfo(userInfoDbModel: UserInfoDbModel)
     @Query("SELECT * FROM user_info WHERE uid=:uid")
-    suspend fun getUserInfo(uid: String): UserInfoDbModel
+    suspend fun getUserInfoByUid(uid: String): UserInfoDbModel
 
 
-//    games_statistics.gameName,
-//    games_statistics.maxGameScore,
-//    games_statistics.avgGameScore,
-//    LEFT JOIN
-//    games_statistics ON user_info.uid = games_statistics.uid
     @Transaction
     @Query(
         """
@@ -60,17 +63,12 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addFriendInfo(friendInfoDbModel: FriendInfoDbModel)
     @Query("SELECT * FROM friend_info WHERE uid=:uid")
-    suspend fun getFriendInfo(uid: String): FriendInfoDbModel
-//    @Query("SELECT * FROM friend_info")
-//    suspend fun getListFriendInfo(): List<FriendInfoDbModel>
+    suspend fun getFriendInfoByUid(uid: String): FriendInfoDbModel
 
-
-//    games_statistics.gameName,
-//    games_statistics.maxGameScore,
-//    games_statistics.avgGameScore,
-//    LEFT JOIN
-//    games_statistics ON friend_info.uid = games_statistics.uid
-
+    /**
+     * owner.uid - нужно для того, чтобы хранить локальные данные корректно,
+     * коли друзья не подвязаны отдельно к определенному uid
+    */
     @Transaction
     @Query(
         """
@@ -95,7 +93,6 @@ interface UserDataDao {
             wars_statistics ON friend_info.uid = wars_statistics.uid
         WHERE friend_info.ownerUid=:uid
     """
-        // TODO owner.uid - нужно для того, чтобы хранить локальные данные корректно, коли друзья не подвязаны отдельно к определенному uid
     )
     suspend fun getFriendsWithAllInfo(uid: String): List<FriendWithAllInfo>
 
@@ -104,7 +101,7 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addChatInfo(chatInfoDbModel: ChatInfoDbModel?)
     @Query("SELECT * FROM chat_info WHERE uid=:uid")
-    suspend fun getChatInfo(uid: String): ChatInfoDbModel
+    suspend fun getChatInfoByUid(uid: String): ChatInfoDbModel
 
 
 
@@ -112,15 +109,15 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameResult(gameResultDbModel: GameResultDbModel)
     @Query("SELECT * FROM game_results WHERE uid=:uid AND gameName=:gameName")
-    suspend fun getGameResults(uid: String, gameName: String): List<GameResultDbModel>
+    suspend fun getGameResultsByUidAndName(uid: String, gameName: String): List<GameResultDbModel>
 
     // GameStatistics
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameStatistic(gameStatisticDbModel: GameStatisticDbModel)
     @Query("SELECT * FROM games_statistics WHERE uid=:uid AND gameName=:gameName")
-    suspend fun getGameStatistic(uid: String, gameName: String): GameStatisticDbModel
+    suspend fun getGameStatisticByUidAndName(uid: String, gameName: String): GameStatisticDbModel
     @Query("SELECT * FROM games_statistics WHERE uid=:uid")
-    suspend fun getListGamesStatistics(uid: String): List<GameStatisticDbModel>
+    suspend fun getListGameStatisticsByUid(uid: String): List<GameStatisticDbModel>
 
 
 
@@ -128,13 +125,13 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addWarResult(warResultDbModel: WarResultDbModel)
     @Query("SELECT * FROM war_results WHERE uid=:uid")
-    suspend fun getWarResults(uid: String): List<WarResultDbModel>
+    suspend fun getWarResultsByUid(uid: String): List<WarResultDbModel>
 
     // WarsStatistics
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addWarStatistic(warStatisticsDbModel: WarStatisticsDbModel?)
     @Query("SELECT * FROM wars_statistics WHERE uid=:uid")
-    suspend fun getWarStatistic(uid: String): WarStatisticsDbModel?
+    suspend fun getWarStatisticByUid(uid: String): WarStatisticsDbModel?
 
 
 
@@ -158,6 +155,6 @@ interface UserDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addSocialData(socialDataDbModel: SocialDataDbModel)
     @Query("SELECT * FROM social_data WHERE uid=:uid LIMIT 1")
-    suspend fun getSocialData(uid: String): SocialDataDbModel
+    suspend fun getSocialDataByUid(uid: String): SocialDataDbModel
 
 }

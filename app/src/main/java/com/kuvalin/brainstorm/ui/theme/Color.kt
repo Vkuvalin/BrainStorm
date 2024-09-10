@@ -1,7 +1,6 @@
 package com.kuvalin.brainstorm.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import com.kuvalin.brainstorm.presentation.viewmodels.game.games.FlickMasterViewModel
 
 
 // Default
@@ -54,6 +53,7 @@ val SettingsButtonColorPink = Color(0xFFFE5FA6)
 val InformationButtonColorOrange = Color(0xFFFFAA01)
 val ContactUsButtonColorDarkGray = Color(0xFF595959)
 val AccountButtonColorTeal = Color(0xFF009688)
+
 
 // ##### Games
 // GameResult

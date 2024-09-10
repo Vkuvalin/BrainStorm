@@ -20,9 +20,7 @@ fun NavGraphBuilder.menuScreenNavGraph(
     warScreenContent: @Composable () -> Unit
 ) {
 
-    // Эта хуйня обновляется лишние разы, но в общем-то похуй
-    var animatedContentTransitionDirection = AnimatedContentTransitionScope.SlideDirection.Left
-    animatedContentTransitionDirection = if (currentRoute?.destination?.route == Screen.MainMenu.route) {
+    val animatedContentTransitionDirection = if (currentRoute?.destination?.route == Screen.MainMenu.route) {
             AnimatedContentTransitionScope.SlideDirection.Right
         } else {
             AnimatedContentTransitionScope.SlideDirection.Left
@@ -70,3 +68,6 @@ fun NavGraphBuilder.menuScreenNavGraph(
     }
 
 }
+
+
+

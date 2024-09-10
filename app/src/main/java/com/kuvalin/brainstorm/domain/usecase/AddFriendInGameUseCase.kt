@@ -7,5 +7,6 @@ import javax.inject.Inject
 class AddFriendInGameUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(sessionId: String) = brainStormRepository.addFriendInGame(sessionId)
+    suspend operator fun invoke(sessionId: String) =
+        brainStormRepository.addFriendInGame(sessionId)
 }

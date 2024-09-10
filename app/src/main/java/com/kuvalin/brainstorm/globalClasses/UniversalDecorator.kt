@@ -4,6 +4,9 @@ import android.util.Log
 import kotlinx.coroutines.delay
 
 
+// Не корректно работает. Нужно дебагать.
+
+
 
 //region Принципы работы с классом UniversalDecorator
 /*

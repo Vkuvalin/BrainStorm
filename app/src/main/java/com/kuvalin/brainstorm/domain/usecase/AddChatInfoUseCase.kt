@@ -7,7 +7,8 @@ import javax.inject.Inject
 
 class AddChatInfoUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
-) {    suspend fun invoke(chatInfo: ChatInfo) {
+) {
+    suspend fun invoke(chatInfo: ChatInfo) {
         return brainStormRepository.addChatInfo(chatInfo)
     }
 }

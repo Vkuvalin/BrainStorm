@@ -7,5 +7,6 @@ import javax.inject.Inject
 data class AddSocialDataUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(socialData: SocialData) = brainStormRepository.addSocialData(socialData)
+    suspend operator fun invoke(socialData: SocialData) =
+        brainStormRepository.addSocialData(socialData)
 }

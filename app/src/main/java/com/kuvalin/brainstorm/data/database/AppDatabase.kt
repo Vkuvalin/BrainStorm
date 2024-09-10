@@ -22,7 +22,9 @@ import com.kuvalin.brainstorm.globalClasses.GlobalConstVal.UNDEFINED_ID
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -62,7 +64,7 @@ import kotlinx.coroutines.launch
 abstract class AppDatabase: RoomDatabase() {
 
     companion object {
-
+        @Volatile
         private var INSTANCE: AppDatabase? = null
         private val LOCK = Any() // Базы данных должны быть синхронизированы
         private const val DB_NAME = "user_data.db"
@@ -71,19 +73,26 @@ abstract class AppDatabase: RoomDatabase() {
         fun getInstance(context: Context): AppDatabase {
 
             return INSTANCE ?: synchronized(LOCK){
-                Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
+                Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DB_NAME) // applicationContext для предотвращения утечек
                     .addCallback(object : Callback() { // Добавление данных при создании БД
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             scope.launch {
-                                val dao = getInstance(context).userDataDao()
-                                dao.addAppSettings(
-                                    AppSettingsDbModel(
-                                        UNDEFINED_ID,
-                                        musicState = true,
-                                        vibrateState = true
-                                    )
-                                )
+                                withContext(NonCancellable) {// Безопасность при отмене корутин
+                                    try {
+                                        val dao = getInstance(context).userDataDao()
+                                        dao.addAppSettings(
+                                            AppSettingsDbModel(
+                                                UNDEFINED_ID,
+                                                musicState = true,
+                                                vibrateState = true
+                                            )
+                                        )
+                                    } catch (e: Exception) {
+                                        println("Error adding initial app settings: ${e.message}")
+                                    }
+
+                                }
                             }
                         }
                     })
@@ -98,3 +107,7 @@ abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDataDao(): UserDataDao
 }
+
+
+
+

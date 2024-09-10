@@ -1,8 +1,6 @@
 package com.kuvalin.brainstorm.navigation.staticsClasses
 
-sealed class GamesScreen(
-    val route: String
-) {
+sealed class GamesScreen(val route: String) {
     object GameInitial : GamesScreen(ROUTE_GAME_INITIAL)
     object FlickMaster : GamesScreen(ROUTE_FLICK_MASTER)
     object AdditionAddiction : GamesScreen(ROUTE_ADDITION_ADDICTION)

@@ -4,17 +4,19 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kuvalin.brainstorm.navigation.staticsClasses.Screen
 
-val navigationItems = listOf( // TODO а почему тут так? Косанул что ли
+val navigationItems = listOf(
     Screen.MainMenu.route,
     NavigationItem.Friends.screen.route,
     NavigationItem.Achievements.screen.route,
@@ -41,7 +43,7 @@ fun AppNavGraph (
     gamesScreenContent: @Composable () -> Unit
 ) {
 
-    //region animatedContentTransitionDirection - определяем направление навигации
+        //region animatedContentTransitionDirection - определяем направление навигации
     var animatedContentTransitionDirection by remember { mutableStateOf(AnimatedContentTransitionScope.SlideDirection.Left) }
     var oldNavDestination by remember { mutableStateOf(Screen.MainMenu.route) }
 

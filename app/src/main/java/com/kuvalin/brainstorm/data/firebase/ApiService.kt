@@ -45,7 +45,7 @@ interface ApiService {
 
     // get
     suspend fun getUserInfoFB(uid: String): UserInfo?
-    suspend fun getFriendsFB(uid: String): List<Friend>?
+    suspend fun getListFriendFB(uid: String): List<Friend>?
     suspend fun getGameStatisticFB(uid: String): List<GameStatistic>?
     suspend fun getWarStatisticsFB(uid: String): WarStatistics?
     suspend fun getChatInfoFB(uid: String): ChatInfo?

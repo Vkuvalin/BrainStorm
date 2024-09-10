@@ -7,7 +7,6 @@ import javax.inject.Inject
 class AddAppSettingsUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(
-        appSettings: AppSettings
-    ) = brainStormRepository.addAppSettings(appSettings)
+    suspend operator fun invoke(appSettings: AppSettings) =
+        brainStormRepository.addAppSettings(appSettings)
 }

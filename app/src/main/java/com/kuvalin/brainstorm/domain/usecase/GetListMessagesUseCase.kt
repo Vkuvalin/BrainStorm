@@ -9,5 +9,6 @@ import javax.inject.Inject
 data class GetListMessagesUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(chatId: String): StateFlow<List<Message>> = brainStormRepository.getListMessages(chatId)
+    suspend operator fun invoke(chatId: String): StateFlow<List<Message>> =
+        brainStormRepository.getListMessages(chatId)
 }

@@ -7,5 +7,6 @@ import javax.inject.Inject
 class AddGameResultUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(gameResult: GameResult) = brainStormRepository.addGameResult(gameResult)
+    suspend operator fun invoke(gameResult: GameResult) =
+        brainStormRepository.addGameResult(gameResult)
 }

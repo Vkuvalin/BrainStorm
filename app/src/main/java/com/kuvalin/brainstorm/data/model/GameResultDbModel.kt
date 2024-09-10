@@ -16,12 +16,9 @@ data class GameResultDbModel(
 
 
 
-//@Entity(tableName = "game_results", primaryKeys = ["uid", "id", "gameName"])
-//data class GameResultDbModel(
-//    val uid: String,
-//    @PrimaryKey(autoGenerate = true)
-//    val id: Int,
-//    val gameName: String,
-//    val scope: Int,
-//    val accuracy: Float
-//)
+
+
+
+
+
+

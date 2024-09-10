@@ -23,11 +23,9 @@ fun StatisticsScreenNavGraph(
 ) {
 
     val noEnterTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-//        fadeIn(tween(durationMillis = 300, easing = FastOutLinearInEasing))
         fadeIn(tween(durationMillis = 300, easing = CubicBezierEasing(0.0f, 0.0f, 1.0f, 1.0f)))
     }
     val noExitTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-//        fadeOut(tween(durationMillis = 300, easing = FastOutLinearInEasing))
         fadeOut(tween(durationMillis = 300, easing = CubicBezierEasing(0.0f, 0.0f, 1.0f, 1.0f)))
     }
 

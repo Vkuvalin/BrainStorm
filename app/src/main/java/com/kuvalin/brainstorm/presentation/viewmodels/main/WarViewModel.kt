@@ -12,6 +12,7 @@ import com.kuvalin.brainstorm.domain.usecase.GetActualOpponentScopeFromWarGameUs
 import com.kuvalin.brainstorm.domain.usecase.GetScopeFromWarGameUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetUserInfoFBUseCase
 import com.kuvalin.brainstorm.domain.usecase.GetUserInfoUseCase
+import com.kuvalin.brainstorm.domain.usecase.GetUserUidUseCase
 import com.kuvalin.brainstorm.domain.usecase.UpdateUserScopeInWarGameUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,7 @@ class WarViewModel @Inject constructor(
     /* -------------------------------------------------------------------------------------------*/
 
     private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getUserUidUseCase: GetUserUidUseCase,
 
     /* ---------------------------------- warGameScreen ------------------------------------------*/
     private val getUserInfoFBUseCase: GetUserInfoFBUseCase,
@@ -42,6 +44,7 @@ class WarViewModel @Inject constructor(
 
     //region ############# 🧮 ################## ПЕРЕМЕННЫЕ ################## 🧮 ############## */
 
+    val getUserUid = getUserUidUseCase
     val getScopeFromWarGame = getScopeFromWarGameUseCase
     val addGameResult = addGameResultUseCase
     val addWarResult = addWarResultUseCase
@@ -83,9 +86,6 @@ class WarViewModel @Inject constructor(
     /* -------------------------------------------------------------------------------------------*/
 
     //endregion ################################################################################# */
-
-
-
 
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
@@ -141,9 +141,6 @@ class WarViewModel @Inject constructor(
     /* -------------------------------------------------------------------------------------------*/
 
     //endregion ################################################################################# */
-
-
-
 
     //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 

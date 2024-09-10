@@ -8,5 +8,6 @@ import javax.inject.Inject
 class AddFriendUseCase @Inject constructor(
     private val brainStormRepository: BrainStormRepository
 ) {
-    suspend operator fun invoke(friend: Friend) = brainStormRepository.addFriend(friend)
+    suspend operator fun invoke(friend: Friend) =
+        brainStormRepository.addFriend(friend)
 }
