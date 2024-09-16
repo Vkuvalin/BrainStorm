@@ -50,7 +50,7 @@ fun SearchForWar(
         GlobalStates.putScreenState("runGameScreenState", true)
         clickNavigation = true
     }
-    //endregion ################################################################################# */
+    /* ########################################################################################## */
 
 
 
@@ -60,7 +60,7 @@ fun SearchForWar(
         GlobalStates.putScreenState("runGameScreenState", false)
         clickNavigation = true
     }
-    //endregion ################################################################################# */
+    /* ########################################################################################## */
 
 
 

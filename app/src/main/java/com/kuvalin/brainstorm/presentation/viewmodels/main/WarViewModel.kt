@@ -87,6 +87,10 @@ class WarViewModel @Inject constructor(
 
     //endregion ################################################################################# */
 
+
+
+
+
     //region ############# 🟢 ############### ОСНОВНЫЕ ФУНКЦИИ ################# 🟢 ############# */
 
     /* -------------------------------- warSearchScreen ------------------------------------------*/
@@ -145,29 +149,14 @@ class WarViewModel @Inject constructor(
     //region ############# 🟡 ############ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ############ 🟡 ############## */
 
     // Специализированные функции для управления состояниями
-    fun updateTimer(newTimer: Int) {
-        _timer.value = newTimer
-    }
-
-    fun updateGameState(newGameState: Boolean) {
-        _gameState.value = newGameState
-    }
-
-    fun updateRound(newRound: Int) {
-        _round.value = newRound
-    }
-
+    fun updateTimer(newTimer: Int) { _timer.value = newTimer }
+    fun updateRound(newRound: Int) { _round.value = newRound }
+    fun resetScopePinkPlayer(points: Int) { _scopePinkPlayer.value = points }
+    fun resetScopeCyanPlayer(points: Int) { _scopeCyanPlayer.value = points }
+    fun updateGameState(newGameState: Boolean) { _gameState.value = newGameState }
     fun updateScopeCyanPlayer(points: Int) {
         _scopeCyanPlayer.value += points
         if (_scopeCyanPlayer.value < 0) _scopeCyanPlayer.value = 0
-    }
-
-    fun resetScopePinkPlayer(points: Int) {
-        _scopePinkPlayer.value = points
-    }
-
-    fun resetScopeCyanPlayer(points: Int) {
-        _scopeCyanPlayer.value = points
     }
 
     //endregion ################################################################################# */

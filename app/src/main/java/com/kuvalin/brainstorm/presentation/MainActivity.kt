@@ -113,80 +113,80 @@ class MainActivity : ComponentActivity() {
             BrainStormTheme {
 
                 // region Запуск музыки
-//                val lifecycle = LocalLifecycleOwner.current.lifecycle
-//                DisposableEffect(lifecycle) {
-//                    lifecycle.addObserver(observer)
-//                    onDispose {
-//                        lifecycle.removeObserver(observer)
-//                        backgroundMusic.release()
-//                    }
-//                }
-//
-//                LaunchedEffect(animateLoadingEnd){
-//                    delay(1000)
-//                    if (animateLoadingEnd){
-//                        while (true) {
-//                            if (resumedApp) { delay(1000) }
-//                            else {
-//                                if (runGameScreenState) {
-//                                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
-//                                }
-//                                else {
-//                                    if (playerState) {
-//                                        backgroundMusic.start()
-//                                        playerState = false
-//                                    }
-//                                    if (!backgroundMusic.isPlaying) { playerState = true }
-//                                }
-//                            }
-//                            delay(1000)
-//                        }
-//                    }
-//                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
-//                }
+                val lifecycle = LocalLifecycleOwner.current.lifecycle
+                DisposableEffect(lifecycle) {
+                    lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycle.removeObserver(observer)
+                        backgroundMusic.release()
+                    }
+                }
+
+                LaunchedEffect(animateLoadingEnd){
+                    delay(1000)
+                    if (animateLoadingEnd){
+                        while (true) {
+                            if (resumedApp) { delay(1000) }
+                            else {
+                                if (runGameScreenState) {
+                                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
+                                }
+                                else {
+                                    if (playerState) {
+                                        backgroundMusic.start()
+                                        playerState = false
+                                    }
+                                    if (!backgroundMusic.isPlaying) { playerState = true }
+                                }
+                            }
+                            delay(1000)
+                        }
+                    }
+                    if (backgroundMusic.isPlaying) { backgroundMusic.pause() }
+                }
                 // endregion
 
 
-//                Column(modifier = Modifier.fillMaxSize()) {
-//                    AnimatedContent(
-//                        targetState = animateLoadingEnd,
-//                        transitionSpec = {
-//                            fadeIn(tween(durationMillis = 2000)) with fadeOut(tween(durationMillis = 2000))
-//                        }, label = ""
-//                    )
-//                    { shouldLaunchFirstScreen ->
-//
-//                        if (!shouldLaunchFirstScreen) {
-//                            WelcomeScreen(delayMilsLoading = 5000) { animateLoadingEnd = true }
-//                        } else {
-//                            BrainStormMainScreen()
-//                        }
-//
-//                    }
-//                }
-//
-//                // Теперь она работает лишь за пределами почему-то
-//                if (animBrainLoadState && animateLoadingEnd){ BrainLoading() }
-//
-//
-//                if (!animateLoadingEnd){ // Короче я не знаю как обойти лаги в меню, пока так
-//                    Column(modifier = Modifier.zIndex(-2f).alpha(0f)) {
-//                        MenuScreen()
-//                        ProfileScreenContent(PaddingValues())
-//                        FriendsMainScreen(PaddingValues())
-//                        AchievementScreen(PaddingValues())
-//                        StatisticsMainScreen(PaddingValues())
-//                        GamesMainScreen(PaddingValues())
-//                    }
-//                }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    AnimatedContent(
+                        targetState = animateLoadingEnd,
+                        transitionSpec = {
+                            fadeIn(tween(durationMillis = 2000)) with fadeOut(tween(durationMillis = 2000))
+                        }, label = ""
+                    )
+                    { shouldLaunchFirstScreen ->
 
-                // Mini version
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = BackgroundAppColor)) {
-                    BrainStormMainScreen()
+                        if (!shouldLaunchFirstScreen) {
+                            WelcomeScreen(delayMilsLoading = 5000) { animateLoadingEnd = true }
+                        } else {
+                            BrainStormMainScreen()
+                        }
+
+                    }
                 }
-                if (animBrainLoadState){ BrainLoading() } // Анимация мозга при загрузке данных
+
+                // Теперь она работает лишь за пределами почему-то
+                if (animBrainLoadState && animateLoadingEnd){ BrainLoading() }
+
+
+                if (!animateLoadingEnd){ // Короче я не знаю как обойти лаги в меню, пока так
+                    Column(modifier = Modifier.zIndex(-2f).alpha(0f)) {
+                        MenuScreen()
+                        ProfileScreenContent(PaddingValues())
+                        FriendsMainScreen(PaddingValues())
+                        AchievementScreen(PaddingValues())
+                        StatisticsMainScreen(PaddingValues())
+                        GamesMainScreen(PaddingValues())
+                    }
+                }
+
+//                // Mini version
+//                Column(modifier = Modifier
+//                    .fillMaxSize()
+//                    .background(color = BackgroundAppColor)) {
+//                    BrainStormMainScreen()
+//                }
+//                if (animBrainLoadState){ BrainLoading() } // Анимация мозга при загрузке данных
 
             }
             //endregion ################################################################################# */

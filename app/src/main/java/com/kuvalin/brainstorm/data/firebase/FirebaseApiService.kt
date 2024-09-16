@@ -930,7 +930,7 @@ class FirebaseApiService @Inject constructor(
     // Добавления друга в рамках игровой сессии
     //region addFriendInGame
     override suspend fun addFriendInGame(sessionId: String) {
-        val userUid = fireBase.auth.uid ?: return
+        val userUid = fireBase.auth.uid.toString()
 
         try {
             val session = fireBase.firestore.document("games/$sessionId/").get().await()
