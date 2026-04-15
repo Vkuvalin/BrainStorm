@@ -111,9 +111,9 @@
 </p>
 
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/3b71ec8f-8fae-4cd5-8c29-7d561b2b0423" width="24%" />
-  <img src="https://github.com/user-attachments/assets/3c9d0615-748d-40b8-80f4-b9559ba192d8" width="24%" />
-  <img src="https://github.com/user-attachments/assets/cf65e8b2-b9d4-4c9f-bcad-468de13010aa" width="24%" />
+  <img src="https://github.com/user-attachments/assets/3b71ec8f-8fae-4cd5-8c29-7d561b2b0423" width="32%" />
+  <img src="https://github.com/user-attachments/assets/3c9d0615-748d-40b8-80f4-b9559ba192d8" width="32%" />
+  <img src="https://github.com/user-attachments/assets/cf65e8b2-b9d4-4c9f-bcad-468de13010aa" width="32%" />
 </p>
 
 <p float="left">
