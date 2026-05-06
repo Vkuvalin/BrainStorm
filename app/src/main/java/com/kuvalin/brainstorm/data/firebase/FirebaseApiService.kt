@@ -704,11 +704,16 @@ class FirebaseApiService @Inject constructor(
 
                         val messages = mutableListOf<Message>()
                         snapshot?.documents?.forEach { message ->
+                            val data = message.data ?: return@forEach
+                            val senderUid = data["senderUid"] as? String ?: ""
+                            val text = data["text"] as? String ?: ""
+                            val timestamp = data["timestamp"] as? Long ?: 0L
+
                             messages.add(
                                 Message(
-                                    senderUid = message.data?.get("senderUid") as String,
-                                    text = message.data!!["text"] as String,
-                                    timestamp = message.data!!["timestamp"] as Long
+                                    senderUid = senderUid,
+                                    text = text,
+                                    timestamp = timestamp
                                 )
                             )
                         }
