@@ -1,3 +1,27 @@
+<div align="center">
+
+<img src="app/src/main/assets/navigation/topappbar1/tab_logo.png" width="160" alt="BrainStorm logo" />
+
+# BrainStorm
+
+**Android-клон PvP-игры BrainWars с собственной игровой логикой.**
+
+Jetpack Compose UI, многослойная навигация, игровые механики, Firebase-интеграция, локальное хранение и анимации.
+
+<img src="https://img.shields.io/badge/Kotlin-Android-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" />
+<img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
+<img src="https://img.shields.io/badge/architecture-MVVM%20%2B%20Clean-0A7EA4" alt="MVVM + Clean Architecture" />
+<img src="https://img.shields.io/badge/DI-Dagger%202-BD2C00" alt="Dagger 2" />
+<img src="https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-FFCA28?logo=firebase&logoColor=black" alt="Firebase Auth + Firestore" />
+<img src="https://img.shields.io/badge/Android-minSdk%2026%20%7C%20target%2034-3DDC84?logo=android&logoColor=white" alt="Android SDK" />
+
+</div>
+
+---
+
+
+
+
 # 🧠 BrainStorm (Android / Kotlin / Jetpack Compose)
 
 **BrainStorm** — это Android-реализация культовой интеллектуальной PvP-игры на развитие способностей мозга, в которой два игрока соревнуются в когнитивных мини-играх: на логику, внимание, память, скорость реакции, точность и вычисление. **Проект** воспроизводит весь оригинальный функционал и визуальный стиль оригинального BrainWars, включая онлайн режим, систему микроигр, подсчёт очков, анимации и интерфейс в реальном времени. 
