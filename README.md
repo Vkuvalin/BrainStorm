@@ -177,47 +177,35 @@
 
 Приложение организовано по MVVM с разделением `presentation / domain / data`. Compose отвечает за интерфейс и игровые взаимодействия, ViewModel — за состояние и координацию. Сценарии обращаются к контракту репозитория, а его реализация связывает локальную базу и сетевые сервисы.
 
-### Слои и зависимости
+### Слои и путь действия
 
 ```mermaid
 flowchart TB
     subgraph P["Presentation — интерфейс и состояние"]
-        direction LR
         UI["Compose-экраны и мини-игры"]
         VM["ViewModel<br/>Compose State / StateFlow"]
-        UI -->|действия игрока| VM
-        VM -->|состояние экрана| UI
+        UI <-->|действия / состояние| VM
     end
 
     subgraph D["Domain — сценарии и контракт данных"]
-        direction LR
         UC["Use Cases<br/>матч, результаты, сообщения"]
         CONTRACT["BrainStormRepository<br/>интерфейс"]
         UC --> CONTRACT
     end
 
     subgraph DATA["Data — хранение и интеграции"]
-        IMPL["BrainStormRepositoryImpl"]
-        MAPPER["BrainStormMapper<br/>доменные модели, Room, Firestore"]
-        DAO["AppDatabase / UserDataDao"]
-        ROOM[("Room / SQLite<br/>результаты, профиль, настройки")]
-        API["ApiService / FirebaseApiService"]
-        AUTH["Firebase Authentication<br/>учётная запись"]
-        FS[("Cloud Firestore<br/>матчи, сообщения, статистика")]
-        IMPL -.->|преобразование моделей| MAPPER
+        IMPL["BrainStormRepositoryImpl<br/>преобразования через BrainStormMapper"]
+        DAO[("Room / SQLite<br/>AppDatabase, UserDataDao")]
+        API["FirebaseApiService<br/>Authentication / Cloud Firestore"]
         IMPL --> DAO
-        DAO --> ROOM
         IMPL --> API
-        API --> AUTH
-        API --> FS
     end
 
-    DI["Dagger 2<br/>ApplicationComponent и модули"]
     VM --> UC
-    IMPL -.->|реализует| CONTRACT
-    DI -.->|ViewModelFactory| VM
-    DI -.->|сборка зависимостей| IMPL
+    CONTRACT -->|вызов выбранной реализации| IMPL
 ```
+
+Контракт `BrainStormRepository` находится в domain, реализация и детали хранения — в data. Dagger 2 связывает интерфейс с `BrainStormRepositoryImpl` и создаёт ViewModel через `ViewModelFactory`.
 
 | Часть | Ответственность | Примеры в исходниках |
 | --- | --- | --- |
