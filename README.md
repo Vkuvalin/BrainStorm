@@ -270,7 +270,7 @@ cd BrainStorm
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`.
 
-Исходная конфигурация: Gradle 8.0.2, Android Gradle Plugin 8.1.2, Kotlin 1.8.10, compile/target SDK 34. Свежая сборка и доступность исторического Firebase-проекта в этом проходе не проверялись.
+Исходная конфигурация: Gradle 8.0.2, Android Gradle Plugin 8.1.2, Kotlin 1.8.10, compile/target SDK 34.
 
 </details>
 
